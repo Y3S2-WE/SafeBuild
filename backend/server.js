@@ -31,9 +31,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes - To be implemented
+// API Routes
 // Component 1: Training Course Manager + User Management
-// app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 // app.use('/api/courses', require('./routes/courseRoutes'));
 
 // Component 2: Assessment & Certification System
