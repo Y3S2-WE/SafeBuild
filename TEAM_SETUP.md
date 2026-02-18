@@ -9,9 +9,12 @@ Welcome to the SafeBuild development team! Follow these instructions to set up y
 2. Click the invitation link and accept it
 3. You should now have access to the SafeBuild repository
 
+### step 1.1: create Folder "Y3S2-projects" in your PC.
+### step 1.2: This folder Open in VS code , open VS code Terminal Follow below steps ...
+
 ### Step 2: Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/SafeBuild.git
+git clone https://github.com/Y3S2-WE/SafeBuild.git
 cd SafeBuild
 ```
 
@@ -39,7 +42,7 @@ npm install
 
 2. Open `.env` and update with your credentials:
    ```env
-   PORT=5000
+   PORT=5001
    NODE_ENV=development
    MONGODB_URI=mongodb+srv://shiranthadw_db_user:<YOUR_PASSWORD>@y3s2.fsvshcc.mongodb.net/safebuild?retryWrites=true&w=majority
    JWT_SECRET=your_jwt_secret_key_change_in_production
@@ -48,27 +51,22 @@ npm install
 
    **Important**: Replace `<YOUR_PASSWORD>` with the actual MongoDB password (get this from team lead)
 
-### Step 7: Seed the Database (First Time Only)
-```bash
-npm run seed
-```
-
-This creates 3 permanent user accounts for testing:
-- Manager: `manager@safebuild.com` / `manager123`
-- Officer: `officer@safebuild.com` / `officer123`
-- Trainer: `trainer@safebuild.com` / `trainer123`
-
-### Step 8: Start the Development Server
+### Step 7: Start the Development Server
 ```bash
 npm run dev
 ```
 
-The server should start on `http://localhost:5000`
+The server should start on `http://localhost:5001`
 
-### Step 9: Test the API
+**Note:** 3 permanent user accounts are already created in the database for testing:
+- Manager: `manager@safebuild.com` / `manager123`
+- Officer: `officer@safebuild.com` / `officer123`
+- Trainer: `trainer@safebuild.com` / `trainer123`
+
+### Step 8: Test the API
 Open your browser or Postman and visit:
 ```
-http://localhost:5000/api/health
+http://localhost:5001/api/health
 ```
 
 You should see a success response! ✅
@@ -80,13 +78,13 @@ You should see a success response! ✅
 ### When Starting a New Feature/Component:
 
 1. **Make sure you're on dev and it's up to date:**
-   ```bash
+```bash
    git checkout dev
    git pull origin dev
    ```
 
 2. **Create your feature branch:**
-   ```bash
+```bash
    git checkout -b feature/your-feature-name
    ```
 
@@ -98,55 +96,13 @@ You should see a success response! ✅
    - `feature/your-name-task` - For individual tasks
 
 3. **Start working on your feature!**
-
----
-
-## 📦 Project Components (Assignment Requirements)
-
-Each team member will work on one of these components:
-
-### ✅ Component 1: Training Course Manager + User Management (COMPLETED)
-- User registration and login ✅
-- Role-based access control ✅
-- User profile management ✅
-
-**TODO:**
-- Course creation and management
-- User enrollment in courses
-- Course progress tracking
-
-### Component 2: Assessment & Certification System
-**Endpoints needed:**
-- Create/manage assessments
-- Submit assessments
-- Auto-grading
-- Certificate generation
-- Certificate tracking
-
-### Component 3: Incident & Hazard Reporting
-**Endpoints needed:**
-- Report incidents
-- Report hazards
-- Upload evidence/photos
-- Track report status
-- Assign incidents to officers
-
-### Component 4: Compliance Auditing & Corrective Actions
-**Endpoints needed:**
-- Schedule audits
-- Conduct audits
-- Compliance scoring
-- Create corrective actions
-- Track corrective action completion
-
----
-
+----
 ## 💻 Development Workflow
 
 ### Daily Workflow:
 
 1. **Start of day - Pull latest changes:**
-   ```bash
+```bash
    git checkout dev
    git pull origin dev
    git checkout your-feature-branch
@@ -159,13 +115,13 @@ Each team member will work on one of these components:
    - Commit regularly
 
 3. **Commit your changes:**
-   ```bash
+```bash
    git add .
    git commit -m "Descriptive message about what you did"
    ```
 
 4. **Push your feature branch:**
-   ```bash
+```bash
    git push origin your-feature-branch
    ```
 
@@ -178,6 +134,46 @@ Each team member will work on one of these components:
    - Wait for approval before merging
 
 ---
+## 📦 Project Components (Assignment Requirements)
+
+Each team member will work on one of these components:
+
+### ✅ Component 1: Training Course Manager + User Management - Nipuni
+**Status:** In Progress → Done
+- [x] User registration and login
+- [x] Role-based access control
+- [x] User profile management
+
+**TODO:**
+- [ ] Implement Course and Lesson CRUD (Create, Read, Update, Delete) operations.
+- [ ] Manage user enrollment connecting workers to courses.
+- [ ] Track worker course progress, including auto-saving completed lessons and tracking the last accessed lesson.
+- [ ] Integrate YouTube Data API to automatically fetch video titles, thumbnails, and durations for training content.
+
+### 📝 Component 2: Assessment & Certification System - Shirantha
+**Endpoints / Features needed:**
+- [ ] Create and manage Quiz and Question CRUD operations.
+- [ ] Handle quiz attempt submissions with auto-marking for pass/fail results.
+- [ ] Auto-generate digital certificates when a worker achieves a passing score.
+- [ ] Enable public certificate verification using a unique certificate code.
+- [ ] Integrate SendGrid Email API to automatically email digital certificates upon successful quiz completion.
+
+### ⚠️ Component 3: Incident & Hazard Reporting - Navodya
+**Endpoints / Features needed:**
+- [ ] Submit new incident or hazard reports, including type (hazard/near-miss/accident) and severity classifications.
+- [ ] View, track, and filter incident lists.
+- [ ] Update incident statuses (e.g., Open, Investigating, Resolved).
+- [ ] Add investigation comments and notes to specific incidents.
+- [ ] Integrate Google Maps API to accurately select and display incident locations.
+
+### 📊 Component 4: Compliance Auditing & Corrective Actions - Gayani
+**Endpoints / Features needed:**
+- [ ] Manage Audit Schedules and Checklist Templates via CRUD operations.
+- [ ] Conduct audits by executing checklists, marking pass/fail, and logging findings.
+- [ ] Create and assign corrective actions to users, setting due dates and priority levels.
+- [ ] Track the completion status of assigned corrective actions.
+- [ ] Integrate QuickChart API to generate simple analytics dashboard charts.
+
 
 ## 🔧 Useful Commands
 
@@ -269,18 +265,18 @@ Short description (50 chars or less)
 1. Install Postman: https://www.postman.com/downloads/
 2. Import the collection (if provided)
 3. Set environment variables:
-   - `base_url`: `http://localhost:5000/api`
+   - `base_url`: `http://localhost:5001/api`
    - `token`: (after login, save the JWT token here)
 
 ### Using cURL:
 ```bash
 # Login
-curl -X POST http://localhost:5000/api/users/login \
+curl -X POST http://localhost:5001/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"manager@safebuild.com","password":"manager123"}'
 
 # Get profile (replace TOKEN)
-curl -X GET http://localhost:5000/api/users/profile \
+curl -X GET http://localhost:5001/api/users/profile \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
