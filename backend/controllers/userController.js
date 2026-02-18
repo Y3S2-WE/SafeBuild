@@ -144,9 +144,9 @@ const loginUser = async (req, res) => {
  */
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .populate('certifications')
-      .populate('completedCourses');
+    const user = await User.findById(req.user._id);
+    // .populate('certifications')  // TODO: Add when Certification model is created
+    // .populate('completedCourses'); // TODO: Add when Course model is created
 
     res.status(200).json({
       success: true,
@@ -235,9 +235,9 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
-      .select('-password')
-      .populate('certifications')
-      .populate('completedCourses');
+      .select('-password');
+    // .populate('certifications')  // TODO: Add when Certification model is created
+    // .populate('completedCourses'); // TODO: Add when Course model is created
 
     if (!user) {
       return res.status(404).json({
