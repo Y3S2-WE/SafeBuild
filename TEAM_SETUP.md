@@ -87,6 +87,11 @@ You should see a success response! ✅
 ```bash
    git checkout -b feature/your-feature-name
    ```
+**2.2 **Push branch to GitHub**
+```bash
+   git push -u origin feature/<name>
+   ```
+
 
    **Branch Naming Convention:**
    - `feature/training-courses` - For training course component
