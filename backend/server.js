@@ -37,7 +37,8 @@ app.use('/api/users', require('./routes/userRoutes'));
 // app.use('/api/courses', require('./routes/courseRoutes'));
 
 // Component 2: Assessment & Certification System
-// app.use('/api/assessments', require('./routes/assessmentRoutes'));
+app.use('/api/quizzes', require('./routes/quizRoutes'));
+app.use('/api/quiz-attempts', require('./routes/quizAttemptRoutes'));
 // app.use('/api/certifications', require('./routes/certificationRoutes'));
 
 // Component 3: Incident & Hazard Reporting
