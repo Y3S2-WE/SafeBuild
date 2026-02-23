@@ -65,7 +65,68 @@ const loginValidation = [
   handleValidationErrors
 ];
 
+/**
+ * Quiz creation validation rules
+ */
+const createQuizValidation = [
+  body('title')
+    .trim()
+    .notEmpty().withMessage('Quiz title is required')
+    .isLength({ max: 200 }).withMessage('Title cannot exceed 200 characters'),
+  body('description')
+    .trim()
+    .notEmpty().withMessage('Quiz description is required')
+    .isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
+  body('passMark')
+    .notEmpty().withMessage('Pass mark is required')
+    .isInt({ min: 0, max: 100 }).withMessage('Pass mark must be between 0 and 100'),
+  body('timeLimit')
+    .optional()
+    .isInt({ min: 1 }).withMessage('Time limit must be at least 1 minute'),
+  handleValidationErrors
+];
+
+/**
+ * Add question validation rules
+ */
+const addQuestionValidation = [
+  body('questionText')
+    .trim()
+    .notEmpty().withMessage('Question text is required'),
+  body('answers')
+    .isArray({ min: 4, max: 4 }).withMessage('Each question must have exactly 4 answers'),
+  body('answers.*.answerText')
+    .trim()
+    .notEmpty().withMessage('Answer text is required'),
+  body('answers.*.isCorrect')
+    .isBoolean().withMessage('isCorrect must be a boolean'),
+  body('points')
+    .optional()
+    .isInt({ min: 1 }).withMessage('Points must be at least 1'),
+  handleValidationErrors
+];
+
+/**
+ * Submit quiz attempt validation rules
+ */
+const submitAttemptValidation = [
+  body('quizId')
+    .notEmpty().withMessage('Quiz ID is required')
+    .isMongoId().withMessage('Invalid quiz ID'),
+  body('answers')
+    .isArray({ min: 1 }).withMessage('Answers array is required'),
+  body('answers.*.selectedAnswer')
+    .isInt({ min: 0, max: 3 }).withMessage('Selected answer must be between 0 and 3'),
+  body('startedAt')
+    .optional()
+    .isISO8601().withMessage('Invalid start time'),
+  handleValidationErrors
+];
+
 module.exports = {
   registerValidation,
-  loginValidation
+  loginValidation,
+  createQuizValidation,
+  addQuestionValidation,
+  submitAttemptValidation
 };
