@@ -34,7 +34,9 @@ app.get('/api/health', (req, res) => {
 // API Routes
 // Component 1: Training Course Manager + User Management
 app.use('/api/users', require('./routes/userRoutes'));
-// app.use('/api/courses', require('./routes/courseRoutes'));
+app.use('/api/courses', require('./routes/courseRoutes'));
+app.use('/api/lessons', require('./routes/lessonRoutes'));
+app.use('/api/enrollments', require('./routes/enrollmentRoutes'));
 
 // Component 2: Assessment & Certification System
 // app.use('/api/assessments', require('./routes/assessmentRoutes'));
