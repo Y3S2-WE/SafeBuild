@@ -22,7 +22,25 @@ Download and install Postman from: https://www.postman.com/downloads/
 
 5. Click **Save**
 6. Select **"SafeBuild Local"** from the environment dropdown (top right)
+The following permanent accounts have been created:
 
+### Manager Account
+- **Email**: `manager@safebuild.com`
+- **Password**: `manager123`
+- **Role**: `manager`
+- **Employee ID**: `MGR001`
+
+### Safety Officer Account
+- **Email**: `officer@safebuild.com`
+- **Password**: `officer123`
+- **Role**: `officer`
+- **Employee ID**: `OFF001`
+
+### Trainer Account
+- **Email**: `trainer@safebuild.com`
+- **Password**: `trainer123`
+- **Role**: `trainer`
+- **Employee ID**: `TRN001`
 ---
 
 ## 📁 Step 3: Create Collection

@@ -41,8 +41,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 // app.use('/api/certifications', require('./routes/certificationRoutes'));
 
 // Component 3: Incident & Hazard Reporting
-// app.use('/api/incidents', require('./routes/incidentRoutes'));
-// app.use('/api/hazards', require('./routes/hazardRoutes'));
+app.use('/api/incidents', require('./routes/incidentRoutes'));
 
 // Component 4: Compliance Auditing & Corrective Actions
 // app.use('/api/audits', require('./routes/auditRoutes'));
