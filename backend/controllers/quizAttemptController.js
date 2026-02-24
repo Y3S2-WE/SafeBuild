@@ -1,5 +1,6 @@
 const Quiz = require('../models/Quiz');
 const QuizAttempt = require('../models/QuizAttempt');
+const Certificate = require('../models/Certificate');
 
 /**
  * @desc    Submit quiz attempt
@@ -82,6 +83,42 @@ const submitQuizAttempt = async (req, res) => {
       timeTaken
     });
 
+    // Auto-generate certificate if passed
+    let certificate = null;
+    if (passed) {
+      try {
+        // Check if certificate already exists for this user and quiz
+        const existingCertificate = await Certificate.findOne({
+          user: req.user._id,
+          quiz: quizId,
+          isValid: true
+        });
+
+        // Only create new certificate if one doesn't exist
+        if (!existingCertificate) {
+          const certificateCode = await Certificate.generateCertificateCode();
+          
+          certificate = await Certificate.create({
+            user: req.user._id,
+            quiz: quizId,
+            quizAttempt: attempt._id,
+            certificateCode,
+            quizTitle: quiz.title,
+            userName: `${req.user.firstName} ${req.user.lastName}`,
+            userEmail: req.user.email,
+            score,
+            totalPoints: quiz.totalPoints,
+            percentage
+          });
+        } else {
+          certificate = existingCertificate;
+        }
+      } catch (certError) {
+        console.error('Error generating certificate:', certError);
+        // Don't fail the quiz attempt if certificate generation fails
+      }
+    }
+
     // Populate for response
     const populatedAttempt = await QuizAttempt.findById(attempt._id)
       .populate('quiz', 'title description passMark')
@@ -89,8 +126,16 @@ const submitQuizAttempt = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: passed ? 'Congratulations! You passed the quiz!' : 'Quiz completed. Keep practicing!',
-      data: populatedAttempt
+      message: passed 
+        ? 'Congratulations! You passed the quiz! A certificate has been generated.' 
+        : 'Quiz completed. Keep practicing!',
+      data: {
+        attempt: populatedAttempt,
+        certificate: certificate ? {
+          certificateCode: certificate.certificateCode,
+          issuedAt: certificate.issuedAt
+        } : null
+      }
     });
   } catch (error) {
     console.error('Submit quiz attempt error:', error);
