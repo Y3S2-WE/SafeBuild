@@ -144,3 +144,4 @@ backend/CERTIFICATE_POSTMAN_GUIDE.md
 backend/QUIZ_POSTMAN_GUIDE.md
 TEAM_SETUP.md
 .env.example
+.POSTMAN_GUIDE.md
