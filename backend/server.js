@@ -47,8 +47,9 @@ app.use('/api/certificates', require('./routes/certificateRoutes'));
 app.use('/api/incidents', require('./routes/incidentRoutes'));
 
 // Component 4: Compliance Auditing & Corrective Actions
-// app.use('/api/audits', require('./routes/auditRoutes'));
-// app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
+app.use('/api/checklists', require('./routes/checklistRoutes'));
+app.use('/api/audits', require('./routes/auditRoutes'));
+app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
 
 // 404 Handler
 app.use((req, res) => {
