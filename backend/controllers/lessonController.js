@@ -2,6 +2,55 @@ const Lesson = require('../models/Lesson');
 const Course = require('../models/Course');
 const Progress = require('../models/Progress');
 
+/**
+ * Check if user owns the course
+ * @param {Object} course - Course document
+ * @param {String} userId - User ID
+ * @returns {Boolean}
+ */
+const isOwner = (course, userId) => {
+  return course.createdBy.toString() === userId;
+};
+
+/**
+ * Send success response
+ * @param {Object} res - Response object
+ * @param {Number} statusCode - HTTP status code
+ * @param {Object} data - Response data
+ */
+const sendSuccess = (res, statusCode, data) => {
+  res.status(statusCode).json({
+    success: true,
+    ...data
+  });
+};
+
+/**
+ * Send error response
+ * @param {Object} res - Response object
+ * @param {Number} statusCode - HTTP status code
+ * @param {String} message - Error message
+ */
+const sendError = (res, statusCode, message) => {
+  res.status(statusCode).json({
+    success: false,
+    error: message
+  });
+};
+
+/**
+ * Verify course ownership
+ * @param {String} courseId - Course ID
+ * @param {String} userId - User ID
+ * @returns {Promise<Object|null>} Course document or null
+ */
+const verifyCourseOwnership = async (courseId, userId) => {
+  const course = await Course.findById(courseId);
+  if (!course) return null;
+  if (!isOwner(course, userId)) return null;
+  return course;
+};
+
 // @desc    Create a new lesson (Trainer only)
 // @route   POST /api/lessons
 // @access  Private (Trainer)
@@ -9,28 +58,10 @@ exports.createLesson = async (req, res) => {
   try {
     const { courseId, title, description, orderIndex, pages, duration } = req.body;
 
-    // Check if user is a trainer
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can create lessons'
-      });
-    }
-
     // Check if course exists and trainer owns it
-    const course = await Course.findById(courseId);
+    const course = await verifyCourseOwnership(courseId, req.user.id);
     if (!course) {
-      return res.status(404).json({
-        success: false,
-        error: 'Course not found'
-      });
-    }
-
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to add lessons to this course'
-      });
+      return sendError(res, 404, 'Course not found or not authorized');
     }
 
     // Create lesson
@@ -49,15 +80,9 @@ exports.createLesson = async (req, res) => {
       $inc: { totalLessons: 1 }
     });
 
-    res.status(201).json({
-      success: true,
-      data: lesson
-    });
+    sendSuccess(res, 201, { data: lesson });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -69,16 +94,9 @@ exports.getLessonsByCourse = async (req, res) => {
     const lessons = await Lesson.find({ courseId: req.params.courseId })
       .sort({ orderIndex: 1 });
 
-    res.status(200).json({
-      success: true,
-      count: lessons.length,
-      data: lessons
-    });
+    sendSuccess(res, 200, { count: lessons.length, data: lessons });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -91,21 +109,12 @@ exports.getLesson = async (req, res) => {
       .populate('courseId', 'title status');
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
-    res.status(200).json({
-      success: true,
-      data: lesson
-    });
+    sendSuccess(res, 200, { data: lesson });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -114,29 +123,16 @@ exports.getLesson = async (req, res) => {
 // @access  Private (Trainer)
 exports.updateLesson = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can update lessons'
-      });
-    }
-
     let lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
     // Check if the trainer owns this lesson's course
-    const course = await Course.findById(lesson.courseId);
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to update this lesson'
-      });
+    const course = await verifyCourseOwnership(lesson.courseId, req.user.id);
+    if (!course) {
+      return sendError(res, 403, 'Not authorized to update this lesson');
     }
 
     const { title, description, orderIndex, pages, duration } = req.body;
@@ -147,15 +143,9 @@ exports.updateLesson = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({
-      success: true,
-      data: lesson
-    });
+    sendSuccess(res, 200, { data: lesson });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -164,29 +154,16 @@ exports.updateLesson = async (req, res) => {
 // @access  Private (Trainer)
 exports.deleteLesson = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can delete lessons'
-      });
-    }
-
     const lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
     // Check if the trainer owns this lesson's course
-    const course = await Course.findById(lesson.courseId);
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to delete this lesson'
-      });
+    const course = await verifyCourseOwnership(lesson.courseId, req.user.id);
+    if (!course) {
+      return sendError(res, 403, 'Not authorized to delete this lesson');
     }
 
     await lesson.deleteOne();
@@ -199,16 +176,9 @@ exports.deleteLesson = async (req, res) => {
     // Delete all progress records for this lesson
     await Progress.deleteMany({ lessonId: req.params.id });
 
-    res.status(200).json({
-      success: true,
-      data: {},
-      message: 'Lesson deleted successfully'
-    });
+    sendSuccess(res, 200, { data: {}, message: 'Lesson deleted successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -217,29 +187,16 @@ exports.deleteLesson = async (req, res) => {
 // @access  Private (Trainer)
 exports.addPage = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can add pages'
-      });
-    }
-
     const lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
     // Check if the trainer owns this lesson's course
-    const course = await Course.findById(lesson.courseId);
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to add pages to this lesson'
-      });
+    const course = await verifyCourseOwnership(lesson.courseId, req.user.id);
+    if (!course) {
+      return sendError(res, 403, 'Not authorized to add pages to this lesson');
     }
 
     const { title, contentType, textContent, videoUrl, videoTitle } = req.body;
@@ -256,15 +213,9 @@ exports.addPage = async (req, res) => {
     lesson.pages.push(newPage);
     await lesson.save();
 
-    res.status(201).json({
-      success: true,
-      data: lesson
-    });
+    sendSuccess(res, 201, { data: lesson });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -273,37 +224,21 @@ exports.addPage = async (req, res) => {
 // @access  Private (Trainer)
 exports.updatePage = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can update pages'
-      });
-    }
-
     const lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
     // Check if the trainer owns this lesson's course
-    const course = await Course.findById(lesson.courseId);
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to update pages in this lesson'
-      });
+    const course = await verifyCourseOwnership(lesson.courseId, req.user.id);
+    if (!course) {
+      return sendError(res, 403, 'Not authorized to update pages in this lesson');
     }
 
     const page = lesson.pages.id(req.params.pageId);
     if (!page) {
-      return res.status(404).json({
-        success: false,
-        error: 'Page not found'
-      });
+      return sendError(res, 404, 'Page not found');
     }
 
     const { title, contentType, textContent, videoUrl, videoTitle } = req.body;
@@ -316,15 +251,9 @@ exports.updatePage = async (req, res) => {
 
     await lesson.save();
 
-    res.status(200).json({
-      success: true,
-      data: lesson
-    });
+    sendSuccess(res, 200, { data: lesson });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -333,29 +262,16 @@ exports.updatePage = async (req, res) => {
 // @access  Private (Trainer)
 exports.deletePage = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can delete pages'
-      });
-    }
-
     const lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found'
-      });
+      return sendError(res, 404, 'Lesson not found');
     }
 
     // Check if the trainer owns this lesson's course
-    const course = await Course.findById(lesson.courseId);
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to delete pages from this lesson'
-      });
+    const course = await verifyCourseOwnership(lesson.courseId, req.user.id);
+    if (!course) {
+      return sendError(res, 403, 'Not authorized to delete pages from this lesson');
     }
 
     lesson.pages.id(req.params.pageId).deleteOne();
@@ -367,15 +283,8 @@ exports.deletePage = async (req, res) => {
 
     await lesson.save();
 
-    res.status(200).json({
-      success: true,
-      data: lesson,
-      message: 'Page deleted successfully'
-    });
+    sendSuccess(res, 200, { data: lesson, message: 'Page deleted successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
