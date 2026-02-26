@@ -10,29 +10,29 @@ const {
   updatePage,
   deletePage
 } = require('../controllers/lessonController');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 // All routes require authentication
 router.use(protect);
 
 // Lesson CRUD routes
 router.route('/')
-  .post(createLesson);
+  .post(authorize('trainer'), createLesson);
 
 router.route('/course/:courseId')
   .get(getLessonsByCourse);
 
 router.route('/:id')
   .get(getLesson)
-  .put(updateLesson)
-  .delete(deleteLesson);
+  .put(authorize('trainer'), updateLesson)
+  .delete(authorize('trainer'), deleteLesson);
 
 // Page management within lessons
 router.route('/:id/pages')
-  .post(addPage);
+  .post(authorize('trainer'), addPage);
 
 router.route('/:id/pages/:pageId')
-  .put(updatePage)
-  .delete(deletePage);
+  .put(authorize('trainer'), updatePage)
+  .delete(authorize('trainer'), deletePage);
 
 module.exports = router;

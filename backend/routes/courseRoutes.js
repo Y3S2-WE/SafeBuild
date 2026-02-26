@@ -8,7 +8,7 @@ const {
   deleteCourse,
   getCourseStats
 } = require('../controllers/courseController');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 // All routes require authentication
 router.use(protect);
@@ -16,14 +16,14 @@ router.use(protect);
 // Course CRUD routes
 router.route('/')
   .get(getAllCourses)
-  .post(createCourse);
+  .post(authorize('trainer'), createCourse);
+
+// Course statistics (must be before /:id route)
+router.get('/:id/stats', authorize('trainer'), getCourseStats);
 
 router.route('/:id')
   .get(getCourse)
-  .put(updateCourse)
-  .delete(deleteCourse);
-
-// Course statistics
-router.get('/:id/stats', getCourseStats);
+  .put(authorize('trainer'), updateCourse)
+  .delete(authorize('trainer'), deleteCourse);
 
 module.exports = router;
