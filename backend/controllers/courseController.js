@@ -2,20 +2,82 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const Enrollment = require('../models/Enrollment');
 
+/**
+ * Check if user owns the course
+ * @param {Object} course - Course document
+ * @param {String} userId - User ID
+ * @returns {Boolean}
+ */
+const isOwner = (course, userId) => {
+  return course.createdBy.toString() === userId;
+};
+
+/**
+ * Send success response
+ * @param {Object} res - Response object
+ * @param {Number} statusCode - HTTP status code
+ * @param {Object} data - Response data
+ */
+const sendSuccess = (res, statusCode, data) => {
+  res.status(statusCode).json({
+    success: true,
+    ...data
+  });
+};
+
+/**
+ * Send error response
+ * @param {Object} res - Response object
+ * @param {Number} statusCode - HTTP status code
+ * @param {String} message - Error message
+ */
+const sendError = (res, statusCode, message) => {
+  res.status(statusCode).json({
+    success: false,
+    error: message
+  });
+};
+
+/**
+ * Build query filters for courses
+ * @param {Object} queryParams - Request query parameters
+ * @param {String} userRole - User role
+ * @param {String} userId - User ID
+ * @returns {Object} MongoDB query object
+ */
+const buildCourseQuery = (queryParams, userRole, userId) => {
+  const { category, level, status, search } = queryParams;
+  let query = {};
+
+  // Workers can only see Published courses
+  if (userRole === 'worker') {
+    query.status = 'Published';
+  } else {
+    // Trainers can see all courses they created
+    if (status) query.status = status;
+    if (userRole === 'trainer') query.createdBy = userId;
+  }
+
+  // Apply filters
+  if (category) query.category = category;
+  if (level) query.level = level;
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  return query;
+};
+
+
 // @desc    Create a new course (Trainer only)
 // @route   POST /api/courses
 // @access  Private (Trainer)
 exports.createCourse = async (req, res) => {
   try {
     const { title, category, description, level, duration, status } = req.body;
-
-    // Check if user is a trainer
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can create courses'
-      });
-    }
 
     const course = await Course.create({
       title,
@@ -27,15 +89,9 @@ exports.createCourse = async (req, res) => {
       createdBy: req.user.id
     });
 
-    res.status(201).json({
-      success: true,
-      data: course
-    });
+    sendSuccess(res, 201, { data: course });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -44,46 +100,15 @@ exports.createCourse = async (req, res) => {
 // @access  Private
 exports.getAllCourses = async (req, res) => {
   try {
-    const { category, level, status, search } = req.query;
-    let query = {};
-
-    // Workers can only see Published courses
-    if (req.user.role === 'worker') {
-      query.status = 'Published';
-    } else {
-      // Trainers can see all courses they created or all if admin
-      if (status) {
-        query.status = status;
-      }
-      if (req.user.role === 'trainer') {
-        query.createdBy = req.user.id;
-      }
-    }
-
-    // Apply filters
-    if (category) query.category = category;
-    if (level) query.level = level;
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
+    const query = buildCourseQuery(req.query, req.user.role, req.user.id);
 
     const courses = await Course.find(query)
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      success: true,
-      count: courses.length,
-      data: courses
-    });
+    sendSuccess(res, 200, { count: courses.length, data: courses });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -96,36 +121,21 @@ exports.getCourse = async (req, res) => {
       .populate('createdBy', 'name email');
 
     if (!course) {
-      return res.status(404).json({
-        success: false,
-        error: 'Course not found'
-      });
+      return sendError(res, 404, 'Course not found');
     }
 
     // Workers can only view Published courses
     if (req.user.role === 'worker' && course.status !== 'Published') {
-      return res.status(403).json({
-        success: false,
-        error: 'This course is not available'
-      });
+      return sendError(res, 403, 'This course is not available');
     }
 
     // Get lessons for this course
     const lessons = await Lesson.find({ courseId: course._id })
       .sort({ orderIndex: 1 });
 
-    res.status(200).json({
-      success: true,
-      data: {
-        course,
-        lessons
-      }
-    });
+    sendSuccess(res, 200, { data: { course, lessons } });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -134,28 +144,15 @@ exports.getCourse = async (req, res) => {
 // @access  Private (Trainer)
 exports.updateCourse = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can update courses'
-      });
-    }
-
     let course = await Course.findById(req.params.id);
 
     if (!course) {
-      return res.status(404).json({
-        success: false,
-        error: 'Course not found'
-      });
+      return sendError(res, 404, 'Course not found');
     }
 
     // Check if the trainer owns this course
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to update this course'
-      });
+    if (!isOwner(course, req.user.id)) {
+      return sendError(res, 403, 'Not authorized to update this course');
     }
 
     const { title, category, description, level, duration, status } = req.body;
@@ -166,15 +163,9 @@ exports.updateCourse = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({
-      success: true,
-      data: course
-    });
+    sendSuccess(res, 200, { data: course });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 400, error.message);
   }
 };
 
@@ -183,28 +174,15 @@ exports.updateCourse = async (req, res) => {
 // @access  Private (Trainer)
 exports.deleteCourse = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can delete courses'
-      });
-    }
-
     const course = await Course.findById(req.params.id);
 
     if (!course) {
-      return res.status(404).json({
-        success: false,
-        error: 'Course not found'
-      });
+      return sendError(res, 404, 'Course not found');
     }
 
     // Check if the trainer owns this course
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to delete this course'
-      });
+    if (!isOwner(course, req.user.id)) {
+      return sendError(res, 403, 'Not authorized to delete this course');
     }
 
     // Delete all lessons associated with this course
@@ -215,16 +193,9 @@ exports.deleteCourse = async (req, res) => {
 
     await course.deleteOne();
 
-    res.status(200).json({
-      success: true,
-      data: {},
-      message: 'Course and associated data deleted successfully'
-    });
+    sendSuccess(res, 200, { data: {}, message: 'Course and associated data deleted successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
 
@@ -233,27 +204,14 @@ exports.deleteCourse = async (req, res) => {
 // @access  Private (Trainer)
 exports.getCourseStats = async (req, res) => {
   try {
-    if (req.user.role !== 'trainer') {
-      return res.status(403).json({
-        success: false,
-        error: 'Only trainers can view course statistics'
-      });
-    }
-
     const course = await Course.findById(req.params.id);
 
     if (!course) {
-      return res.status(404).json({
-        success: false,
-        error: 'Course not found'
-      });
+      return sendError(res, 404, 'Course not found');
     }
 
-    if (course.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to view this course statistics'
-      });
+    if (!isOwner(course, req.user.id)) {
+      return sendError(res, 403, 'Not authorized to view this course statistics');
     }
 
     // Get enrollment statistics
@@ -265,8 +223,7 @@ exports.getCourseStats = async (req, res) => {
     // Get total lessons
     const totalLessons = await Lesson.countDocuments({ courseId: req.params.id });
 
-    res.status(200).json({
-      success: true,
+    sendSuccess(res, 200, {
       data: {
         course: {
           id: course._id,
@@ -283,9 +240,6 @@ exports.getCourseStats = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    sendError(res, 500, error.message);
   }
 };
