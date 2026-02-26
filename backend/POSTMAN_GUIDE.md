@@ -2,7 +2,14 @@
 
 This guide will help you test all SafeBuild APIs using Postman.
 
-## 📥 Step 1: Install Postman
+## � Additional Testing Guides
+
+For comprehensive testing of specific features, see:
+- **[Training Course Management API Guide](./TRAINING_COURSE_API_GUIDE.md)** - Complete guide for Course Management, Lesson Management, and Worker Enrollment features with detailed examples and testing scenarios.
+
+---
+
+## �📥 Step 1: Install Postman
 
 Download and install Postman from: https://www.postman.com/downloads/
 
@@ -22,8 +29,47 @@ Download and install Postman from: https://www.postman.com/downloads/
 
 5. Click **Save**
 6. Select **"SafeBuild Local"** from the environment dropdown (top right)
+The following permanent accounts have been created:
 
+### Manager Account
+- **Email**: `manager@safebuild.com`
+- **Password**: `manager123`
+- **Role**: `manager`
+- **Employee ID**: `MGR001`
+
+### Safety Officer Account
+- **Email**: `officer@safebuild.com`
+- **Password**: `officer123`
+- **Role**: `officer`
+- **Employee ID**: `OFF001`
+
+### Trainer Account
+- **Email**: `trainer@safebuild.com`
+- **Password**: `trainer123`
+- **Role**: `trainer`
+- **Employee ID**: `TRN001`
 ---
+## 🔐 Permanent User Accounts
+
+The following permanent accounts have been created:
+
+### Manager Account
+- **Email**: `manager@safebuild.com`
+- **Password**: `manager123`
+- **Role**: `manager`
+- **Employee ID**: `MGR001`
+
+### Safety Officer Account
+- **Email**: `officer@safebuild.com`
+- **Password**: `officer123`
+- **Role**: `officer`
+- **Employee ID**: `OFF001`
+
+### Trainer Account
+- **Email**: `trainer@safebuild.com`
+- **Password**: `trainer123`
+- **Role**: `trainer`
+- **Employee ID**: `TRN001`
 
 ## 📁 Step 3: Create Collection
 
