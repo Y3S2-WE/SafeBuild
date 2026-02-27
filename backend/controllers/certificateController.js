@@ -151,7 +151,8 @@ exports.verifyCertificate = async (req, res) => {
           totalPoints: certificate.totalPoints,
           percentage: certificate.percentage,
           issuedAt: certificate.issuedAt,
-          expiresAt: certificate.expiresAt
+          expiresAt: certificate.expiresAt,
+          qrCodeUrl: certificate.qrCodeUrl
         }
       }
     });
