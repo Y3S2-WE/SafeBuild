@@ -1,6 +1,6 @@
 # Certificate System - Postman Testing Guide
 
-Complete guide for testing the Certificate Generation & Verification system in SafeBuild.
+Complete guide for testing the Certificate Generation & Verification system with QR Code integration in SafeBuild.
 
 ---
 
@@ -8,12 +8,13 @@ Complete guide for testing the Certificate Generation & Verification system in S
 
 1. [Setup](#setup)
 2. [Certificate Auto-Generation](#certificate-auto-generation)
-3. [Certificate Retrieval](#certificate-retrieval)
-4. [Certificate Verification (Public)](#certificate-verification-public)
-5. [Certificate Management (Admin)](#certificate-management-admin)
-6. [Complete Testing Workflow](#complete-testing-workflow)
-7. [Error Scenarios](#error-scenarios)
-8. [Testing Checklist](#testing-checklist)
+3. [QR Code Testing](#qr-code-testing)
+4. [Certificate Retrieval](#certificate-retrieval)
+5. [Certificate Verification (Public)](#certificate-verification-public)
+6. [Certificate Management (Admin)](#certificate-management-admin)
+7. [Complete Testing Workflow](#complete-testing-workflow)
+8. [Error Scenarios](#error-scenarios)
+9. [Testing Checklist](#testing-checklist)
 
 ---
 
@@ -149,6 +150,7 @@ Content-Type: application/json
 // In Postman Tests tab
 if (pm.response.json().data.certificate) {
   pm.environment.set("certificate_code", pm.response.json().data.certificate.certificateCode);
+  pm.environment.set("qr_code_url", pm.response.json().data.certificate.qrCodeUrl);
 }
 ```
 
@@ -156,6 +158,275 @@ if (pm.response.json().data.certificate) {
 - `passed` is `true`
 - No valid certificate exists for this user + quiz combination
 - If certificate already exists, it returns the existing one
+
+---
+
+## QR Code Testing
+
+### How QR Codes Work
+
+Upon successful quiz completion, the system automatically:
+1. Generates a unique certificate code (e.g., `CERT-A8B9C2D1`)
+2. Creates a QR code using **QuickChart API** containing the verification URL
+3. Stores the QR code URL in the certificate record
+4. Returns the QR code URL in the API response
+
+**QR Code Format:**
+```
+https://quickchart.io/qr?text=<VERIFICATION_URL>&size=300&format=png&margin=4
+```
+
+**Verification URL Encoded in QR:**
+```
+http://localhost:5001/api/certificates/verify/CERT-A8B9C2D1
+```
+
+### Testing QR Code Generation
+
+#### 1. Pass a Quiz to Generate Certificate with QR Code
+
+```http
+POST {{base_url}}/quiz-attempts
+Authorization: Bearer {{worker_token}}
+Content-Type: application/json
+
+{
+  "quizId": "{{quiz_id}}",
+  "startedAt": "2024-02-27T10:00:00.000Z",
+  "answers": [
+    { "selectedAnswer": 0 },
+    { "selectedAnswer": 1 },
+    { "selectedAnswer": 2 },
+    { "selectedAnswer": 3 }
+  ]
+}
+```
+
+**Expected Response (Success with QR Code):**
+```json
+{
+  "success": true,
+  "message": "Congratulations! You passed the quiz! A certificate has been generated.",
+  "data": {
+    "attempt": {
+      "_id": "65d3e...",
+      "score": 35,
+      "percentage": 88,
+      "passed": true,
+      "submittedAt": "2024-02-27T10:15:30.000Z"
+    },
+    "certificate": {
+      "certificateCode": "CERT-A8B9C2D1",
+      "issuedAt": "2024-02-27T10:15:30.123Z",
+      "qrCodeUrl": "https://quickchart.io/qr?text=http%3A%2F%2Flocalhost%3A5001%2Fapi%2Fcertificates%2Fverify%2FCERT-A8B9C2D1&size=300&format=png&margin=4"
+    }
+  }
+}
+```
+
+**Save QR Code URL:**
+```javascript
+// In Postman Tests tab
+const response = pm.response.json();
+if (response.success && response.data.certificate) {
+    pm.environment.set("certificate_code", response.data.certificate.certificateCode);
+    pm.environment.set("qr_code_url", response.data.certificate.qrCodeUrl);
+    console.log("✅ Certificate Code:", response.data.certificate.certificateCode);
+    console.log("✅ QR Code URL:", response.data.certificate.qrCodeUrl);
+}
+```
+
+#### 2. View QR Code Image
+
+**Method 1: Browser**
+1. Copy the `qrCodeUrl` from the response
+2. Paste the URL into your browser address bar
+3. You'll see the QR code image (300x300 pixels PNG)
+
+**Example URL:**
+```
+https://quickchart.io/qr?text=http%3A%2F%2Flocalhost%3A5001%2Fapi%2Fcertificates%2Fverify%2FCERT-A8B9C2D1&size=300&format=png&margin=4
+```
+
+**Method 2: Postman**
+```http
+GET {{qr_code_url}}
+```
+- In Postman, you'll see the image in the response preview
+
+**Method 3: Download QR Code**
+- Right-click the QR code in browser
+- Select "Save image as..."
+- Save as `certificate-qr-code.png`
+
+#### 3. Scan QR Code with Mobile Device
+
+**Step-by-Step:**
+1. Open the QR code image in your browser
+2. Use your phone's camera or QR scanner app
+3. Point camera at the QR code on screen
+4. The scanner should detect the verification URL
+5. Tap to open the URL (verification endpoint)
+
+**What Happens After Scanning:**
+- Phone opens: `http://localhost:5001/api/certificates/verify/CERT-A8B9C2D1`
+- Browser shows certificate verification JSON response
+- Response indicates if certificate is valid
+
+**Production Note:**
+In production, replace `localhost:5001` with your actual domain:
+```
+https://safebuild.com/api/certificates/verify/CERT-A8B9C2D1
+```
+
+#### 4. Test QR Code from Certificate Retrieval
+
+**Get My Certificates (includes QR code):**
+```http
+GET {{base_url}}/certificates/my-certificates
+Authorization: Bearer {{worker_token}}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Certificates retrieved successfully",
+  "data": {
+    "count": 1,
+    "certificates": [
+      {
+        "_id": "65d3f...",
+        "certificateCode": "CERT-A8B9C2D1",
+        "qrCodeUrl": "https://quickchart.io/qr?text=http%3A%2F%2Flocalhost%3A5001%2Fapi%2Fcertificates%2Fverify%2FCERT-A8B9C2D1&size=300&format=png&margin=4",
+        "quizTitle": "Workplace Safety Fundamentals",
+        "userName": "Bob Worker",
+        "percentage": 88,
+        "issuedAt": "2024-02-27T10:15:30.123Z",
+        "isValid": true
+      }
+    ]
+  }
+}
+```
+
+#### 5. Test QR Code from Public Verification
+
+**Verify Certificate (includes QR code):**
+```http
+GET {{base_url}}/certificates/verify/{{certificate_code}}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Certificate is valid",
+  "data": {
+    "isValid": true,
+    "certificate": {
+      "certificateCode": "CERT-A8B9C2D1",
+      "userName": "Bob Worker",
+      "userEmail": "bob@safebuild.com",
+      "quizTitle": "Workplace Safety Fundamentals",
+      "score": 35,
+      "totalPoints": 40,
+      "percentage": 88,
+      "issuedAt": "2024-02-27T10:15:30.123Z",
+      "qrCodeUrl": "https://quickchart.io/qr?text=http%3A%2F%2Flocalhost%3A5001%2Fapi%2Fcertificates%2Fverify%2FCERT-A8B9C2D1&size=300&format=png&margin=4"
+    }
+  }
+}
+```
+
+### QR Code Use Cases
+
+#### Use Case 1: Digital Certificate Display
+**Scenario:** Worker shows digital certificate to employer
+
+1. Worker passes quiz → Certificate generated with QR code
+2. Worker opens `GET /certificates/my-certificates` on phone
+3. Certificate displayed with embedded QR code
+4. Employer scans QR code
+5. Employer sees real-time verification (valid/invalid/revoked)
+
+#### Use Case 2: Physical Certificate Printout
+**Scenario:** Print certificate with QR code for verification
+
+1. Generate certificate with QR code
+2. Frontend displays certificate details + QR code image
+3. Print certificate (QR code included)
+4. Anyone can scan printed QR code to verify authenticity
+5. Scanner sees verification endpoint response
+
+#### Use Case 3: Email Certificate
+**Scenario:** Certificate emailed with embedded QR code
+
+1. Certificate auto-generated
+2. System emails certificate details
+3. Email includes QR code image (from `qrCodeUrl`)
+4. Recipient can scan QR to verify without login
+5. Public verification endpoint validates certificate
+
+#### Use Case 4: Audit Trail
+**Scenario:** Safety officer validates worker certificates
+
+1. Officer requests worker's certificates
+2. Worker provides certificate code or QR code
+3. Officer scans QR code (no app login needed)
+4. System shows certificate validity status
+5. Officer records verification in audit log
+
+### QR Code Advantages
+
+✅ **No Authentication Required**
+- QR code links to public verification endpoint
+- Anyone can verify certificate authenticity
+- No login credentials needed
+
+✅ **Real-Time Validation**
+- QR code always points to live verification endpoint
+- Even if certificate is revoked, QR shows current status
+- No stale/cached data
+
+✅ **Mobile-Friendly**
+- Any smartphone camera can scan QR code
+- One-tap verification
+- Works offline (QR code stored locally)
+
+✅ **Tamper-Proof**
+- QR code generated by backend, not client
+- Verification URL contains unique certificate code
+- Cannot forge or manipulate
+
+✅ **Universal Format**
+- Standard QR code format
+- Works with all QR scanners (iOS Camera, Android, web apps)
+- PNG image format (embeddable anywhere)
+
+### QuickChart API Details
+
+**API Documentation:** https://quickchart.io/qr-codes/
+
+**Free Tier:**
+- Unlimited QR code generation
+- No API key required
+- No rate limits for reasonable use
+- 300x300 default size
+- PNG and SVG formats
+
+**QR Code Parameters:**
+- `text` - Content to encode (verification URL)
+- `size` - Image dimensions (default: 300)
+- `format` - Image format: png, svg (default: png)
+- `margin` - Border around QR code (default: 4)
+- `dark` - Foreground color (default: black)
+- `light` - Background color (default: white)
+
+**Example Custom QR Code:**
+```
+https://quickchart.io/qr?text=YOUR_URL&size=500&format=svg&margin=2&dark=0000FF&light=FFFF00
+```
 
 ---
 
@@ -471,7 +742,7 @@ Authorization: Bearer {{trainer_token}}
 
 ## Complete Testing Workflow
 
-### Full End-to-End Test
+### Full End-to-End Test (with QR Code)
 
 ```javascript
 // 1. TRAINER: Create Quiz
@@ -491,25 +762,40 @@ GET /api/quizzes (worker_token)
 
 // 5. WORKER: Take Quiz (Pass with 70%+)
 POST /api/quiz-attempts (worker_token)
-→ Certificate auto-generated
-→ Get certificate_code
+→ Certificate auto-generated with QR code
+→ Get certificate_code and qr_code_url
 
-// 6. WORKER: View My Certificates
+// 6. TEST QR CODE: View QR Code Image
+GET {{qr_code_url}} (NO AUTH)
+→ QR code image displayed (300x300 PNG)
+
+// 7. TEST QR CODE: Scan with Mobile Device
+→ Open QR code in browser
+→ Scan with phone camera
+→ Phone opens verification URL
+
+// 8. WORKER: View My Certificates
 GET /api/certificates/my-certificates (worker_token)
-→ See new certificate
+→ See new certificate with QR code URL
 
-// 7. PUBLIC: Verify Certificate
+// 9. PUBLIC: Verify Certificate
 GET /api/certificates/verify/{{certificate_code}} (NO AUTH)
-→ Verify authenticity
+→ Verify authenticity (includes QR code URL)
 
-// 8. TRAINER: View All Certificates
+// 10. TRAINER: View All Certificates
 GET /api/certificates (trainer_token)
+→ See all certificates with QR codes
 
-// 9. TRAINER: View Statistics
+// 11. TRAINER: View Statistics
 GET /api/certificates/stats/overview (trainer_token)
 
-// 10. TRAINER: Revoke Certificate (if needed)
+// 12. TRAINER: Revoke Certificate (if needed)
 PUT /api/certificates/{{certificate_id}}/revoke (trainer_token)
+→ QR code still works but shows "revoked" status
+
+// 13. TEST REVOKED: Scan QR Code Again
+→ Scan revoked certificate QR code
+→ Verification shows "revoked" status
 ```
 
 ---
@@ -628,6 +914,18 @@ POST {{base_url}}/quiz-attempts (same quiz, passing score)
 - [ ] Certificate contains correct user info (name, email)
 - [ ] Certificate contains correct quiz info (title, score, percentage)
 - [ ] Duplicate prevention: passing same quiz again returns existing certificate
+- [ ] QR code URL generated and included in response
+
+### QR Code Testing
+- [ ] QR code URL generated when certificate is created
+- [ ] QR code URL follows QuickChart API format
+- [ ] QR code image accessible via browser
+- [ ] QR code encodes correct verification URL
+- [ ] QR code scannable with mobile device
+- [ ] Scanning QR code opens verification endpoint
+- [ ] QR code included in all certificate responses
+- [ ] QR code works for real-time validation
+- [ ] Different certificate codes generate different QR codes
 
 ### Certificate Retrieval
 - [ ] Worker can view their own certificates
@@ -635,6 +933,7 @@ POST {{base_url}}/quiz-attempts (same quiz, passing score)
 - [ ] Admin can view any certificate
 - [ ] Certificates sorted by issue date (newest first)
 - [ ] Only valid certificates appear in my-certificates
+- [ ] QR code URL included in certificate list
 
 ### Public Verification
 - [ ] No authentication required for verification endpoint
@@ -642,6 +941,7 @@ POST {{base_url}}/quiz-attempts (same quiz, passing score)
 - [ ] Invalid code returns `isValid: false`
 - [ ] Revoked certificate shows revoked status
 - [ ] Expired certificate shows expired status
+- [ ] QR code URL included in verification response
 
 ### Admin Management
 - [ ] Only admin roles can access admin endpoints
@@ -656,6 +956,8 @@ POST {{base_url}}/quiz-attempts (same quiz, passing score)
 - [ ] Certificate code never duplicates
 - [ ] Certificate persists after quiz deletion (quiz ID preserved)
 - [ ] Certificate verification case-insensitive (CERT-ABC = cert-abc)
+- [ ] QR code generation doesn't block certificate creation
+- [ ] QR code URL format is valid and accessible
 
 ---
 
