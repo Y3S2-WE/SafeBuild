@@ -7,6 +7,9 @@ A comprehensive web application designed to improve workplace safety in the cons
 ## 🎯 SDG Goal
 **Decent Work and Economic Growth** - Promoting safe and secure working environments for all workers.
 
+### Assigned Topic 
+A web app to ensure occupational safety with certification through digital training & reporting.
+
 ## 🏷️ Project Overview
 
 ### Domain
