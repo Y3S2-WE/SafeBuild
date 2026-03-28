@@ -50,6 +50,7 @@ app.use('/api/incidents', require('./routes/incidentRoutes'));
 app.use('/api/checklists', require('./routes/checklistRoutes'));
 app.use('/api/audits', require('./routes/auditRoutes'));
 app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // 404 Handler
 app.use((req, res) => {
