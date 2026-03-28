@@ -3,34 +3,57 @@
 Welcome to the SafeBuild development team! Follow these instructions to set up your development environment.
 
 ## 🚀 Getting Started
+ 
+ ## 🎨 Frontend Implementation Guide (React + Tailwind)
 
-### Step 1: Accept Repository Invitation
-1. Check your email for the GitHub repository invitation
-2. Click the invitation link and accept it
-3. You should now have access to the SafeBuild repository
+### Frontend Stack
 
-### step 1.1: create Folder "Y3S2-projects" in your PC.
-### step 1.2: This folder Open in VS code , open VS code Terminal Follow below steps ...
+- **Framework**: React (Vite setup)
+- **Styling**: Tailwind CSS
+- **Routing**: React Router
+- **Icons**: Lucide React
+- **Theme Direction**: Modern blue UI with glass cards, soft gradients, and consistent spacing
 
-### Step 2: Clone the Repository
-```bash
-git clone https://github.com/Y3S2-WE/SafeBuild.git
-cd SafeBuild
-```
+### Frontend Module Implemented (Phase 1)
 
-### Step 3: Checkout the Dev Branch
+**Frontend folder:** `frontend/`
+
+Pages completed:
+- **Home Page** (`/`) - modern landing page with product highlights and clear CTAs
+- **Employee Registration** (`/register`) - only for worker/employee account creation
+- **Single Login Portal** (`/login`) - one portal for manager, officer, trainer, and workers
+- **Protected Portal Page** (`/portal`) - post-login placeholder dashboard section
+
+### Account Rules Implemented in UI
+
+- **Permanent accounts (manager, officer, trainer)** use only login page
+- **Registration page** is for new employee/worker accounts
+- Registration API sends role as `worker` to enforce expected behavior
+
+### Team Theme Consistency Rules (Important for Group Project)
+
+All team members should follow the same UI language:
+
+1. Use the existing blue palette from `tailwind.config.js` (`brand` shades)
+2. Keep typography with the same families used in `src/index.css` (`Sora` for headings, `Manrope` for body)
+3. Reuse the same card style (`glass-panel` class) for forms, panels, and widgets
+4. Keep corner radius, spacing, and button style consistent with current pages
+5. Use Lucide icons to maintain one icon style across all modules
+6. Follow responsive layout patterns already used (mobile-first, grid/flex breakpoints)
+
+### Step 1: Checkout the Dev Branch
 ```bash
 git checkout dev
 ```
 
-### Step 4: Pull Latest Changes
+### Step 2: Pull Latest Changes
 ```bash
 git pull origin dev
 ```
 
-### Step 5: Install Backend Dependencies
+### Step 3: Install Backend Dependencies
 ```bash
-cd backend
+cd frontend
 npm install
 ```
 
@@ -42,34 +65,24 @@ npm install
 
 2. Open `.env` and update with your credentials:
    ```env
-   PORT=5001
-   NODE_ENV=development
-   MONGODB_URI=mongodb+srv://shiranthadw_db_user:<YOUR_PASSWORD>@y3s2.fsvshcc.mongodb.net/safebuild?retryWrites=true&w=majority
-   JWT_SECRET=your_jwt_secret_key_change_in_production
-   JWT_EXPIRE=7d
+   VITE_API_BASE_URL=http://localhost:5001/api
+
    ```
 
-   **Important**: Replace `<YOUR_PASSWORD>` with the actual MongoDB password (get this from team lead)
+ 
 
 ### Step 7: Start the Development Server
 ```bash
 npm run dev
 ```
 
-The server should start on `http://localhost:5001`
 
 **Note:** 3 permanent user accounts are already created in the database for testing:
 - Manager: `manager@safebuild.com` / `manager123`
 - Officer: `officer@safebuild.com` / `officer123`
 - Trainer: `trainer@safebuild.com` / `trainer123`
 
-### Step 8: Test the API
-Open your browser or Postman and visit:
-```
-http://localhost:5001/api/health
-```
 
-You should see a success response! ✅
 
 ---
 
@@ -85,7 +98,7 @@ You should see a success response! ✅
 
 2. **Create your feature branch:**
 ```bash
-   git checkout -b feature/your-feature-name
+   git checkout -b feature/your-feature-name-ui
    ```
 **2.2 **Push branch to GitHub**
 ```bash
@@ -94,11 +107,11 @@ You should see a success response! ✅
 
 
    **Branch Naming Convention:**
-   - `feature/training-courses` - For training course component
-   - `feature/assessments` - For assessment & certification component
-   - `feature/incident-reporting` - For incident & hazard reporting
-   - `feature/compliance-auditing` - For compliance auditing component
-   - `feature/your-name-task` - For individual tasks
+   - `frontend/training-courses-ui` - For training course component
+   - `feature/assessments-ui` - For assessment & certification component
+   - `feature/incident-reporting-ui` - For incident & hazard reporting
+   - `feature/compliance-auditing-ui` - For compliance auditing component
+   - `feature/your-name-task-ui` - For individual tasks
 
 3. **Start working on your feature!**
 ----

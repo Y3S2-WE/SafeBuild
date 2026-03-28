@@ -1,6 +1,7 @@
 const Quiz = require('../models/Quiz');
 const QuizAttempt = require('../models/QuizAttempt');
 const Certificate = require('../models/Certificate');
+const { generateCertificateQRCode } = require('../utils/qrCodeGenerator');
 
 /**
  * @desc    Submit quiz attempt
@@ -98,6 +99,9 @@ const submitQuizAttempt = async (req, res) => {
         if (!existingCertificate) {
           const certificateCode = await Certificate.generateCertificateCode();
           
+          // Generate QR code URL for certificate verification
+          const qrCodeUrl = generateCertificateQRCode(certificateCode);
+          
           certificate = await Certificate.create({
             user: req.user._id,
             quiz: quizId,
@@ -108,7 +112,8 @@ const submitQuizAttempt = async (req, res) => {
             userEmail: req.user.email,
             score,
             totalPoints: quiz.totalPoints,
-            percentage
+            percentage,
+            qrCodeUrl
           });
         } else {
           certificate = existingCertificate;
@@ -133,7 +138,8 @@ const submitQuizAttempt = async (req, res) => {
         attempt: populatedAttempt,
         certificate: certificate ? {
           certificateCode: certificate.certificateCode,
-          issuedAt: certificate.issuedAt
+          issuedAt: certificate.issuedAt,
+          qrCodeUrl: certificate.qrCodeUrl
         } : null
       }
     });

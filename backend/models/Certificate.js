@@ -57,6 +57,11 @@ const certificateSchema = new mongoose.Schema({
   isValid: {
     type: Boolean,
     default: true
+  },
+  qrCodeUrl: {
+    type: String,
+    required: false,
+    default: null
   }
 }, {
   timestamps: true
