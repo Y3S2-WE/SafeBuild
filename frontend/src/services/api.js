@@ -38,6 +38,48 @@ export const api = {
 
   getProfile: () => request('/users/profile'),
 
+  // ── Incidents & Hazards ───────────────────────────────────────────────────
+
+  createIncident: ({ address, ...rest }) =>
+    request('/incidents', {
+      method: 'POST',
+      body: JSON.stringify({ ...rest, location: { address } })
+    }),
+
+  getIncidents: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString();
+    return request(`/incidents${qs ? `?${qs}` : ''}`);
+  },
+
+  getIncidentById: (id) => request(`/incidents/${id}`),
+
+  updateIncident: (id, { address, ...rest }) =>
+    request(`/incidents/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(address !== undefined ? { ...rest, location: { address } } : rest)
+    }),
+
+  deleteIncident: (id) =>
+    request(`/incidents/${id}`, { method: 'DELETE' }),
+
+  updateIncidentStatus: (id, payload) =>
+    request(`/incidents/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+
+  addIncidentComment: (id, payload) =>
+    request(`/incidents/${id}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  getIncidentStats: () => request('/incidents/stats/summary'),
+
+  // ── Courses & Lessons ─────────────────────────────────────────────────────
+
   getCourses: () => request('/courses'),
 
   createCourse: (payload) =>

@@ -23,6 +23,7 @@ export const Shell = ({ children }) => {
           </div>
         </Link>
 
+        {/* Block 1 — Navigation links */}
         <nav className="glass-panel flex items-center gap-1 rounded-full px-2 py-2 text-ink-800 shadow-card">
           <NavLink to="/" className={baseLinkClass}>
             Home
@@ -52,31 +53,28 @@ export const Shell = ({ children }) => {
               Quiz Admin
             </NavLink>
           )}
-          {isAuthenticated && (
+        </nav>
+
+        {/* Block 2 — User info */}
+        {isAuthenticated && (
+          <div className="glass-panel flex items-center gap-4 rounded-full px-4 py-2 shadow-card">
+            <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+              {user.firstName?.charAt(0).toUpperCase()}
+            </div>
+            <span className="text-sm font-medium text-slate-700">
+              {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+            </span>
             <button
               type="button"
               onClick={logout}
-              className="ml-2 flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
+              className="flex items-center gap-2 rounded-full bg-brand-700 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-800"
             >
               <LogOut size={15} />
               Logout
             </button>
-          )}
-        </nav>
-      </header>
-
-      {isAuthenticated && (
-        <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-2 sm:px-6 lg:px-8">
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-2 rounded-2xl px-5 py-4 shadow-card">
-            <p className="text-sm text-ink-800">
-              Signed in as <span className="font-bold">{user.firstName} {user.lastName}</span>
-            </p>
-            <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-800">
-              {user.role}
-            </span>
           </div>
-        </section>
-      )}
+        )}
+      </header>
 
       <main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">{children}</main>
     </div>

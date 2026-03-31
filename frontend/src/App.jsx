@@ -9,6 +9,9 @@ import { LessonManagementPage } from './pages/LessonManagementPage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
 import { LessonViewerPage } from './pages/LessonViewerPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import IncidentListPage from './pages/IncidentListPage';
+import ReportIncidentPage from './pages/ReportIncidentPage';
+import IncidentDetailPage from './pages/IncidentDetailPage';
 import { QuizAdminDashboard } from './pages/QuizAdminDashboard';
 import { CertificationPage } from './pages/CertificationPage';
 import { QuizWorkspace } from './pages/QuizWorkspace';
@@ -31,7 +34,23 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
+        <Route path="/incidents" element={<IncidentListPage />} />
+        <Route
+          path="/incidents/report"
+          element={
+            <ProtectedRoute>
+              <ReportIncidentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <ProtectedRoute>
+              <IncidentDetailPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/learning-hub"
           element={
@@ -64,7 +83,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/quiz-admin"
           element={
@@ -97,7 +115,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
         <Route path="/certificate-verify" element={<CertificateVerificationPage />} />
         <Route path="/certificate-verify/:code" element={<CertificateVerificationPage />} />
 

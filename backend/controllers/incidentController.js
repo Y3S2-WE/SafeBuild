@@ -336,7 +336,7 @@ const applyIncidentUpdates = (incident, updateData, canUpdateAllFields) => {
   // Fields all users can update
   if (title) incident.title = title;
   if (severity) incident.severity = severity;
-  if (location) incident.location = { ...incident.location, ...location };
+  if (location?.address !== undefined) incident.location.address = location.address;
   if (description) incident.description = description;
   if (evidencePhotos) incident.evidencePhotos = evidencePhotos;
   if (dateOccurred) incident.dateOccurred = dateOccurred;
