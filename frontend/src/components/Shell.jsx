@@ -28,28 +28,8 @@ export const Shell = ({ children }) => {
           <NavLink to="/" className={baseLinkClass}>
             Home
           </NavLink>
-          <NavLink to="/register" className={baseLinkClass}>
-            Employee Register
-          </NavLink>
-          <NavLink to="/login" className={baseLinkClass}>
-            Login Portal
-          </NavLink>
-          {isAuthenticated && (
-            <NavLink to="/portal" className={baseLinkClass}>
-              Portal
-            </NavLink>
-          )}
-          {isAuthenticated && (user.role === 'manager' || user.role === 'officer') && (
-            <NavLink to="/portal/compliance" className={baseLinkClass}>
-              Compliance
-            </NavLink>
-          )}
-          {isAuthenticated && user.role === 'safety-compliance-manager' && (
-            <NavLink to="/portal/compliance/actions" className={baseLinkClass}>
-              Coordination Actions
-            </NavLink>
-          )}
-          {isAuthenticated && (
+
+          {!isAuthenticated && (
             <>
               <NavLink to="/register" className={baseLinkClass}>
                 Employee Register
@@ -59,6 +39,7 @@ export const Shell = ({ children }) => {
               </NavLink>
             </>
           )}
+
           {isAuthenticated && user?.role === 'worker' && (
             <>
               <NavLink to="/certifications" className={baseLinkClass}>
@@ -69,6 +50,25 @@ export const Shell = ({ children }) => {
               </NavLink>
             </>
           )}
+
+          {isAuthenticated && user?.role !== 'worker' && (
+            <NavLink to="/portal" className={baseLinkClass}>
+              Portal
+            </NavLink>
+          )}
+
+          {isAuthenticated && user?.role !== 'worker' && (user.role === 'manager' || user.role === 'officer') && (
+            <NavLink to="/portal/compliance" className={baseLinkClass}>
+              Compliance
+            </NavLink>
+          )}
+
+          {isAuthenticated && user?.role !== 'worker' && user.role === 'safety-compliance-manager' && (
+            <NavLink to="/portal/compliance/actions" className={baseLinkClass}>
+              Coordination Actions
+            </NavLink>
+          )}
+
           {isAuthenticated && user?.role === 'trainer' && (
             <NavLink to="/quiz-admin" className={baseLinkClass}>
               Quiz Admin
