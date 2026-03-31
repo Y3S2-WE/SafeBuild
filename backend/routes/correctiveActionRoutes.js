@@ -1,32 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const {
-  createCorrectiveAction,
   getAllCorrectiveActions,
   getCorrectiveActionById,
+  uploadCompletionDocument,
   updateCorrectiveAction,
   deleteCorrectiveAction,
   getCorrectiveActionStats
 } = require('../controllers/correctiveActionController');
 const { protect, authorize } = require('../middleware/auth');
+const { completionReportUpload } = require('../middleware/upload');
+const { correctiveActionUpdateValidation } = require('../middleware/validator');
 
 // All routes require authentication
 router.use(protect);
 
-// GET statistics - Manager, Officer only (place before /:id route)
-router.get('/stats', authorize('manager', 'officer'), getCorrectiveActionStats);
+// GET statistics - Manager only (place before /:id route)
+router.get('/stats', authorize('manager'), getCorrectiveActionStats);
 
-// GET all corrective actions - Manager, Officer, Worker (filtered)
-router.get('/', authorize('manager', 'officer', 'worker'), getAllCorrectiveActions);
+// GET all corrective actions - Manager, Officer, Safety Compliance Manager
+router.get('/', authorize('manager', 'officer', 'safety-compliance-manager'), getAllCorrectiveActions);
 
-// GET single corrective action - Manager, Officer, Worker (own only)
-router.get('/:id', authorize('manager', 'officer', 'worker'), getCorrectiveActionById);
+// POST completion document upload - Safety Compliance Manager only
+router.post(
+  '/:id/completion-document',
+  authorize('safety-compliance-manager'),
+  completionReportUpload.single('reportFile'),
+  uploadCompletionDocument
+);
 
-// POST create corrective action - Manager, Officer only
-router.post('/', authorize('manager', 'officer'), createCorrectiveAction);
+// GET single corrective action - Manager, Officer, Safety Compliance Manager (own only)
+router.get('/:id', authorize('manager', 'officer', 'safety-compliance-manager'), getCorrectiveActionById);
 
-// PUT update corrective action - Manager, Officer, Worker (limited)
-router.put('/:id', authorize('manager', 'officer', 'worker'), updateCorrectiveAction);
+// PUT update corrective action - Manager, Officer, Safety Compliance Manager (limited)
+router.put('/:id', authorize('manager', 'officer', 'safety-compliance-manager'), correctiveActionUpdateValidation, updateCorrectiveAction);
 
 // DELETE corrective action - Manager only
 router.delete('/:id', authorize('manager'), deleteCorrectiveAction);
