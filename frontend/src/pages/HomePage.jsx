@@ -79,16 +79,27 @@ export const HomePage = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {quickActions.map((action) => (
-              <button
-                key={action.title}
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-accent-300 bg-gradient-to-r from-accent-500 to-accent-400 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:-translate-y-0.5 hover:from-accent-600 hover:to-accent-500"
-              >
-                {action.icon}
-                {action.title}
-              </button>
-            ))}
+            {quickActions.map((action) =>
+              action.title === 'Incidents' ? (
+                <Link
+                  key={action.title}
+                  to="/incidents"
+                  className="inline-flex items-center gap-2 rounded-full border border-accent-300 bg-gradient-to-r from-accent-500 to-accent-400 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:-translate-y-0.5 hover:from-accent-600 hover:to-accent-500"
+                >
+                  {action.icon}
+                  {action.title}
+                </Link>
+              ) : (
+                <button
+                  key={action.title}
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-full border border-accent-300 bg-gradient-to-r from-accent-500 to-accent-400 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:-translate-y-0.5 hover:from-accent-600 hover:to-accent-500"
+                >
+                  {action.icon}
+                  {action.title}
+                </button>
+              )
+            )}
           </div>
         </div>
       </section>

@@ -34,32 +34,26 @@ export const Shell = ({ children }) => {
             Login Portal
           </NavLink>
           {isAuthenticated && (
-            <button
-              type="button"
-              onClick={logout}
-              className="ml-2 flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
-            >
-              <LogOut size={15} />
-              Logout
-            </button>
+            <div className="ml-2 flex items-center gap-2">
+              <div className="text-right">
+                <p className="text-xs font-semibold text-ink-900 leading-tight">{user.firstName} {user.lastName}</p>
+                <p className="text-xs text-brand-700 font-bold uppercase tracking-wider leading-tight">{user.role}</p>
+              </div>
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
+              >
+                <LogOut size={15} />
+                Logout
+              </button>
+            </div>
           )}
         </nav>
       </header>
 
-      {isAuthenticated && (
-        <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-2 sm:px-6 lg:px-8">
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-2 rounded-2xl px-5 py-4 shadow-card">
-            <p className="text-sm text-ink-800">
-              Signed in as <span className="font-bold">{user.firstName} {user.lastName}</span>
-            </p>
-            <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-800">
-              {user.role}
-            </span>
-          </div>
-        </section>
-      )}
 
-      <main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">{children}</main>
+<main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
 };

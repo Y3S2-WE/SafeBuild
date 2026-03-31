@@ -1,4 +1,5 @@
-import { Award, BookOpenCheck, Layers3, UserRound } from 'lucide-react';
+import { Award, BookOpenCheck, AlertTriangle, UserRound, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const roleTips = {
@@ -10,6 +11,7 @@ const roleTips = {
 
 export const PortalPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <section className="space-y-6">
@@ -38,10 +40,16 @@ export const PortalPage = () => {
           <p className="mt-2 text-sm text-ink-800">Integrate certificate and quiz features here in the next frontend phase.</p>
         </article>
 
-        <article className="glass-panel rounded-2xl p-5 shadow-card">
-          <Layers3 className="text-brand-700" size={21} />
-          <h2 className="mt-4 text-lg font-bold text-ink-900">Operations</h2>
-          <p className="mt-2 text-sm text-ink-800">Add incidents, audits, and corrective action modules using the same theme tokens.</p>
+        <article
+          onClick={() => navigate('/incidents')}
+          className="glass-panel rounded-2xl p-5 shadow-card cursor-pointer hover:border-brand-300 hover:shadow-glow transition-all group"
+        >
+          <AlertTriangle className="text-accent-500" size={21} />
+          <h2 className="mt-4 text-lg font-bold text-ink-900">Incidents &amp; Hazards</h2>
+          <p className="mt-2 text-sm text-ink-800">Report and track safety incidents, hazards, and near-miss events on site.</p>
+          <p className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand-600 group-hover:gap-2 transition-all">
+            Open module <ChevronRight size={13} />
+          </p>
         </article>
       </div>
     </section>

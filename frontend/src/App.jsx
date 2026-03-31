@@ -5,6 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { PortalPage } from './pages/PortalPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import IncidentListPage from './pages/IncidentListPage';
+import ReportIncidentPage from './pages/ReportIncidentPage';
+import IncidentDetailPage from './pages/IncidentDetailPage';
 
 const App = () => {
   return (
@@ -18,6 +21,23 @@ const App = () => {
           element={
             <ProtectedRoute>
               <PortalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/incidents" element={<IncidentListPage />} />
+        <Route
+          path="/incidents/report"
+          element={
+            <ProtectedRoute>
+              <ReportIncidentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <ProtectedRoute>
+              <IncidentDetailPage />
             </ProtectedRoute>
           }
         />
