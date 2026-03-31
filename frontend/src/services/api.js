@@ -99,5 +99,61 @@ export const api = {
   deletePage: (lessonId, pageId) =>
     request(`/lessons/${lessonId}/pages/${pageId}`, {
       method: 'DELETE'
-    })
+    }),
+
+  getAllQuizzes: () => request('/quizzes'),
+
+  getQuizById: (quizId) => request(`/quizzes/${quizId}`),
+
+  createQuiz: (payload) =>
+    request('/quizzes', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  updateQuiz: (quizId, payload) =>
+    request(`/quizzes/${quizId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }),
+
+  deleteQuiz: (quizId) =>
+    request(`/quizzes/${quizId}`, {
+      method: 'DELETE'
+    }),
+
+  addQuestion: (quizId, payload) =>
+    request(`/quizzes/${quizId}/questions`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  updateQuestion: (quizId, questionId, payload) =>
+    request(`/quizzes/${quizId}/questions/${questionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }),
+
+  deleteQuestion: (quizId, questionId) =>
+    request(`/quizzes/${quizId}/questions/${questionId}`, {
+      method: 'DELETE'
+    }),
+
+  getAllAttempts: (quizId) => request(`/quiz-attempts${quizId ? `?quizId=${quizId}` : ''}`),
+
+  submitQuizAttempt: (payload) =>
+    request('/quiz-attempts', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  getMyAttempts: (quizId) => request(`/quiz-attempts/my-attempts${quizId ? `?quizId=${quizId}` : ''}`),
+
+  getQuizStats: (quizId) => request(`/quiz-attempts/quiz/${quizId}/stats`),
+
+  getAllCertificates: (quizId) => request(`/certificates${quizId ? `?quizId=${quizId}` : ''}`),
+
+  getMyCertificates: () => request('/certificates/my-certificates'),
+
+  verifyCertificateByCode: (code) => request(`/certificates/verify/${code}`)
 };
