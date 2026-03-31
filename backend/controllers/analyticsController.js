@@ -9,7 +9,10 @@ const {
 /**
  * @desc    Dashboard analytics summary + chart URLs
  * @route   GET /api/analytics/dashboard
- * @access  Private (Manager, Officer)
+ * @access  Private (Manager only)
+ * @details Aggregates corrective action status/priority and audit timeline data.
+ *          Generates QuickChart URLs for real-time visualization on manager dashboard.
+ *          Future optimization: Consider caching this endpoint with 5-minute TTL for high-traffic scenarios.
  */
 const getDashboardAnalytics = async (req, res) => {
   try {
@@ -47,6 +50,12 @@ const getDashboardAnalytics = async (req, res) => {
       auditsTimeline: auditsTimelineChart(timelineRows)
     };
 
+    const chartMeta = {
+      correctiveStatusTotal: Object.values(statusMap).reduce((sum, value) => sum + Number(value || 0), 0),
+      correctivePriorityTotal: Object.values(priorityMap).reduce((sum, value) => sum + Number(value || 0), 0),
+      auditsTimelineTotal: timelineRows.reduce((sum, row) => sum + Number(row.count || 0), 0)
+    };
+
     return res.status(200).json({
       success: true,
       data: {
@@ -55,14 +64,23 @@ const getDashboardAnalytics = async (req, res) => {
           correctiveByPriority: priorityMap,
           overdueCorrectiveActions: overdueAgg
         },
-        charts
+        charts,
+        chartMeta
       }
     });
   } catch (error) {
+    // Log analytics errors for debugging QuickChart integration issues
+    console.error('Analytics dashboard error:', {
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      stack: error.stack
+    });
+    
     return res.status(500).json({
       success: false,
       message: 'Failed to load analytics dashboard',
-      error: error.message
+      error: error.message,
+      suggestion: 'Verify QuickChart API is accessible and database connection is healthy.'
     });
   }
 };
@@ -70,7 +88,7 @@ const getDashboardAnalytics = async (req, res) => {
 /**
  * @desc    Only chart URLs (quick use for frontend)
  * @route   GET /api/analytics/charts
- * @access  Private (Manager, Officer)
+ * @access  Private (Manager)
  */
 const getAnalyticsChartsOnly = async (req, res) => {
   try {
@@ -97,12 +115,19 @@ const getAnalyticsChartsOnly = async (req, res) => {
       count: r.count
     }));
 
+    const chartMeta = {
+      correctiveStatusTotal: Object.values(statusMap).reduce((sum, value) => sum + Number(value || 0), 0),
+      correctivePriorityTotal: Object.values(priorityMap).reduce((sum, value) => sum + Number(value || 0), 0),
+      auditsTimelineTotal: timelineRows.reduce((sum, row) => sum + Number(row.count || 0), 0)
+    };
+
     return res.status(200).json({
       success: true,
       data: {
         correctiveStatus: correctiveStatusChart(statusMap),
         correctivePriority: correctivePriorityChart(priorityMap),
-        auditsTimeline: auditsTimelineChart(timelineRows)
+        auditsTimeline: auditsTimelineChart(timelineRows),
+        chartMeta
       }
     });
   } catch (error) {
