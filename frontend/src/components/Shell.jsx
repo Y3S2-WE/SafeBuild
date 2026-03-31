@@ -34,6 +34,21 @@ export const Shell = ({ children }) => {
             Login Portal
           </NavLink>
           {isAuthenticated && (
+            <NavLink to="/portal" className={baseLinkClass}>
+              Portal
+            </NavLink>
+          )}
+          {isAuthenticated && (user.role === 'manager' || user.role === 'officer') && (
+            <NavLink to="/portal/compliance" className={baseLinkClass}>
+              Compliance
+            </NavLink>
+          )}
+          {isAuthenticated && user.role === 'safety-compliance-manager' && (
+            <NavLink to="/portal/compliance/actions" className={baseLinkClass}>
+              Coordination Actions
+            </NavLink>
+          )}
+          {isAuthenticated && (
             <button
               type="button"
               onClick={logout}
