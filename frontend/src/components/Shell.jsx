@@ -28,6 +28,16 @@ export const Shell = ({ children }) => {
           <NavLink to="/" className={baseLinkClass}>Home</NavLink>
           <NavLink to="/register" className={baseLinkClass}>Employee Register</NavLink>
           <NavLink to="/login" className={baseLinkClass}>Login Portal</NavLink>
+          <NavLink to="/certificate-verify" className={baseLinkClass}>Verify Certificate</NavLink>
+          {isAuthenticated && user?.role === 'worker' && (
+            <>
+              <NavLink to="/certifications" className={baseLinkClass}>Certifications</NavLink>
+              <NavLink to="/quiz-workspace" className={baseLinkClass}>Quiz Workspace</NavLink>
+            </>
+          )}
+          {isAuthenticated && user?.role === 'trainer' && (
+            <NavLink to="/quiz-admin" className={baseLinkClass}>Quiz Admin</NavLink>
+          )}
         </nav>
 
         {/* Block 2 — User info */}
@@ -51,8 +61,7 @@ export const Shell = ({ children }) => {
         )}
       </header>
 
-
-<main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">{children}</main>
+      <main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
 };
