@@ -67,6 +67,11 @@ const auditSchema = new mongoose.Schema({
     trim: true,
     maxlength: [2000, 'Findings cannot exceed 2000 characters']
   },
+  cancelReason: {
+    type: String,
+    trim: true,
+    maxlength: [1000, 'Cancellation reason cannot exceed 1000 characters']
+  },
   completedAt: {
     type: Date
   },
