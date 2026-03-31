@@ -23,33 +23,32 @@ export const Shell = ({ children }) => {
           </div>
         </Link>
 
+        {/* Block 1 — Navigation links */}
         <nav className="glass-panel flex items-center gap-1 rounded-full px-2 py-2 text-ink-800 shadow-card">
-          <NavLink to="/" className={baseLinkClass}>
-            Home
-          </NavLink>
-          <NavLink to="/register" className={baseLinkClass}>
-            Employee Register
-          </NavLink>
-          <NavLink to="/login" className={baseLinkClass}>
-            Login Portal
-          </NavLink>
-          {isAuthenticated && (
-            <div className="ml-2 flex items-center gap-2">
-              <div className="text-right">
-                <p className="text-xs font-semibold text-ink-900 leading-tight">{user.firstName} {user.lastName}</p>
-                <p className="text-xs text-brand-700 font-bold uppercase tracking-wider leading-tight">{user.role}</p>
-              </div>
-              <button
-                type="button"
-                onClick={logout}
-                className="flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
-              >
-                <LogOut size={15} />
-                Logout
-              </button>
-            </div>
-          )}
+          <NavLink to="/" className={baseLinkClass}>Home</NavLink>
+          <NavLink to="/register" className={baseLinkClass}>Employee Register</NavLink>
+          <NavLink to="/login" className={baseLinkClass}>Login Portal</NavLink>
         </nav>
+
+        {/* Block 2 — User info */}
+        {isAuthenticated && (
+          <div className="glass-panel flex items-center gap-4 rounded-full px-4 py-2 shadow-card">
+            <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+              {user.firstName?.charAt(0).toUpperCase()}
+            </div>
+            <span className="text-sm font-medium text-slate-700">
+              {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+            </span>
+            <button
+              type="button"
+              onClick={logout}
+              className="flex items-center gap-2 rounded-full bg-brand-700 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-800"
+            >
+              <LogOut size={15} />
+              Logout
+            </button>
+          </div>
+        )}
       </header>
 
 

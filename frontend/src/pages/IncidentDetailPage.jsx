@@ -4,7 +4,7 @@ import {
   AlertTriangle, ChevronLeft, MapPin, User, Calendar,
   Clock, CheckCircle2, Loader2, XCircle, ShieldAlert,
   Flame, Activity, MessageSquare, Send, Pencil, Trash2,
-  Save, X, Info
+  Save, X, Info, ArrowRight
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -43,7 +43,14 @@ const STATUS_TRANSITIONS = {
   closed:        [],
 };
 
-// ── Small helpers ─────────────────────────────────────────────────────────────
+// Contextual primary action per current status
+const PRIMARY_ACTIONS = {
+  open:          { label: 'Start Investigation', nextStatus: 'investigating', color: 'bg-purple-600 hover:bg-purple-700 text-white' },
+  investigating: { label: 'Mark as Resolved',    nextStatus: 'resolved',      color: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+  resolved:      { label: 'Close Incident',       nextStatus: 'closed',        color: 'bg-slate-600 hover:bg-slate-700 text-white' },
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function Badge({ meta }) {
   const Icon = meta.icon;
@@ -97,7 +104,19 @@ function SectionHeader({ icon: Icon, children, count }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+function Toast({ toast }) {
+  if (!toast) return null;
+  return (
+    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm font-semibold animate-rise pointer-events-none ${
+      toast.type === 'error' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+    }`}>
+      {toast.type === 'error' ? <AlertTriangle size={15} /> : <CheckCircle2 size={15} />}
+      {toast.msg}
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function IncidentDetailPage() {
   const { id }       = useParams();
@@ -107,20 +126,21 @@ export default function IncidentDetailPage() {
   const [incident, setIncident] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
+  const [toast, setToast]       = useState(null);
 
   const [editing, setEditing]   = useState(false);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving]     = useState(false);
   const [editErr, setEditErr]   = useState('');
 
-  const [nextStatus, setNextStatus]       = useState('');
-  const [statusNote, setStatusNote]       = useState('');
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [statusErr, setStatusErr]         = useState('');
+  const [nextStatus, setNextStatus]           = useState('');
+  const [statusNote, setStatusNote]           = useState('');
+  const [updatingStatus, setUpdatingStatus]   = useState(false);
+  const [statusErr, setStatusErr]             = useState('');
 
-  const [commentText, setCommentText]   = useState('');
-  const [addingComment, setAddingComment] = useState(false);
-  const [commentErr, setCommentErr]     = useState('');
+  const [commentText, setCommentText]         = useState('');
+  const [addingComment, setAddingComment]     = useState(false);
+  const [commentErr, setCommentErr]           = useState('');
 
   const [deleting, setDeleting] = useState(false);
 
@@ -128,6 +148,11 @@ export default function IncidentDetailPage() {
   const isOwner   = user?._id === incident?.reportedBy || user?.id === incident?.reportedBy;
   const canEdit   = (isOwner && incident?.status === 'open') || isManager;
   const canDelete = (isOwner && incident?.status === 'open') || user?.role === 'manager';
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -162,6 +187,7 @@ export default function IncidentDetailPage() {
       const data = await api.updateIncident(id, editForm);
       setIncident(data.incident ?? data.data ?? data);
       setEditing(false);
+      showToast('Incident updated');
     } catch (e) {
       setEditErr(e.message);
     } finally {
@@ -169,21 +195,29 @@ export default function IncidentDetailPage() {
     }
   };
 
-  const handleStatusUpdate = async () => {
-    if (!nextStatus) return;
+  // One-click primary action (advance to next logical status)
+  const handlePrimaryAction = async (targetStatus) => {
     setUpdatingStatus(true);
     setStatusErr('');
     try {
-      const data = await api.updateIncidentStatus(id, { status: nextStatus, comment: statusNote });
-      setIncident(data.incident ?? data.data ?? data);
-      setStatusNote('');
-      const transitions = STATUS_TRANSITIONS[nextStatus] ?? [];
+      const data = await api.updateIncidentStatus(id, { status: targetStatus });
+      const updated = data.incident ?? data.data ?? data;
+      setIncident(updated);
+      showToast(`Status updated to ${STATUS_META[targetStatus]?.label}`);
+      const transitions = STATUS_TRANSITIONS[targetStatus] ?? [];
       setNextStatus(transitions[0] ?? '');
+      setStatusNote('');
     } catch (e) {
       setStatusErr(e.message);
+      showToast(e.message, 'error');
     } finally {
       setUpdatingStatus(false);
     }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!nextStatus) return;
+    handlePrimaryAction(nextStatus);
   };
 
   const handleAddComment = async () => {
@@ -194,6 +228,7 @@ export default function IncidentDetailPage() {
       const data = await api.addIncidentComment(id, { comment: commentText.trim() });
       setIncident(data.incident ?? data.data ?? data);
       setCommentText('');
+      showToast('Note added');
     } catch (e) {
       setCommentErr(e.message);
     } finally {
@@ -209,6 +244,7 @@ export default function IncidentDetailPage() {
       navigate('/incidents');
     } catch (e) {
       setError(e.message);
+      showToast(e.message, 'error');
       setDeleting(false);
     }
   };
@@ -243,9 +279,11 @@ export default function IncidentDetailPage() {
   const TypeIcon       = typeMeta.icon;
   const transitions    = STATUS_TRANSITIONS[incident.status] ?? [];
   const accentBar      = TYPE_ACCENT[incident.type] ?? 'bg-brand-400';
+  const primaryAction  = isManager ? PRIMARY_ACTIONS[incident.status] : null;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
+      <Toast toast={toast} />
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* Back */}
@@ -259,9 +297,7 @@ export default function IncidentDetailPage() {
 
         {/* Title card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
-          {/* Type accent bar */}
           <div className={`h-1.5 ${accentBar}`} />
-
           <div className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -286,7 +322,7 @@ export default function IncidentDetailPage() {
                 </div>
               </div>
 
-              {/* Action buttons */}
+              {/* Edit / Delete buttons */}
               <div className="flex items-center gap-2 flex-shrink-0">
                 {canEdit && !editing && (
                   <button
@@ -332,7 +368,7 @@ export default function IncidentDetailPage() {
               <p className="mt-3 text-xs text-rose-500 flex items-center gap-1"><Info size={11} />{editErr}</p>
             )}
 
-            {/* Severity edit */}
+            {/* Severity picker (edit mode) */}
             {editing && (
               <div className="mt-4 pt-4 border-t border-slate-100">
                 <p className="text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Severity</p>
@@ -354,18 +390,46 @@ export default function IncidentDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* ── Contextual primary CTA (manager only, non-closed) ── */}
+            {primaryAction && !editing && (
+              <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Next action</p>
+                  <p className="text-sm text-slate-600 mt-0.5">
+                    Advance to <span className="font-semibold text-slate-800">{STATUS_META[primaryAction.nextStatus]?.label}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => handlePrimaryAction(primaryAction.nextStatus)}
+                  disabled={updatingStatus}
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-60 ${primaryAction.color}`}
+                >
+                  {updatingStatus
+                    ? <Loader2 size={15} className="animate-spin" />
+                    : <ArrowRight size={15} />}
+                  {primaryAction.label}
+                </button>
+              </div>
+            )}
+
+            {incident.status === 'closed' && (
+              <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-sm text-slate-500">
+                <CheckCircle2 size={15} className="text-emerald-500" />
+                This incident has been closed.
+              </div>
+            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* Left column — details + comments */}
+          {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
 
             {/* Details */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-5">
               <SectionHeader>Details</SectionHeader>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <InfoRow icon={MapPin}      label="Location"    value={editing ? null : incident.location?.address} />
                 <InfoRow icon={User}        label="Reported By" value={incident.reportedByName} />
@@ -402,7 +466,7 @@ export default function IncidentDetailPage() {
               </div>
             </div>
 
-            {/* Comments */}
+            {/* Investigation notes */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-5">
               <SectionHeader icon={MessageSquare} count={incident.comments?.length}>
                 Investigation Notes
@@ -434,22 +498,29 @@ export default function IncidentDetailPage() {
 
               {isManager && (
                 <div className="border-t border-slate-100 pt-4 space-y-2">
-                  <textarea
-                    rows={3}
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Add an investigation note…"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 bg-slate-50 focus:bg-white transition-colors resize-none"
-                  />
-                  {commentErr && <p className="text-xs text-rose-500">{commentErr}</p>}
-                  <button
-                    onClick={handleAddComment}
-                    disabled={addingComment || !commentText.trim()}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
-                  >
-                    {addingComment ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                    Add Note
-                  </button>
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-brand-700">
+                      {user?.firstName?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <textarea
+                        rows={3}
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Add an investigation note…"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 bg-slate-50 focus:bg-white transition-colors resize-none"
+                      />
+                      {commentErr && <p className="text-xs text-rose-500">{commentErr}</p>}
+                      <button
+                        onClick={handleAddComment}
+                        disabled={addingComment || !commentText.trim()}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
+                      >
+                        {addingComment ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                        Add Note
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -462,7 +533,7 @@ export default function IncidentDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-4">
               <SectionHeader>Status</SectionHeader>
 
-              {/* Timeline with vertical connector */}
+              {/* Timeline */}
               <div className="relative">
                 <div className="absolute left-3.5 top-5 bottom-5 w-px bg-slate-100" />
                 {['open','investigating','resolved','closed'].map((s, idx, arr) => {
@@ -492,43 +563,25 @@ export default function IncidentDetailPage() {
                 })}
               </div>
 
-              {/* Status update — manager/officer only */}
+              {/* Manual status override with note (manager) */}
               {isManager && transitions.length > 0 && (
                 <div className="border-t border-slate-100 pt-4 space-y-3">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Move to next stage</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {transitions.map((s) => {
-                      const m = STATUS_META[s];
-                      return (
-                        <button
-                          key={s}
-                          onClick={() => setNextStatus(s)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-all capitalize ${
-                            nextStatus === s
-                              ? `${m.bg} ${m.text} border-current`
-                              : 'border-slate-200 text-slate-500 hover:border-slate-300'
-                          }`}
-                        >
-                          {m.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Optional note</p>
                   <textarea
                     rows={2}
                     value={statusNote}
                     onChange={(e) => setStatusNote(e.target.value)}
-                    placeholder="Optional note for this transition…"
+                    placeholder="Add a note for this transition…"
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-400 bg-slate-50 focus:bg-white transition-colors resize-none"
                   />
                   {statusErr && <p className="text-xs text-rose-500">{statusErr}</p>}
                   <button
                     onClick={handleStatusUpdate}
-                    disabled={updatingStatus || !nextStatus}
+                    disabled={updatingStatus}
                     className="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                   >
-                    {updatingStatus ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-                    Update Status
+                    {updatingStatus ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+                    Advance Status
                   </button>
                 </div>
               )}

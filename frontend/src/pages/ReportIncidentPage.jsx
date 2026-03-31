@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertTriangle, MapPin, FileText, ChevronLeft,
+  AlertTriangle, MapPin, FileText, ChevronLeft, ChevronRight,
   CheckCircle2, Loader2, Info, Calendar,
   ShieldAlert, Flame, Activity
 } from 'lucide-react';
 import { api } from '../services/api';
+
+// ── Config ────────────────────────────────────────────────────────────────────
+
+const STEPS = [
+  { id: 1, label: 'Basic Info',    icon: FileText },
+  { id: 2, label: 'Location & Date', icon: MapPin  },
+  { id: 3, label: 'Description',   icon: FileText },
+];
 
 const FIELD_OPTS = {
   type: [
@@ -20,18 +28,17 @@ const FIELD_OPTS = {
   ],
 };
 
-const INITIAL = {
-  title: '',
-  type: '',
-  severity: '',
-  address: '',
-  dateOccurred: '',
-  description: '',
-};
+const INITIAL = { title: '', type: '', severity: '', address: '', dateOccurred: '', description: '' };
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function FieldError({ msg }) {
   if (!msg) return null;
-  return <p className="mt-1.5 text-xs text-rose-500 flex items-center gap-1"><Info size={11} />{msg}</p>;
+  return (
+    <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1 font-medium">
+      <Info size={11} />{msg}
+    </p>
+  );
 }
 
 function Label({ children, required }) {
@@ -43,24 +50,13 @@ function Label({ children, required }) {
   );
 }
 
-function SectionHeader({ step, icon: Icon, children }) {
-  return (
-    <div className="flex items-center gap-3 pb-1">
-      <div className="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-        {step}
-      </div>
-      <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-        {Icon && <Icon size={14} className="text-brand-500" />}
-        {children}
-      </h2>
-    </div>
-  );
-}
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function ReportIncidentPage() {
   const navigate = useNavigate();
   const [form, setForm]             = useState(INITIAL);
   const [errors, setErrors]         = useState({});
+  const [step, setStep]             = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess]       = useState(false);
 
@@ -69,24 +65,47 @@ export default function ReportIncidentPage() {
     setErrors((e) => ({ ...e, [key]: '' }));
   };
 
-  const validate = () => {
+  // Validate only the fields that belong to a given step
+  const validateStep = (s) => {
     const e = {};
-    if (!form.title.trim())       e.title       = 'Title is required.';
-    if (!form.type)               e.type        = 'Select an incident type.';
-    if (!form.severity)           e.severity    = 'Select a severity level.';
-    if (!form.address.trim())     e.address     = 'Location is required.';
-    if (!form.dateOccurred)       e.dateOccurred = 'Date of occurrence is required.';
-    if (!form.description.trim()) e.description = 'Description is required.';
-    else if (form.description.trim().length < 20)
-      e.description = 'Please provide at least 20 characters.';
+    if (s === 1) {
+      if (!form.title.trim())   e.title    = 'Title is required.';
+      if (!form.type)           e.type     = 'Select an incident type.';
+      if (!form.severity)       e.severity = 'Select a severity level.';
+    }
+    if (s === 2) {
+      if (!form.address.trim()) e.address     = 'Location is required.';
+      if (!form.dateOccurred)   e.dateOccurred = 'Date of occurrence is required.';
+    }
+    if (s === 3) {
+      if (!form.description.trim()) e.description = 'Description is required.';
+      else if (form.description.trim().length < 20)
+        e.description = 'Please provide at least 20 characters.';
+    }
     return e;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate();
+  const goNext = () => {
+    const errs = validateStep(step);
     if (Object.keys(errs).length) { setErrors(errs); return; }
+    setErrors({});
+    setStep((s) => s + 1);
+  };
 
+  const goBack = () => {
+    setErrors({});
+    setStep((s) => s - 1);
+  };
+
+  // Validate on blur for immediate feedback
+  const handleBlur = (key) => {
+    const allErrs = validateStep(step);
+    if (allErrs[key]) setErrors((e) => ({ ...e, [key]: allErrs[key] }));
+  };
+
+  const handleSubmit = async () => {
+    const errs = validateStep(3);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
     setSubmitting(true);
     try {
       await api.createIncident(form);
@@ -101,6 +120,8 @@ export default function ReportIncidentPage() {
       setSubmitting(false);
     }
   };
+
+  // ── Success screen ────────────────────────────────────────────────────────
 
   if (success) {
     return (
@@ -117,7 +138,7 @@ export default function ReportIncidentPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => { setForm(INITIAL); setSuccess(false); }}
+              onClick={() => { setForm(INITIAL); setStep(1); setSuccess(false); }}
               className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Report Another
@@ -133,6 +154,8 @@ export default function ReportIncidentPage() {
       </div>
     );
   }
+
+  // ── Form ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -159,20 +182,61 @@ export default function ReportIncidentPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
-          {/* Global error */}
-          {errors._global && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
-              <Info size={15} />
-              {errors._global}
-            </div>
-          )}
+        {/* ── Progress stepper ── */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-5">
+          <div className="flex items-center gap-0">
+            {STEPS.map((s, idx) => {
+              const StepIcon = s.icon;
+              const done    = step > s.id;
+              const active  = step === s.id;
+              return (
+                <div key={s.id} className="flex items-center flex-1 min-w-0">
+                  {/* Step node */}
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                      done   ? 'bg-emerald-500 text-white'
+                      : active ? 'bg-brand-600 text-white ring-4 ring-brand-100'
+                      : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      {done ? <CheckCircle2 size={16} /> : <StepIcon size={15} />}
+                    </div>
+                    <p className={`text-xs mt-1.5 font-medium whitespace-nowrap ${
+                      active ? 'text-brand-700' : done ? 'text-emerald-600' : 'text-slate-400'
+                    }`}>{s.label}</p>
+                  </div>
 
-          {/* Section 1: Basic info */}
+                  {/* Connector line (not after last) */}
+                  {idx < STEPS.length - 1 && (
+                    <div className={`h-0.5 flex-1 mx-2 mb-4 rounded-full transition-all ${
+                      step > s.id ? 'bg-emerald-400' : 'bg-slate-200'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Global API error */}
+        {errors._global && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+            <Info size={15} />
+            {errors._global}
+          </div>
+        )}
+
+        {/* ── Step 1: Basic Info ── */}
+        {step === 1 && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-5">
-            <SectionHeader step="1" icon={FileText}>Basic Information</SectionHeader>
+            <div className="flex items-center gap-3 pb-1">
+              <div className="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+              <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <FileText size={14} className="text-brand-500" />
+                Basic Information
+              </h2>
+            </div>
 
             {/* Title */}
             <div>
@@ -181,6 +245,7 @@ export default function ReportIncidentPage() {
                 type="text"
                 value={form.title}
                 onChange={(e) => set('title', e.target.value)}
+                onBlur={() => handleBlur('title')}
                 placeholder="Brief, descriptive title…"
                 maxLength={200}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-colors ${
@@ -204,14 +269,14 @@ export default function ReportIncidentPage() {
                       onClick={() => set('type', opt.value)}
                       className={`text-left p-4 rounded-xl border-2 transition-all ${
                         selected
-                          ? 'border-brand-500 bg-brand-50'
-                          : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50'
+                          ? 'border-brand-500 bg-brand-50 shadow-sm'
+                          : 'border-slate-200 hover:border-brand-300 bg-white hover:bg-slate-50'
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg mb-2.5 flex items-center justify-center ${
+                      <div className={`w-9 h-9 rounded-lg mb-3 flex items-center justify-center ${
                         selected ? 'bg-brand-100' : 'bg-slate-100'
                       }`}>
-                        <TypeIcon size={16} className={selected ? 'text-brand-600' : 'text-slate-500'} />
+                        <TypeIcon size={18} className={selected ? 'text-brand-600' : 'text-slate-500'} />
                       </div>
                       <p className="text-sm font-semibold text-ink-900">{opt.label}</p>
                       <p className="text-xs text-slate-500 mt-0.5 leading-snug">{opt.desc}</p>
@@ -231,9 +296,9 @@ export default function ReportIncidentPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => set('severity', opt.value)}
-                    className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-3 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       form.severity === opt.value
-                        ? `${opt.selected} border-current`
+                        ? `${opt.selected} border-current shadow-sm`
                         : 'border-slate-200 text-slate-500 hover:border-slate-300 bg-white'
                     }`}
                   >
@@ -245,10 +310,18 @@ export default function ReportIncidentPage() {
               <FieldError msg={errors.severity} />
             </div>
           </div>
+        )}
 
-          {/* Section 2: Location & Date */}
+        {/* ── Step 2: Location & Date ── */}
+        {step === 2 && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-5">
-            <SectionHeader step="2" icon={MapPin}>Location &amp; Date</SectionHeader>
+            <div className="flex items-center gap-3 pb-1">
+              <div className="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
+              <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <MapPin size={14} className="text-brand-500" />
+                Location &amp; Date
+              </h2>
+            </div>
 
             <div>
               <Label required>Site / Address</Label>
@@ -256,6 +329,7 @@ export default function ReportIncidentPage() {
                 type="text"
                 value={form.address}
                 onChange={(e) => set('address', e.target.value)}
+                onBlur={() => handleBlur('address')}
                 placeholder="e.g. Block A, Level 3, Column 12"
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-colors ${
                   errors.address ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white'
@@ -273,6 +347,7 @@ export default function ReportIncidentPage() {
                   value={form.dateOccurred}
                   max={new Date().toISOString().slice(0, 10)}
                   onChange={(e) => set('dateOccurred', e.target.value)}
+                  onBlur={() => handleBlur('dateOccurred')}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-colors ${
                     errors.dateOccurred ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white'
                   }`}
@@ -281,17 +356,34 @@ export default function ReportIncidentPage() {
               <FieldError msg={errors.dateOccurred} />
             </div>
           </div>
+        )}
 
-          {/* Section 3: Description */}
+        {/* ── Step 3: Description ── */}
+        {step === 3 && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 space-y-5">
-            <SectionHeader step="3" icon={FileText}>Incident Description</SectionHeader>
+            <div className="flex items-center gap-3 pb-1">
+              <div className="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
+              <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <FileText size={14} className="text-brand-500" />
+                Incident Description
+              </h2>
+            </div>
+
+            {/* Summary of previous steps */}
+            <div className="bg-slate-50 rounded-xl px-4 py-3 space-y-1 border border-slate-100">
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-2">Summary so far</p>
+              <p className="text-sm text-slate-700"><span className="font-medium">Title:</span> {form.title}</p>
+              <p className="text-sm text-slate-700"><span className="font-medium">Type:</span> {form.type} · <span className="font-medium">Severity:</span> {form.severity}</p>
+              <p className="text-sm text-slate-700"><span className="font-medium">Location:</span> {form.address} · {form.dateOccurred}</p>
+            </div>
 
             <div>
               <Label required>What happened?</Label>
               <textarea
-                rows={5}
+                rows={6}
                 value={form.description}
                 onChange={(e) => set('description', e.target.value)}
+                onBlur={() => handleBlur('description')}
                 placeholder="Describe the incident clearly — what occurred, who was involved, and any immediate actions taken…"
                 maxLength={2000}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-colors resize-none ${
@@ -306,9 +398,21 @@ export default function ReportIncidentPage() {
               </div>
             </div>
           </div>
+        )}
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pb-6">
+        {/* ── Navigation buttons ── */}
+        <div className="flex gap-3 pb-6">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={goBack}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <ChevronLeft size={16} />
+              Back
+            </button>
+          )}
+          {step === 1 && (
             <button
               type="button"
               onClick={() => navigate('/incidents')}
@@ -316,17 +420,29 @@ export default function ReportIncidentPage() {
             >
               Cancel
             </button>
+          )}
+          {step < 3 ? (
             <button
-              type="submit"
+              type="button"
+              onClick={goNext}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition-colors shadow-sm"
+            >
+              Continue
+              <ChevronRight size={16} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 py-3 rounded-xl bg-accent-500 hover:bg-accent-600 disabled:opacity-60 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent-500 hover:bg-accent-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors shadow-sm"
             >
               {submitting
                 ? <><Loader2 size={16} className="animate-spin" />Submitting…</>
-                : 'Submit Report'}
+                : <><CheckCircle2 size={16} />Submit Report</>}
             </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
     </div>
   );
