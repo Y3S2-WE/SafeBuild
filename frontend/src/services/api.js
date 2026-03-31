@@ -47,8 +47,8 @@ export const api = {
 
   getProfile: () => request('/users/profile'),
 
-  getUsers: () => request('/users')
-};
+  getUsers: () => request('/users'),
+
   // ── Incidents & Hazards ───────────────────────────────────────────────────
 
   createIncident: ({ address, ...rest }) =>
