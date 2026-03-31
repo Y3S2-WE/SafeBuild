@@ -27,22 +27,23 @@ export const Shell = ({ children }) => {
           <NavLink to="/" className={baseLinkClass}>
             Home
           </NavLink>
-          <NavLink to="/register" className={baseLinkClass}>
-            Employee Register
-          </NavLink>
-          <NavLink to="/login" className={baseLinkClass}>
-            Login Portal
-          </NavLink>
-          <NavLink to="/certificate-verify" className={baseLinkClass}>
-            Verify Certificate
-          </NavLink>
+          {!isAuthenticated && (
+            <>
+              <NavLink to="/register" className={baseLinkClass}>
+                Employee Register
+              </NavLink>
+              <NavLink to="/login" className={baseLinkClass}>
+                Login Portal
+              </NavLink>
+            </>
+          )}
           {isAuthenticated && user?.role === 'worker' && (
             <>
               <NavLink to="/certifications" className={baseLinkClass}>
                 Certifications
               </NavLink>
-              <NavLink to="/quiz-workspace" className={baseLinkClass}>
-                Quiz Workspace
+              <NavLink to="/learning-hub" className={baseLinkClass}>
+                Courses
               </NavLink>
             </>
           )}
