@@ -12,13 +12,18 @@
  * @returns {string} QR code image URL from QuickChart API
  */
 const generateCertificateQRCode = (certificateCode, baseUrl = null) => {
-  // Use environment variable or default to localhost for development
+  // Use verification UI base URL or default to frontend route in development
   const verificationBaseUrl = baseUrl || 
+    process.env.CERTIFICATE_VERIFY_UI_BASE_URL ||
     process.env.FRONTEND_URL || 
-    'http://localhost:5001/api/certificates/verify';
+    'http://localhost:5173/certificate-verify';
+
+  const normalizedBase = verificationBaseUrl.endsWith('/')
+    ? verificationBaseUrl.slice(0, -1)
+    : verificationBaseUrl;
   
   // Create verification URL
-  const verificationUrl = `${verificationBaseUrl}/${certificateCode}`;
+  const verificationUrl = `${normalizedBase}/${certificateCode}`;
   
   // QuickChart QR API parameters
   const qrSize = 300; // 300x300 pixels

@@ -33,6 +33,24 @@ export const Shell = ({ children }) => {
           <NavLink to="/login" className={baseLinkClass}>
             Login Portal
           </NavLink>
+          <NavLink to="/certificate-verify" className={baseLinkClass}>
+            Verify Certificate
+          </NavLink>
+          {isAuthenticated && user?.role === 'worker' && (
+            <>
+              <NavLink to="/certifications" className={baseLinkClass}>
+                Certifications
+              </NavLink>
+              <NavLink to="/quiz-workspace" className={baseLinkClass}>
+                Quiz Workspace
+              </NavLink>
+            </>
+          )}
+          {isAuthenticated && user?.role === 'trainer' && (
+            <NavLink to="/quiz-admin" className={baseLinkClass}>
+              Quiz Admin
+            </NavLink>
+          )}
           {isAuthenticated && (
             <button
               type="button"
