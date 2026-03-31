@@ -1,82 +1,18 @@
 const CorrectiveAction = require('../models/CorrectiveAction');
-const Audit = require('../models/Audit');
 
-/**
- * @desc    Create new corrective action
- * @route   POST /api/corrective-actions
- * @access  Private (Manager, Officer)
- */
-const createCorrectiveAction = async (req, res) => {
-  try {
-    const { 
-      title, 
-      description, 
-      audit, 
-      relatedQuestion,
-      assignedTo, 
-      priority, 
-      dueDate 
-    } = req.body;
-
-    // Verify audit exists
-    const auditExists = await Audit.findById(audit);
-    if (!auditExists) {
-      return res.status(404).json({
-        success: false,
-        message: 'Audit not found'
-      });
-    }
-
-    // Validate related question if provided
-    if (relatedQuestion && relatedQuestion.questionId) {
-      const failedResponse = auditExists.responses.find(
-        r => r.questionId.toString() === relatedQuestion.questionId && !r.passed
-      );
-      
-      if (!failedResponse) {
-        return res.status(400).json({
-          success: false,
-          message: 'Related question must be a failed item from the audit'
-        });
-      }
-    }
-
-    const correctiveAction = await CorrectiveAction.create({
-      title,
-      description,
-      audit,
-      relatedQuestion,
-      assignedTo,
-      priority,
-      dueDate,
-      createdBy: req.user._id
-    });
-
-    await correctiveAction.populate([
-      { path: 'audit', select: 'site auditDate status score' },
-      { path: 'assignedTo', select: 'firstName lastName email' },
-      { path: 'createdBy', select: 'firstName lastName' }
-    ]);
-
-    res.status(201).json({
-      success: true,
-      message: 'Corrective action created successfully',
-      data: correctiveAction
-    });
-  } catch (error) {
-    console.error('Create corrective action error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating corrective action',
-      error: error.message
-    });
-  }
+const populateCorrectiveAction = async (correctiveAction) => {
+  await correctiveAction.populate([
+    { path: 'audit', select: 'site auditDate status findings' },
+    { path: 'assignedTo', select: 'firstName lastName email' },
+    { path: 'createdBy', select: 'firstName lastName' },
+    { path: 'verifiedBy', select: 'firstName lastName' }
+  ]);
 };
 
 /**
  * @desc    Get all corrective actions with filters
  * @route   GET /api/corrective-actions
- * @access  Private (Manager, Officer see all; Worker sees only assigned)
+ * @access  Private (Manager, Officer see all; Safety Compliance Manager sees only assigned)
  */
 const getAllCorrectiveActions = async (req, res) => {
   try {
@@ -92,8 +28,8 @@ const getAllCorrectiveActions = async (req, res) => {
     
     const filter = {};
 
-    // Workers can only see their own assigned corrective actions
-    if (req.user.role === 'worker') {
+    // Safety Compliance Managers can only see their own assigned corrective actions.
+    if (req.user.role === 'safety-compliance-manager') {
       filter.assignedTo = req.user._id;
     } else {
       if (assignedTo) filter.assignedTo = assignedTo;
@@ -117,7 +53,7 @@ const getAllCorrectiveActions = async (req, res) => {
     }
 
     const correctiveActions = await CorrectiveAction.find(filter)
-      .populate('audit', 'site auditDate status')
+      .populate('audit', 'site auditDate status findings')
       .populate('assignedTo', 'firstName lastName email')
       .populate('createdBy', 'firstName lastName')
       .populate('verifiedBy', 'firstName lastName')
@@ -148,7 +84,7 @@ const getCorrectiveActionById = async (req, res) => {
     const correctiveAction = await CorrectiveAction.findById(req.params.id)
       .populate({
         path: 'audit',
-        select: 'site auditDate status checklistTemplate responses score',
+        select: 'site auditDate status checklistTemplate responses score findings',
         populate: {
           path: 'checklistTemplate',
           select: 'title category'
@@ -165,8 +101,8 @@ const getCorrectiveActionById = async (req, res) => {
       });
     }
 
-    // Workers can only view their own assigned corrective actions
-    if (req.user.role === 'worker' && 
+    // Safety Compliance Managers can only view their own assigned corrective actions.
+    if (req.user.role === 'safety-compliance-manager' && 
         correctiveAction.assignedTo._id.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -191,7 +127,7 @@ const getCorrectiveActionById = async (req, res) => {
 /**
  * @desc    Update corrective action
  * @route   PUT /api/corrective-actions/:id
- * @access  Private (Manager, Officer can update all; Worker can update status of own)
+ * @access  Private (Safety Compliance Manager executes own actions; Officer verifies/rejects completed actions; Manager view-only)
  */
 const updateCorrectiveAction = async (req, res) => {
   try {
@@ -202,6 +138,8 @@ const updateCorrectiveAction = async (req, res) => {
       priority, 
       status, 
       dueDate,
+      completionReport,
+      completionSummary,
       completionNotes,
       verificationNotes
     } = req.body;
@@ -223,8 +161,16 @@ const updateCorrectiveAction = async (req, res) => {
       });
     }
 
-    // Workers can only update status of their own assigned corrective actions
-    if (req.user.role === 'worker') {
+    // Managers have read-only access for corrective actions in this workflow.
+    if (req.user.role === 'manager') {
+      return res.status(403).json({
+        success: false,
+        message: 'Managers have view-only access for corrective actions'
+      });
+    }
+
+    // Safety Compliance Managers can only update status for actions assigned to them.
+    if (req.user.role === 'safety-compliance-manager') {
       if (correctiveAction.assignedTo.toString() !== req.user._id.toString()) {
         return res.status(403).json({
           success: false,
@@ -232,22 +178,22 @@ const updateCorrectiveAction = async (req, res) => {
         });
       }
       
-      // Workers can only update status to 'in-progress' or 'completed'
+      // Safety Compliance Managers can only update status to 'in-progress' or 'completed'.
       if (status) {
-        const allowedWorkerStatuses = ['in-progress', 'completed'];
-        const allowedWorkerTransitions = {
+        const allowedExecutionStatuses = ['in-progress', 'completed'];
+        const allowedExecutionTransitions = {
           'open': ['in-progress'],
           'in-progress': ['completed']
         };
 
-        if (!allowedWorkerStatuses.includes(status)) {
+        if (!allowedExecutionStatuses.includes(status)) {
           return res.status(403).json({
             success: false,
-            message: 'Workers can only update status to in-progress or completed'
+            message: 'Safety compliance managers can only update status to in-progress or completed'
           });
         }
 
-        if (!allowedWorkerTransitions[correctiveAction.status]?.includes(status)) {
+        if (!allowedExecutionTransitions[correctiveAction.status]?.includes(status)) {
           return res.status(400).json({
             success: false,
             message: `Cannot change status from '${correctiveAction.status}' to '${status}'`
@@ -255,64 +201,122 @@ const updateCorrectiveAction = async (req, res) => {
         }
 
         correctiveAction.status = status;
+
+        if (status === 'in-progress') {
+          correctiveAction.completedAt = null;
+        }
         
         if (status === 'completed') {
+          const submittedReport = typeof completionReport === 'string' ? completionReport.trim() : '';
+          const submittedSummary =
+            typeof completionSummary === 'string' && completionSummary.trim()
+              ? completionSummary.trim()
+              : typeof completionNotes === 'string'
+                ? completionNotes.trim()
+                : '';
+
+          if (!submittedSummary) {
+            return res.status(400).json({
+              success: false,
+              message: 'Summary note is required when submitting for verification'
+            });
+          }
+
+          if (!correctiveAction.completionDocument?.url) {
+            return res.status(400).json({
+              success: false,
+              message: 'Upload a PDF, DOC, or DOCX completion report before submitting for verification'
+            });
+          }
+
           correctiveAction.completedAt = new Date();
+          correctiveAction.completionReport = submittedReport;
+          correctiveAction.completionSummary = submittedSummary;
+          correctiveAction.completionNotes = submittedSummary;
         }
       }
 
-      // Workers can add completion notes
-      if (completionNotes) {
-        correctiveAction.completionNotes = completionNotes;
+      // Safety Compliance Managers can update draft completion report/summary while in progress.
+      if (typeof completionReport === 'string' && completionReport.trim() && status !== 'completed') {
+        correctiveAction.completionReport = completionReport.trim();
+      }
+
+      if (typeof completionSummary === 'string' && completionSummary.trim() && status !== 'completed') {
+        correctiveAction.completionSummary = completionSummary.trim();
+        correctiveAction.completionNotes = completionSummary.trim();
+      }
+
+      // Backward-compatible summary note support.
+      if (typeof completionNotes === 'string' && completionNotes.trim() && status !== 'completed') {
+        correctiveAction.completionNotes = completionNotes.trim();
+        if (!correctiveAction.completionSummary) {
+          correctiveAction.completionSummary = completionNotes.trim();
+        }
       }
 
     } else {
-      // Manager/Officer can update all fields
-      if (title) correctiveAction.title = title;
-      if (description) correctiveAction.description = description;
-      if (assignedTo) correctiveAction.assignedTo = assignedTo;
-      if (priority) correctiveAction.priority = priority;
-      if (dueDate) correctiveAction.dueDate = dueDate;
-      if (completionNotes) correctiveAction.completionNotes = completionNotes;
-      if (verificationNotes) correctiveAction.verificationNotes = verificationNotes;
-      
-      if (status) {
-        // Validate status transitions for Manager/Officer
-        const validTransitions = {
-          'open': ['in-progress', 'closed'],
-          'in-progress': ['completed', 'open', 'closed'],
-          'completed': ['verified', 'in-progress', 'closed'],
-          'verified': ['closed']
-        };
+      // Officer can only review a safety-compliance-manager-completed action.
+      if (title || description || assignedTo || priority || dueDate || completionNotes || completionReport || completionSummary) {
+        return res.status(403).json({
+          success: false,
+          message: 'Officers can only review completed corrective actions'
+        });
+      }
 
-        if (!validTransitions[correctiveAction.status]?.includes(status)) {
+      if (!status) {
+        return res.status(400).json({
+          success: false,
+          message: 'Status is required for officer review'
+        });
+      }
+
+      if (!['verified', 'in-progress'].includes(status)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Officers can only set status to verified or in-progress'
+        });
+      }
+
+      if (correctiveAction.status !== 'completed') {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot review action while status is '${correctiveAction.status}'. Safety compliance manager must complete it first.`
+        });
+      }
+
+      if (status === 'verified') {
+        if (!correctiveAction.completionDocument?.url || !correctiveAction.completionSummary) {
           return res.status(400).json({
             success: false,
-            message: `Cannot change status from '${correctiveAction.status}' to '${status}'`
+            message: 'Cannot verify without submitted completion document and summary note'
           });
         }
 
-        correctiveAction.status = status;
-        
-        if (status === 'completed') {
-          correctiveAction.completedAt = new Date();
+        correctiveAction.status = 'verified';
+        correctiveAction.verifiedBy = req.user._id;
+        correctiveAction.verifiedAt = new Date();
+        correctiveAction.verificationNotes = verificationNotes || '';
+      }
+
+      if (status === 'in-progress') {
+        if (!verificationNotes || !verificationNotes.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: 'Rejection reason is required when sending action back to in-progress'
+          });
         }
-        
-        if (status === 'verified') {
-          correctiveAction.verifiedBy = req.user._id;
-          correctiveAction.verifiedAt = new Date();
-        }
+
+        correctiveAction.status = 'in-progress';
+        correctiveAction.completedAt = null;
+        correctiveAction.verifiedBy = null;
+        correctiveAction.verifiedAt = null;
+        correctiveAction.verificationNotes = verificationNotes.trim();
       }
     }
 
     await correctiveAction.save();
 
-    await correctiveAction.populate([
-      { path: 'audit', select: 'site auditDate status' },
-      { path: 'assignedTo', select: 'firstName lastName email' },
-      { path: 'createdBy', select: 'firstName lastName' },
-      { path: 'verifiedBy', select: 'firstName lastName' }
-    ]);
+    await populateCorrectiveAction(correctiveAction);
 
     res.status(200).json({
       success: true,
@@ -332,47 +336,19 @@ const updateCorrectiveAction = async (req, res) => {
 /**
  * @desc    Delete corrective action
  * @route   DELETE /api/corrective-actions/:id
- * @access  Private (Manager only)
+ * @access  Private
  */
 const deleteCorrectiveAction = async (req, res) => {
-  try {
-    const correctiveAction = await CorrectiveAction.findById(req.params.id);
-
-    if (!correctiveAction) {
-      return res.status(404).json({
-        success: false,
-        message: 'Corrective action not found'
-      });
-    }
-
-    // Prevent deleting verified or closed corrective actions
-    if (['verified', 'closed'].includes(correctiveAction.status)) {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot delete a ${correctiveAction.status} corrective action`
-      });
-    }
-
-    await CorrectiveAction.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: 'Corrective action deleted successfully'
-    });
-  } catch (error) {
-    console.error('Delete corrective action error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting corrective action',
-      error: error.message
-    });
-  }
+  return res.status(403).json({
+    success: false,
+    message: 'Deleting corrective actions is disabled in this workflow'
+  });
 };
 
 /**
  * @desc    Get corrective actions statistics/dashboard
  * @route   GET /api/corrective-actions/stats
- * @access  Private (Manager, Officer)
+ * @access  Private (Manager)
  */
 const getCorrectiveActionStats = async (req, res) => {
   try {
@@ -428,10 +404,76 @@ const getCorrectiveActionStats = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Upload completion report document (PDF/DOC/DOCX)
+ * @route   POST /api/corrective-actions/:id/completion-document
+ * @access  Private (Safety Compliance Manager)
+ */
+const uploadCompletionDocument = async (req, res) => {
+  try {
+    const correctiveAction = await CorrectiveAction.findById(req.params.id);
+
+    if (!correctiveAction) {
+      return res.status(404).json({
+        success: false,
+        message: 'Corrective action not found'
+      });
+    }
+
+    if (correctiveAction.assignedTo.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only upload documents for corrective actions assigned to you'
+      });
+    }
+
+    if (!['in-progress', 'completed'].includes(correctiveAction.status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Completion document can only be uploaded when action is in-progress or completed'
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a PDF, DOC, or DOCX file'
+      });
+    }
+
+    const documentUrl = `${req.protocol}://${req.get('host')}/uploads/completion-reports/${req.file.filename}`;
+
+    correctiveAction.completionDocument = {
+      fileName: req.file.filename,
+      originalName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      url: documentUrl,
+      uploadedAt: new Date()
+    };
+
+    await correctiveAction.save();
+    await populateCorrectiveAction(correctiveAction);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Completion document uploaded successfully',
+      data: correctiveAction
+    });
+  } catch (error) {
+    console.error('Upload completion document error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error uploading completion document',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  createCorrectiveAction,
   getAllCorrectiveActions,
   getCorrectiveActionById,
+  uploadCompletionDocument,
   updateCorrectiveAction,
   deleteCorrectiveAction,
   getCorrectiveActionStats

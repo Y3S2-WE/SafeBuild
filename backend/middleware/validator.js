@@ -37,7 +37,7 @@ const registerValidation = [
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('role')
     .optional()
-    .isIn(['worker', 'manager', 'officer', 'trainer'])
+    .isIn(['worker', 'manager', 'officer', 'trainer', 'safety-compliance-manager'])
     .withMessage('Invalid role'),
   body('phone')
     .optional()
@@ -123,10 +123,112 @@ const submitAttemptValidation = [
   handleValidationErrors
 ];
 
+/**
+ * Checklist template creation/update validation rules
+ */
+const checklistValidation = [
+  body('title')
+    .trim()
+    .notEmpty().withMessage('Title is required')
+    .isLength({ min: 3, max: 200 }).withMessage('Title must be between 3 and 200 characters'),
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
+  body('category')
+    .notEmpty().withMessage('Category is required')
+    .isIn(['fire-safety', 'electrical', 'ppe', 'machinery', 'chemical', 'general', 'environmental', 'emergency'])
+    .withMessage('Invalid category'),
+  body('items')
+    .isArray({ min: 1 }).withMessage('At least one checklist item is required'),
+  body('items.*.question')
+    .trim()
+    .notEmpty().withMessage('Question is required for each item')
+    .isLength({ min: 5, max: 500 }).withMessage('Question must be between 5 and 500 characters'),
+  body('items.*.expectedAnswer')
+    .isBoolean().withMessage('Expected answer must be a boolean for each item'),
+  handleValidationErrors
+];
+
+/**
+ * Audit creation validation rules
+ */
+const auditCreateValidation = [
+  body('site')
+    .trim()
+    .notEmpty().withMessage('Site/Location is required')
+    .isLength({ min: 3, max: 200 }).withMessage('Site name must be between 3 and 200 characters'),
+  body('auditDate')
+    .notEmpty().withMessage('Audit date is required')
+    .isISO8601().withMessage('Audit date must be a valid ISO 8601 date'),
+  body('checklistTemplate')
+    .notEmpty().withMessage('Checklist template is required')
+    .isMongoId().withMessage('Invalid checklist template ID'),
+  body('assignedAuditor')
+    .notEmpty().withMessage('Assigned auditor is required')
+    .isMongoId().withMessage('Invalid auditor ID'),
+  handleValidationErrors
+];
+
+/**
+ * Audit execution/update validation rules (responses submission)
+ */
+const auditExecutionValidation = [
+  body('responses')
+    .optional()
+    .isArray().withMessage('Responses must be an array'),
+  body('responses.*.questionId')
+    .optional()
+    .isMongoId().withMessage('Invalid question ID in responses'),
+  body('responses.*.actualAnswer')
+    .optional()
+    .isBoolean().withMessage('Actual answer must be a boolean'),
+  body('findings')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 }).withMessage('Findings cannot exceed 2000 characters'),
+  body('status')
+    .optional()
+    .isIn(['scheduled', 'in-progress', 'completed', 'cancelled'])
+    .withMessage('Invalid status'),
+  body('cancelReason')
+    .if(() => false)
+    .trim(),
+  handleValidationErrors
+];
+
+/**
+ * Corrective action update validation rules
+ */
+const correctiveActionUpdateValidation = [
+  body('status')
+    .optional()
+    .trim()
+    .isIn(['open', 'in-progress', 'completed', 'verified', 'closed'])
+    .withMessage('Invalid status'),
+  body('completionSummary')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 }).withMessage('Completion summary cannot exceed 1000 characters'),
+  body('completionReport')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 }).withMessage('Completion report cannot exceed 2000 characters'),
+  body('verificationNotes')
+    .optional()
+    .trim()
+    .isLength({ max: 500 }).withMessage('Verification notes cannot exceed 500 characters'),
+  handleValidationErrors
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
   createQuizValidation,
   addQuestionValidation,
-  submitAttemptValidation
+  submitAttemptValidation,
+  checklistValidation,
+  auditCreateValidation,
+  auditExecutionValidation,
+  correctiveActionUpdateValidation
 };

@@ -4,7 +4,7 @@ const { getDashboardAnalytics, getAnalyticsChartsOnly } = require('../controller
 const { protect, authorize } = require('../middleware/auth');
 
 router.use(protect);
-router.use(authorize('manager', 'officer'));
+router.use(authorize('manager'));
 
 router.get('/dashboard', getDashboardAnalytics);
 router.get('/charts', getAnalyticsChartsOnly);

@@ -49,6 +49,40 @@ const correctiveActionSchema = new mongoose.Schema({
   completedAt: {
     type: Date
   },
+  completionReport: {
+    type: String,
+    trim: true,
+    maxlength: [2000, 'Completion report cannot exceed 2000 characters']
+  },
+  completionSummary: {
+    type: String,
+    trim: true,
+    maxlength: [1000, 'Completion summary cannot exceed 1000 characters']
+  },
+  completionDocument: {
+    fileName: {
+      type: String,
+      trim: true
+    },
+    originalName: {
+      type: String,
+      trim: true
+    },
+    mimeType: {
+      type: String,
+      trim: true
+    },
+    size: {
+      type: Number
+    },
+    url: {
+      type: String,
+      trim: true
+    },
+    uploadedAt: {
+      type: Date
+    }
+  },
   completionNotes: {
     type: String,
     trim: true,
