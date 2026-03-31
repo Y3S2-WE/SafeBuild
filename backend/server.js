@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -12,6 +13,7 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Request logging middleware (development)
 if (process.env.NODE_ENV === 'development') {
@@ -50,6 +52,7 @@ app.use('/api/incidents', require('./routes/incidentRoutes'));
 app.use('/api/checklists', require('./routes/checklistRoutes'));
 app.use('/api/audits', require('./routes/auditRoutes'));
 app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // 404 Handler
 app.use((req, res) => {

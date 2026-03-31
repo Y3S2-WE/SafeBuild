@@ -8,6 +8,7 @@ const {
   deleteChecklist
 } = require('../controllers/checklistController');
 const { protect, authorize } = require('../middleware/auth');
+const { checklistValidation } = require('../middleware/validator');
 
 // All routes require authentication
 router.use(protect);
@@ -18,11 +19,11 @@ router.get('/', getAllChecklists);
 // GET single checklist - All authenticated users
 router.get('/:id', getChecklistById);
 
-// POST create checklist - Manager, Officer only
-router.post('/', authorize('manager', 'officer'), createChecklist);
+// POST create checklist - Manager only
+router.post('/', authorize('manager'), checklistValidation, createChecklist);
 
-// PUT update checklist - Manager, Officer only
-router.put('/:id', authorize('manager', 'officer'), updateChecklist);
+// PUT update checklist - Manager only
+router.put('/:id', authorize('manager'), checklistValidation, updateChecklist);
 
 // DELETE checklist - Manager only
 router.delete('/:id', authorize('manager'), deleteChecklist);
