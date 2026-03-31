@@ -3,15 +3,31 @@ import {
   Activity,
   Award,
   BarChart3,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
   ClipboardCheck,
+  Eye,
   FilePenLine,
+  Fingerprint,
   GraduationCap,
+  HelpCircle,
+  Layers,
+  LayoutDashboard,
   ListChecks,
   Plus,
   RefreshCw,
+  Settings,
   ShieldAlert,
+  Sparkles,
+  Star,
+  Target,
+  Timer,
   Trash2,
-  Users
+  Trophy,
+  Users,
+  X,
+  Zap
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -51,8 +67,11 @@ const splitByQuiz = (items, idKey) =>
     return acc;
   }, {});
 
-const sectionButtonClass =
-  'rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/20';
+const sectionTabs = [
+  { key: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { key: 'create', label: 'Create & CRUD', icon: Settings },
+  { key: 'info', label: 'Quiz Info', icon: BarChart3 }
+];
 
 export const QuizAdminDashboard = () => {
   const { user } = useAuth();
@@ -95,18 +114,18 @@ export const QuizAdminDashboard = () => {
   const selectedQuizSummaryCards = useMemo(() => {
     if (!selectedQuiz) {
       return [
-        { label: 'Questions', value: 0, icon: ListChecks },
-        { label: 'Pass Mark', value: '0%', icon: ClipboardCheck },
-        { label: 'Attempts', value: 0, icon: Users },
-        { label: 'Certificates', value: 0, icon: Award }
+        { label: 'Questions', value: 0, icon: ListChecks, color: 'brand' },
+        { label: 'Pass Mark', value: '0%', icon: Target, color: 'emerald' },
+        { label: 'Attempts', value: 0, icon: Users, color: 'amber' },
+        { label: 'Certificates', value: 0, icon: Award, color: 'purple' }
       ];
     }
 
     return [
-      { label: 'Questions', value: selectedQuiz.questions?.length || 0, icon: ListChecks },
-      { label: 'Pass Mark', value: `${selectedQuiz.passMark}%`, icon: ClipboardCheck },
-      { label: 'Attempts', value: selectedStats.totalAttempts || 0, icon: Users },
-      { label: 'Certificates', value: selectedCertificates.length, icon: Award }
+      { label: 'Questions', value: selectedQuiz.questions?.length || 0, icon: ListChecks, color: 'brand' },
+      { label: 'Pass Mark', value: `${selectedQuiz.passMark}%`, icon: Target, color: 'emerald' },
+      { label: 'Attempts', value: selectedStats.totalAttempts || 0, icon: Users, color: 'amber' },
+      { label: 'Certificates', value: selectedCertificates.length, icon: Award, color: 'purple' }
     ];
   }, [selectedQuiz, selectedStats, selectedCertificates.length]);
 
@@ -347,12 +366,15 @@ export const QuizAdminDashboard = () => {
 
   if (user?.role !== 'trainer') {
     return (
-      <section className="glass-panel rounded-3xl p-8 shadow-card">
-        <p className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-amber-700">
+      <section className="glass-card-premium rounded-3xl p-10 shadow-card text-center max-w-xl mx-auto mt-12">
+        <div className="icon-container icon-container-amber mx-auto mb-4">
+          <ShieldAlert size={22} />
+        </div>
+        <p className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-amber-700 mb-4">
           <ShieldAlert size={14} /> Restricted View
         </p>
-        <h1 className="mt-4 text-2xl font-extrabold text-ink-900">Trainer Access Required</h1>
-        <p className="mt-2 text-sm text-ink-800">
+        <h1 className="text-2xl font-extrabold text-ink-900">Trainer Access Required</h1>
+        <p className="mt-3 text-sm text-ink-800 leading-relaxed">
           This dashboard is available only for trainer accounts. Please sign in with a trainer role to manage quizzes.
         </p>
       </section>
@@ -360,49 +382,47 @@ export const QuizAdminDashboard = () => {
   }
 
   return (
-    <section className="space-y-6">
-      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0b2048] via-[#10326e] to-[#1652a6] p-7 text-white shadow-card">
-        <div className="pointer-events-none absolute -top-16 right-8 h-40 w-40 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 left-8 h-44 w-44 rounded-full bg-orange-300/15 blur-3xl" />
+    <section className="space-y-8">
+      {/* ── Hero Section ── */}
+      <header className="quiz-hero-bg rounded-3xl p-8 md:p-10 text-white shadow-card">
+        <div className="floating-orb floating-orb-lg bg-cyan-400/20 -top-20 right-10" style={{ animationDelay: '0s' }} />
+        <div className="floating-orb floating-orb-md bg-orange-400/15 -bottom-16 left-8" style={{ animationDelay: '2s' }} />
+        <div className="floating-orb floating-orb-sm bg-purple-300/15 top-1/3 right-1/4" style={{ animationDelay: '3s' }} />
 
-        <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100">
-              <GraduationCap size={14} /> Trainer Workspace
+        <div className="relative z-10 flex flex-wrap items-start justify-between gap-5">
+          <div className="animate-fade-in-up" style={{ opacity: 0 }}>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100 border border-white/10">
+              <GraduationCap size={14} className="animate-pulse" /> Trainer Workspace
             </p>
-            <h1 className="mt-4 text-3xl font-extrabold">Quiz Admin Dashboard</h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/85">
-              First impression view with a 3-section flow: Quiz Overview, Create Quiz & Questions, and Quiz Info tables.
+            <h1 className="mt-5 text-4xl font-extrabold leading-tight">
+              Quiz Admin <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200">Dashboard</span>
+            </h1>
+            <p className="mt-3 max-w-xl text-sm text-white/80 leading-relaxed">
+              Manage quizzes, questions, view performance analytics and issued certificates — all from one workspace.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveSection('overview')}
-              className={`${sectionButtonClass} ${activeSection === 'overview' ? 'bg-white/30 text-white' : ''}`}
-            >
-              1. Overview
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('create')}
-              className={`${sectionButtonClass} ${activeSection === 'create' ? 'bg-white/30 text-white' : ''}`}
-            >
-              2. Create & CRUD
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('info')}
-              className={`${sectionButtonClass} ${activeSection === 'info' ? 'bg-white/30 text-white' : ''}`}
-            >
-              3. Quiz Info
-            </button>
+          {/* Section Tabs */}
+          <div className="animate-fade-in-up anim-delay-200 flex flex-wrap items-center gap-2" style={{ opacity: 0 }}>
+            {sectionTabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveSection(tab.key)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] transition-all duration-300 border ${
+                  activeSection === tab.key
+                    ? 'bg-white text-brand-800 border-white shadow-lg'
+                    : 'border-white/20 bg-white/10 text-white/90 hover:bg-white/20'
+                }`}
+              >
+                <tab.icon size={14} /> {tab.label}
+              </button>
+            ))}
             <button
               type="button"
               onClick={loadData}
               disabled={isLoading}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-800 transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white/90 transition hover:bg-white/25 disabled:opacity-50"
             >
               <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Refresh
             </button>
@@ -410,515 +430,644 @@ export const QuizAdminDashboard = () => {
         </div>
       </header>
 
+      {/* ── Notifications ── */}
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>
+        <div className="rounded-2xl border border-red-200/80 bg-red-50/90 backdrop-blur-sm px-5 py-4 text-sm font-medium text-red-700 flex items-center gap-3 animate-fade-in-up shadow-sm">
+          <div className="icon-container bg-red-100 text-red-600 !w-9 !h-9 !min-w-[36px]"><ShieldAlert size={18} /></div>
+          {error}
+        </div>
       )}
       {notice && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{notice}</div>
+        <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/90 backdrop-blur-sm px-5 py-4 text-sm font-medium text-emerald-700 flex items-center gap-3 animate-fade-in-up shadow-sm">
+          <div className="icon-container icon-container-emerald !w-9 !h-9 !min-w-[36px]"><CheckCircle2 size={18} /></div>
+          {notice}
+        </div>
       )}
 
+      {/* ═══════ SECTION 1: OVERVIEW ═══════ */}
       {activeSection === 'overview' && (
-      <section id="section-overview" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-ink-900">1. Quiz Overview</h2>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">
-            Quiz List • Selected Overview • Questions
-          </p>
-        </div>
+        <section id="section-overview" className="space-y-6 animate-fade-in-up" style={{ opacity: 0 }}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-ink-900 flex items-center gap-2">
+              <LayoutDashboard size={20} className="text-brand-600" /> Quiz Overview
+            </h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600">
+              Quiz List • Selected Overview • Questions
+            </p>
+          </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {selectedQuizSummaryCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <article key={card.label} className="rounded-2xl border border-brand-100 bg-white p-4 shadow-card">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">{card.label}</p>
-                <p className="mt-1 text-2xl font-extrabold text-ink-900">{card.value}</p>
-                <Icon className="mt-2 text-brand-600" size={18} />
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-[320px_1fr]">
-          <article className="glass-panel rounded-3xl p-5 shadow-card">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-ink-900">Quiz List</h3>
-              <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">{quizzes.length}</span>
-            </div>
-            <div className="mt-4 space-y-2">
-              {quizzes.length === 0 && <p className="text-sm text-ink-800">No quizzes yet. Create one in section 2.</p>}
-              {quizzes.map((quiz) => (
-                <button
-                  key={quiz._id}
-                  type="button"
-                  onClick={() => setSelectedQuizId(quiz._id)}
-                  className={`w-full rounded-2xl border px-3 py-3 text-left transition ${
-                    selectedQuizId === quiz._id
-                      ? 'border-brand-500 bg-brand-50 shadow'
-                      : 'border-white/70 bg-white/80 hover:border-brand-300'
-                  }`}
+          {/* Stat Cards */}
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {selectedQuizSummaryCards.map((card, i) => {
+              const Icon = card.icon;
+              return (
+                <article
+                  key={card.label}
+                  className="stat-card-glow animate-fade-in-up"
+                  style={{ opacity: 0, animationDelay: `${i * 0.1}s` }}
                 >
-                  <p className="text-sm font-bold text-ink-900">{quiz.title}</p>
-                  <p className="mt-1 text-xs text-ink-800">
-                    {quiz.questions?.length || 0} Qs • Pass {quiz.passMark}% • {quiz.isActive ? 'Active' : 'Inactive'}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </article>
-
-          <article className="rounded-3xl bg-[#0f234d] p-5 text-white shadow-card">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-lg font-bold">Selected Quiz Overview</h3>
-              {selectedQuiz && (
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleEditQuiz(selectedQuiz)}
-                    className="inline-flex items-center gap-1 rounded-xl border border-white/30 px-3 py-1.5 text-xs font-bold uppercase tracking-wide hover:bg-white/15"
-                  >
-                    <FilePenLine size={13} /> Edit Quiz
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteQuiz(selectedQuiz._id)}
-                    className="inline-flex items-center gap-1 rounded-xl border border-red-300/50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-red-200 hover:bg-red-500/20"
-                  >
-                    <Trash2 size={13} /> Delete Quiz
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {!selectedQuiz ? (
-              <p className="mt-3 text-sm text-white/80">Select a quiz from the left list.</p>
-            ) : (
-              <>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Title</p>
-                    <p className="mt-1 text-sm font-bold">{selectedQuiz.title}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-700">{card.label}</p>
+                      <p className="mt-1 text-3xl font-extrabold text-ink-900">{card.value}</p>
+                    </div>
+                    <div className={`icon-container icon-container-${card.color}`}>
+                      <Icon size={20} />
+                    </div>
                   </div>
-                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Pass Mark</p>
-                    <p className="mt-1 text-sm font-bold">{selectedQuiz.passMark}%</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Time Limit</p>
-                    <p className="mt-1 text-sm font-bold">{selectedQuiz.timeLimit || '-'} mins</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Status</p>
-                    <p className="mt-1 text-sm font-bold">{selectedQuiz.isActive ? 'Active' : 'Inactive'}</p>
-                  </div>
-                </div>
+                </article>
+              );
+            })}
+          </div>
 
-                <p className="mt-4 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white/90">
-                  {selectedQuiz.description}
-                </p>
-
-                <div className="mt-4">
-                  <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-100">Questions</h4>
-                  <div className="mt-2 overflow-x-auto rounded-2xl border border-black/70 bg-white/5">
-                    <table className="min-w-full border-collapse border border-black/70 text-sm">
-                      <thead>
-                        <tr className="text-left text-xs uppercase tracking-wide text-cyan-100">
-                          <th className="border border-black/70 px-3 py-2">#</th>
-                          <th className="border border-black/70 px-3 py-2">Question</th>
-                          <th className="border border-black/70 px-3 py-2">Points</th>
-                          <th className="border border-black/70 px-3 py-2">Correct Answer</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(selectedQuiz.questions || []).map((question, index) => {
-                          const correct = (question.answers || []).find((answer) => answer.isCorrect);
-                          return (
-                            <tr key={question._id} className="text-white/90">
-                              <td className="border border-black/70 px-3 py-2">{index + 1}</td>
-                              <td className="border border-black/70 px-3 py-2">{question.questionText}</td>
-                              <td className="border border-black/70 px-3 py-2">{question.points}</td>
-                              <td className="border border-black/70 px-3 py-2">{correct?.answerText || '-'}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </>
-            )}
-          </article>
-        </div>
-      </section>
-      )}
-
-      {activeSection === 'create' && (
-      <section id="section-create" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-ink-900">2. Create Quiz and Questions</h2>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">Detailed Form • Question CRUD</p>
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-2">
-          <article className="glass-panel rounded-3xl p-5 shadow-card">
-            <h3 className="text-lg font-bold text-ink-900">Create Quiz (Detailed Form)</h3>
-            <form className="mt-4 space-y-3" onSubmit={handleQuizSubmit}>
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Quiz Title</label>
-                <input
-                  className="w-full rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                  placeholder="Construction Safety Level 1"
-                  value={quizForm.title}
-                  onChange={(event) => setQuizForm((prev) => ({ ...prev, title: event.target.value }))}
-                  required
-                />
+          <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+            {/* Quiz List */}
+            <article className="glass-card-premium rounded-3xl p-5 shadow-card">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-ink-900 flex items-center gap-2">
+                  <Layers size={18} className="text-brand-600" /> Quiz List
+                </h3>
+                <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">{quizzes.length}</span>
               </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Description</label>
-                <textarea
-                  className="w-full rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                  placeholder="Explain quiz objective and coverage."
-                  rows={4}
-                  value={quizForm.description}
-                  onChange={(event) => setQuizForm((prev) => ({ ...prev, description: event.target.value }))}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Pass Mark (%)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    className="w-full rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                    value={quizForm.passMark}
-                    onChange={(event) => setQuizForm((prev) => ({ ...prev, passMark: event.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Time Limit (mins)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-full rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                    value={quizForm.timeLimit}
-                    onChange={(event) => setQuizForm((prev) => ({ ...prev, timeLimit: event.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
-
-              <label className="flex items-center gap-2 rounded-xl border border-brand-100 bg-white/70 px-3 py-2 text-sm font-semibold text-ink-800">
-                <input
-                  type="checkbox"
-                  checked={quizForm.isActive}
-                  onChange={(event) => setQuizForm((prev) => ({ ...prev, isActive: event.target.checked }))}
-                />
-                Active Quiz
-              </label>
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:opacity-60"
-                >
-                  <Plus size={15} /> {editingQuizId ? 'Update Quiz' : 'Create Quiz'}
-                </button>
-                {editingQuizId && (
+              <div className="space-y-2">
+                {quizzes.length === 0 && <p className="text-sm text-ink-800">No quizzes yet. Create one in section 2.</p>}
+                {quizzes.map((quiz) => (
                   <button
+                    key={quiz._id}
                     type="button"
-                    className="rounded-xl border border-brand-200 px-3 py-2 text-sm font-semibold text-brand-700"
-                    onClick={resetQuizForm}
+                    onClick={() => setSelectedQuizId(quiz._id)}
+                    className={`w-full rounded-2xl border px-4 py-3.5 text-left transition-all duration-300 ${
+                      selectedQuizId === quiz._id
+                        ? 'border-brand-400 bg-gradient-to-r from-brand-50 to-brand-100/50 shadow-md shadow-brand-100/50'
+                        : 'border-white/60 bg-white/70 hover:border-brand-200 hover:shadow-sm'
+                    }`}
                   >
-                    Cancel
+                    <div className="flex items-center gap-3">
+                      <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${selectedQuizId === quiz._id ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white' : 'bg-brand-50 text-brand-600'}`}>
+                        <BookOpen size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-ink-900 truncate">{quiz.title}</p>
+                        <p className="mt-0.5 text-xs text-ink-800 flex items-center gap-1.5">
+                          <span>{quiz.questions?.length || 0} Qs</span>
+                          <span className="text-brand-300">•</span>
+                          <span>Pass {quiz.passMark}%</span>
+                          <span className="text-brand-300">•</span>
+                          <span className={`font-semibold ${quiz.isActive ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {quiz.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
                   </button>
+                ))}
+              </div>
+            </article>
+
+            {/* Selected Quiz Overview (Dark Panel) */}
+            <article className="glass-card-dark rounded-3xl p-6 text-white shadow-card">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Eye size={18} className="text-cyan-300" /> Selected Quiz Overview
+                </h3>
+                {selectedQuiz && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEditQuiz(selectedQuiz)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-bold uppercase tracking-wide hover:bg-white/20 transition"
+                    >
+                      <FilePenLine size={13} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteQuiz(selectedQuiz._id)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-bold uppercase tracking-wide text-red-300 hover:bg-red-500/20 transition"
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </div>
                 )}
               </div>
-            </form>
-          </article>
 
-          <article className="glass-panel rounded-3xl p-5 shadow-card">
-            <h3 className="text-lg font-bold text-ink-900">Question CRUD</h3>
-            {!selectedQuiz ? (
-              <p className="mt-3 text-sm text-ink-800">Select a quiz in section 1 before creating or editing questions.</p>
-            ) : (
-              <>
-                <form className="mt-4 space-y-3" onSubmit={handleQuestionSubmit}>
-                  <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Question Text</label>
-                    <input
-                      className="w-full rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                      value={questionForm.questionText}
-                      onChange={(event) =>
-                        setQuestionForm((prev) => ({
-                          ...prev,
-                          questionText: event.target.value
-                        }))
-                      }
-                      required
-                    />
+              {!selectedQuiz ? (
+                <div className="text-center py-10">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 text-cyan-300 mb-3">
+                    <ClipboardCheck size={24} />
                   </div>
-
-                  <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Points</label>
-                    <input
-                      type="number"
-                      min={1}
-                      className="w-40 rounded-xl border border-brand-100 bg-white/90 px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                      value={questionForm.points}
-                      onChange={(event) =>
-                        setQuestionForm((prev) => ({
-                          ...prev,
-                          points: event.target.value
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {questionForm.answers.map((answer, index) => (
-                      <div key={`answer-input-${index}`} className="rounded-2xl border border-white/70 bg-white/75 p-3">
-                        <div className="mb-2 flex items-center justify-between">
-                          <p className="text-xs font-bold uppercase tracking-wide text-brand-700">Option {index + 1}</p>
-                          <button
-                            type="button"
-                            onClick={() => setCorrectAnswer(index)}
-                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                              answer.isCorrect
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-slate-100 text-slate-600 hover:bg-brand-100 hover:text-brand-700'
-                            }`}
-                          >
-                            {answer.isCorrect ? 'Correct' : 'Set Correct'}
-                          </button>
-                        </div>
-                        <input
-                          className="w-full rounded-xl border border-brand-100 bg-white px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2"
-                          value={answer.answerText}
-                          onChange={(event) =>
-                            setQuestionForm((prev) => ({
-                              ...prev,
-                              answers: prev.answers.map((item, answerIndex) =>
-                                answerIndex === index ? { ...item, answerText: event.target.value } : item
-                              )
-                            }))
-                          }
-                          required
-                        />
+                  <p className="text-sm text-white/70">Select a quiz from the list.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Quiz Info Cards */}
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
+                    {[
+                      { label: 'Title', value: selectedQuiz.title },
+                      { label: 'Pass Mark', value: `${selectedQuiz.passMark}%` },
+                      { label: 'Time Limit', value: `${selectedQuiz.timeLimit || '-'} mins` },
+                      { label: 'Status', value: selectedQuiz.isActive ? 'Active' : 'Inactive' }
+                    ].map((info) => (
+                      <div key={info.label} className="rounded-2xl border border-white/10 bg-white/5 p-3.5">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-cyan-200 font-semibold">{info.label}</p>
+                        <p className="mt-1 text-sm font-bold truncate">{info.value}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:opacity-60"
-                    >
-                      <Plus size={14} /> {editingQuestionId ? 'Update Question' : 'Add Question'}
-                    </button>
-                    {editingQuestionId && (
-                      <button
-                        type="button"
-                        onClick={resetQuestionForm}
-                        className="rounded-xl border border-brand-200 px-3 py-2 text-sm font-semibold text-brand-700"
-                      >
-                        Cancel Edit
-                      </button>
-                    )}
-                  </div>
-                </form>
+                  <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/85 leading-relaxed mb-5">
+                    {selectedQuiz.description}
+                  </p>
 
-                <div className="mt-5 overflow-x-auto rounded-2xl border border-black/70 bg-white/70">
-                  <table className="min-w-full border-collapse border border-black/70 text-sm">
-                    <thead>
-                      <tr className="text-left text-xs uppercase tracking-wide text-brand-700">
-                        <th className="border border-black/70 px-3 py-2">#</th>
-                        <th className="border border-black/70 px-3 py-2">Question</th>
-                        <th className="border border-black/70 px-3 py-2">Points</th>
-                        <th className="border border-black/70 px-3 py-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(selectedQuiz.questions || []).map((question, index) => (
-                        <tr key={question._id} className="text-ink-800">
-                          <td className="border border-black/70 px-3 py-2">{index + 1}</td>
-                          <td className="border border-black/70 px-3 py-2">{question.questionText}</td>
-                          <td className="border border-black/70 px-3 py-2">{question.points}</td>
-                          <td className="border border-black/70 px-3 py-2">
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleEditQuestion(question)}
-                                className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteQuestion(question._id)}
-                                className="rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </article>
-        </div>
-      </section>
+                  {/* Questions Table */}
+                  <div>
+                    <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-200 flex items-center gap-2 mb-3">
+                      <HelpCircle size={14} /> Questions ({selectedQuiz.questions?.length || 0})
+                    </h4>
+                    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5">
+                      <table className="table-modern-dark">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Question</th>
+                            <th>Points</th>
+                            <th>Correct Answer</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(selectedQuiz.questions || []).map((question, index) => {
+                            const correct = (question.answers || []).find((answer) => answer.isCorrect);
+                            return (
+                              <tr key={question._id}>
+                                <td>
+                                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white/10 text-xs font-bold">{index + 1}</span>
+                                </td>
+                                <td className="font-medium">{question.questionText}</td>
+                                <td>
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-xs font-bold text-cyan-200">
+                                    <Star size={10} /> {question.points}
+                                  </span>
+                                </td>
+                                <td className="text-emerald-300 font-medium">{correct?.answerText || '-'}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+            </article>
+          </div>
+        </section>
       )}
 
+      {/* ═══════ SECTION 2: CREATE & CRUD ═══════ */}
+      {activeSection === 'create' && (
+        <section id="section-create" className="space-y-6 animate-fade-in-up" style={{ opacity: 0 }}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-ink-900 flex items-center gap-2">
+              <Settings size={20} className="text-brand-600" /> Create Quiz & Questions
+            </h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600">Detailed Form • Question CRUD</p>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-2">
+            {/* Create Quiz Form */}
+            <article className="glass-card-premium rounded-3xl p-6 shadow-card">
+              <h3 className="text-lg font-bold text-ink-900 flex items-center gap-2 mb-5">
+                <Plus size={18} className="text-brand-600" />
+                {editingQuizId ? 'Update Quiz' : 'Create New Quiz'}
+              </h3>
+              <form className="space-y-4" onSubmit={handleQuizSubmit}>
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Quiz Title</label>
+                  <input
+                    className="w-full rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                    placeholder="Construction Safety Level 1"
+                    value={quizForm.title}
+                    onChange={(event) => setQuizForm((prev) => ({ ...prev, title: event.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Description</label>
+                  <textarea
+                    className="w-full rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all resize-none"
+                    placeholder="Explain quiz objective and coverage."
+                    rows={4}
+                    value={quizForm.description}
+                    onChange={(event) => setQuizForm((prev) => ({ ...prev, description: event.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Pass Mark (%)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      className="w-full rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                      value={quizForm.passMark}
+                      onChange={(event) => setQuizForm((prev) => ({ ...prev, passMark: event.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Time Limit (mins)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      className="w-full rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                      value={quizForm.timeLimit}
+                      onChange={(event) => setQuizForm((prev) => ({ ...prev, timeLimit: event.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-3 rounded-xl border-2 border-brand-100 bg-white/70 px-4 py-3 text-sm font-semibold text-ink-800 cursor-pointer hover:border-brand-200 transition-colors">
+                  <div className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${quizForm.isActive ? 'bg-emerald-500' : 'bg-gray-300'}`}>
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300 ${quizForm.isActive ? 'left-5' : 'left-0.5'}`} />
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={quizForm.isActive}
+                    onChange={(event) => setQuizForm((prev) => ({ ...prev, isActive: event.target.checked }))}
+                    className="sr-only"
+                  />
+                  Active Quiz
+                </label>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="btn-premium btn-premium-brand flex-1 text-sm disabled:opacity-60"
+                  >
+                    <Plus size={15} /> {editingQuizId ? 'Update Quiz' : 'Create Quiz'}
+                  </button>
+                  {editingQuizId && (
+                    <button
+                      type="button"
+                      className="btn-premium btn-premium-outline text-sm"
+                      onClick={resetQuizForm}
+                    >
+                      <X size={14} /> Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </article>
+
+            {/* Question CRUD */}
+            <article className="glass-card-premium rounded-3xl p-6 shadow-card">
+              <h3 className="text-lg font-bold text-ink-900 flex items-center gap-2 mb-5">
+                <HelpCircle size={18} className="text-brand-600" /> Question CRUD
+              </h3>
+              {!selectedQuiz ? (
+                <div className="text-center py-10">
+                  <div className="icon-container icon-container-brand mx-auto mb-3">
+                    <ClipboardCheck size={22} />
+                  </div>
+                  <p className="text-sm text-ink-800">Select a quiz in Overview before creating questions.</p>
+                </div>
+              ) : (
+                <>
+                  <form className="space-y-4" onSubmit={handleQuestionSubmit}>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Question Text</label>
+                      <input
+                        className="w-full rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                        value={questionForm.questionText}
+                        onChange={(event) =>
+                          setQuestionForm((prev) => ({
+                            ...prev,
+                            questionText: event.target.value
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Points</label>
+                      <input
+                        type="number"
+                        min={1}
+                        className="w-40 rounded-xl border-2 border-brand-100 bg-white/90 px-4 py-2.5 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                        value={questionForm.points}
+                        onChange={(event) =>
+                          setQuestionForm((prev) => ({
+                            ...prev,
+                            points: event.target.value
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {questionForm.answers.map((answer, index) => (
+                        <div key={`answer-input-${index}`} className="rounded-2xl border border-brand-100/80 bg-gradient-to-br from-white to-brand-50/30 p-4 transition-shadow hover:shadow-sm">
+                          <div className="mb-2.5 flex items-center justify-between">
+                            <p className="text-xs font-bold uppercase tracking-wider text-brand-700 flex items-center gap-1">
+                              <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-brand-100 text-brand-700 text-[10px] font-bold">{index + 1}</span>
+                              Option
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setCorrectAnswer(index)}
+                              className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                                answer.isCorrect
+                                  ? 'bg-emerald-100 text-emerald-700 shadow-sm'
+                                  : 'bg-gray-100 text-gray-500 hover:bg-brand-100 hover:text-brand-700'
+                              }`}
+                            >
+                              {answer.isCorrect ? '✓ Correct' : 'Set Correct'}
+                            </button>
+                          </div>
+                          <input
+                            className="w-full rounded-xl border-2 border-brand-100 bg-white px-3 py-2 text-sm outline-none ring-brand-300 focus:ring-2 focus:border-brand-300 transition-all"
+                            value={answer.answerText}
+                            onChange={(event) =>
+                              setQuestionForm((prev) => ({
+                                ...prev,
+                                answers: prev.answers.map((item, answerIndex) =>
+                                  answerIndex === index ? { ...item, answerText: event.target.value } : item
+                                )
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="btn-premium btn-premium-brand text-sm disabled:opacity-60"
+                      >
+                        <Plus size={14} /> {editingQuestionId ? 'Update Question' : 'Add Question'}
+                      </button>
+                      {editingQuestionId && (
+                        <button
+                          type="button"
+                          onClick={resetQuestionForm}
+                          className="btn-premium btn-premium-outline text-sm"
+                        >
+                          <X size={14} /> Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+
+                  {/* Questions List */}
+                  <div className="mt-6 overflow-x-auto rounded-2xl border border-brand-100 bg-white/50">
+                    <table className="table-modern">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Question</th>
+                          <th>Points</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(selectedQuiz.questions || []).map((question, index) => (
+                          <tr key={question._id}>
+                            <td>
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-100 text-brand-700 text-xs font-bold">{index + 1}</span>
+                            </td>
+                            <td className="font-medium text-ink-900">{question.questionText}</td>
+                            <td>
+                              <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
+                                <Star size={10} /> {question.points}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditQuestion(question)}
+                                  className="btn-premium btn-premium-outline !px-3 !py-1.5 text-xs"
+                                >
+                                  <FilePenLine size={12} /> Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteQuestion(question._id)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition"
+                                >
+                                  <Trash2 size={12} /> Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </article>
+          </div>
+        </section>
+      )}
+
+      {/* ═══════ SECTION 3: QUIZ INFO ═══════ */}
       {activeSection === 'info' && (
-      <section id="section-info" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-ink-900">3. Quiz Info</h2>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">
-            Performance • Enrollment • Progress & Marks • Certificates
-          </p>
-        </div>
+        <section id="section-info" className="space-y-6 animate-fade-in-up" style={{ opacity: 0 }}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-ink-900 flex items-center gap-2">
+              <BarChart3 size={20} className="text-brand-600" /> Quiz Info & Analytics
+            </h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600">
+              Performance • Progress • Certificates
+            </p>
+          </div>
 
-        <article className="rounded-3xl bg-[#101f42] p-5 text-white shadow-card">
-          <h3 className="text-lg font-bold">Quiz Performance Snapshot</h3>
-          {!selectedQuiz ? (
-            <p className="mt-3 text-sm text-white/80">Select a quiz to inspect analytics.</p>
-          ) : (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Attempts</p>
-                <p className="mt-1 text-lg font-bold">{selectedStats.totalAttempts || 0}</p>
-                <Users className="mt-2 text-cyan-200" size={16} />
+          {/* Performance Snapshot (Dark) */}
+          <article className="glass-card-dark rounded-3xl p-6 text-white shadow-card">
+            <h3 className="text-lg font-bold flex items-center gap-2 mb-5">
+              <Activity size={18} className="text-cyan-300" /> Quiz Performance Snapshot
+            </h3>
+            {!selectedQuiz ? (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 text-cyan-300 mb-3">
+                  <BarChart3 size={24} />
+                </div>
+                <p className="text-sm text-white/70">Select a quiz to inspect analytics.</p>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Pass Rate</p>
-                <p className="mt-1 text-lg font-bold">{toPercent(selectedStats.passRate || 0)}</p>
-                <ClipboardCheck className="mt-2 text-cyan-200" size={16} />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { label: 'Attempts', value: selectedStats.totalAttempts || 0, icon: Users, color: 'text-cyan-300' },
+                  { label: 'Pass Rate', value: toPercent(selectedStats.passRate || 0), icon: ClipboardCheck, color: 'text-emerald-300' },
+                  { label: 'Average Score', value: toPercent(selectedStats.averageScore || 0), icon: Activity, color: 'text-amber-300' },
+                  { label: 'Highest Score', value: toPercent(selectedStats.highestScore || 0), icon: BarChart3, color: 'text-purple-300' }
+                ].map((stat, i) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/8 transition-colors animate-fade-in-up"
+                    style={{ opacity: 0, animationDelay: `${i * 0.1}s` }}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-cyan-200 font-semibold">{stat.label}</p>
+                    <p className="mt-1 text-2xl font-bold">{stat.value}</p>
+                    <stat.icon className={`mt-2 ${stat.color}`} size={18} />
+                  </div>
+                ))}
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Average Score</p>
-                <p className="mt-1 text-lg font-bold">{toPercent(selectedStats.averageScore || 0)}</p>
-                <Activity className="mt-2 text-cyan-200" size={16} />
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-cyan-100">Highest Score</p>
-                <p className="mt-1 text-lg font-bold">{toPercent(selectedStats.highestScore || 0)}</p>
-                <BarChart3 className="mt-2 text-cyan-200" size={16} />
-              </div>
-            </div>
-          )}
-        </article>
+            )}
+          </article>
 
-        <article className="glass-panel rounded-3xl p-5 shadow-card">
-          <h3 className="text-lg font-bold text-ink-900">Enrollment List, Progress & Marks</h3>
-          {!selectedQuiz ? (
-            <p className="mt-3 text-sm text-ink-800">Select a quiz to see participants.</p>
-          ) : enrollmentRows.length === 0 ? (
-            <p className="mt-3 text-sm text-ink-800">No participants yet for this quiz.</p>
-          ) : (
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full border-collapse border border-black/70 text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-brand-700">
-                    <th className="border border-black/70 px-3 py-2">Learner</th>
-                    <th className="border border-black/70 px-3 py-2">Attempts</th>
-                    <th className="border border-black/70 px-3 py-2">Latest</th>
-                    <th className="border border-black/70 px-3 py-2">Best</th>
-                    <th className="border border-black/70 px-3 py-2">Progress</th>
-                    <th className="border border-black/70 px-3 py-2">Last Attempt</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {enrollmentRows.map((row) => (
-                    <tr key={row.userId} className="text-ink-800">
-                      <td className="border border-black/70 px-3 py-2">
-                        <p className="font-semibold text-ink-900">{row.name}</p>
-                        <p className="text-xs text-ink-800">{row.email}</p>
-                      </td>
-                      <td className="border border-black/70 px-3 py-2">{row.attempts}</td>
-                      <td className="border border-black/70 px-3 py-2">{toPercent(row.latestMark)}</td>
-                      <td className="border border-black/70 px-3 py-2">{toPercent(row.bestMark)}</td>
-                      <td className="border border-black/70 px-3 py-2">
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs font-bold ${
+          {/* Enrollment & Progress */}
+          <article className="glass-card-premium rounded-3xl p-6 shadow-card">
+            <h3 className="text-lg font-bold text-ink-900 flex items-center gap-2 mb-5">
+              <Users size={18} className="text-brand-600" /> Enrollment List, Progress & Marks
+            </h3>
+            {!selectedQuiz ? (
+              <div className="text-center py-8">
+                <div className="icon-container icon-container-brand mx-auto mb-3"><Users size={22} /></div>
+                <p className="text-sm text-ink-800">Select a quiz to see participants.</p>
+              </div>
+            ) : enrollmentRows.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="icon-container icon-container-amber mx-auto mb-3"><Users size={22} /></div>
+                <p className="text-sm text-ink-800">No participants yet for this quiz.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-brand-100 bg-white/50">
+                <table className="table-modern">
+                  <thead>
+                    <tr>
+                      <th>Learner</th>
+                      <th>Attempts</th>
+                      <th>Latest</th>
+                      <th>Best</th>
+                      <th>Progress</th>
+                      <th>Last Attempt</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {enrollmentRows.map((row) => (
+                      <tr key={row.userId}>
+                        <td>
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-xs font-bold">
+                              {row.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-ink-900">{row.name}</p>
+                              <p className="text-xs text-ink-800">{row.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
+                            {row.attempts}
+                          </span>
+                        </td>
+                        <td className="font-semibold">{toPercent(row.latestMark)}</td>
+                        <td className="font-semibold text-brand-700">{toPercent(row.bestMark)}</td>
+                        <td>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
                             row.progress === 'Completed'
                               ? 'bg-emerald-100 text-emerald-700'
                               : 'bg-amber-100 text-amber-700'
-                          }`}
-                        >
-                          {row.progress}
-                        </span>
-                      </td>
-                      <td className="border border-black/70 px-3 py-2">{toDateTime(row.latestAttemptAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
+                          }`}>
+                            {row.progress === 'Completed' ? <CheckCircle2 size={11} /> : <Timer size={11} />}
+                            {row.progress}
+                          </span>
+                        </td>
+                        <td className="text-xs text-ink-800">{toDateTime(row.latestAttemptAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </article>
 
-        <article className="glass-panel rounded-3xl p-5 shadow-card">
-          <h3 className="text-lg font-bold text-ink-900">Issued Certificates (with date)</h3>
-          {!selectedQuiz ? (
-            <p className="mt-3 text-sm text-ink-800">Select a quiz to view issued certificates.</p>
-          ) : selectedCertificates.length === 0 ? (
-            <p className="mt-3 text-sm text-ink-800">No certificates issued for this quiz yet.</p>
-          ) : (
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full border-collapse border border-black/70 text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-brand-700">
-                    <th className="border border-black/70 px-3 py-2">Certificate Code</th>
-                    <th className="border border-black/70 px-3 py-2">Learner</th>
-                    <th className="border border-black/70 px-3 py-2">Marks</th>
-                    <th className="border border-black/70 px-3 py-2">Issued Date</th>
-                    <th className="border border-black/70 px-3 py-2">QR Verification</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedCertificates.map((certificate) => (
-                    <tr key={certificate._id} className="text-ink-800">
-                      <td className="border border-black/70 px-3 py-2 font-semibold text-ink-900">{certificate.certificateCode}</td>
-                      <td className="border border-black/70 px-3 py-2">
-                        <p className="font-semibold text-ink-900">{certificate.userName}</p>
-                        <p className="text-xs text-ink-800">{certificate.userEmail}</p>
-                      </td>
-                      <td className="border border-black/70 px-3 py-2">{toPercent(certificate.percentage)}</td>
-                      <td className="border border-black/70 px-3 py-2">{toDateTime(certificate.issuedAt)}</td>
-                      <td className="border border-black/70 px-3 py-2">
-                        {certificate.qrCodeUrl ? (
-                          <a
-                            href={certificate.qrCodeUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
-                          >
-                            Open QR
-                          </a>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
+          {/* Certificates */}
+          <article className="glass-card-premium rounded-3xl p-6 shadow-card">
+            <h3 className="text-lg font-bold text-ink-900 flex items-center gap-2 mb-5">
+              <Trophy size={18} className="text-brand-600" /> Issued Certificates
+            </h3>
+            {!selectedQuiz ? (
+              <div className="text-center py-8">
+                <div className="icon-container icon-container-purple mx-auto mb-3"><Award size={22} /></div>
+                <p className="text-sm text-ink-800">Select a quiz to view issued certificates.</p>
+              </div>
+            ) : selectedCertificates.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="icon-container icon-container-purple mx-auto mb-3"><Award size={22} /></div>
+                <p className="text-sm text-ink-800">No certificates issued for this quiz yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-brand-100 bg-white/50">
+                <table className="table-modern">
+                  <thead>
+                    <tr>
+                      <th>Certificate Code</th>
+                      <th>Learner</th>
+                      <th>Marks</th>
+                      <th>Issued Date</th>
+                      <th>QR Verification</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
-      </section>
+                  </thead>
+                  <tbody>
+                    {selectedCertificates.map((certificate) => (
+                      <tr key={certificate._id}>
+                        <td>
+                          <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg tracking-wider">
+                            <Fingerprint size={12} /> {certificate.certificateCode}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-xs font-bold">
+                              {(certificate.userName || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-ink-900">{certificate.userName}</p>
+                              <p className="text-xs text-ink-800">{certificate.userEmail}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                            <Target size={10} /> {toPercent(certificate.percentage)}
+                          </span>
+                        </td>
+                        <td className="text-xs text-ink-800">{toDateTime(certificate.issuedAt)}</td>
+                        <td>
+                          {certificate.qrCodeUrl ? (
+                            <a
+                              href={certificate.qrCodeUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn-premium btn-premium-outline !px-3 !py-1.5 text-xs"
+                            >
+                              <Zap size={12} /> Open QR
+                            </a>
+                          ) : (
+                            <span className="text-xs text-ink-800">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </article>
+        </section>
       )}
     </section>
   );
