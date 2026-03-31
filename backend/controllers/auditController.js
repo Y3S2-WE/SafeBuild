@@ -1,11 +1,18 @@
 const Audit = require('../models/Audit');
 const ChecklistTemplate = require('../models/ChecklistTemplate');
 const CorrectiveAction = require('../models/CorrectiveAction');
+const User = require('../models/User');
+const {
+  buildCorrectiveAssignmentMap,
+  validateCorrectiveAssignments,
+  createCorrectiveActionsForFailedResponses,
+  allowedPriorities
+} = require('../services/correctiveActionService');
 
 /**
  * @desc    Create/Schedule new audit
  * @route   POST /api/audits
- * @access  Private (Manager, Officer)
+ * @access  Private (Manager)
  */
 const createAudit = async (req, res) => {
   try {
@@ -24,6 +31,21 @@ const createAudit = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Cannot use inactive checklist template'
+      });
+    }
+
+    const auditorUser = await User.findById(assignedAuditor).select('role isActive');
+    if (!auditorUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assigned auditor not found'
+      });
+    }
+
+    if (auditorUser.role !== 'officer' || !auditorUser.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assigned auditor must be an active officer'
       });
     }
 
@@ -154,7 +176,9 @@ const updateAudit = async (req, res) => {
       assignedAuditor, 
       status, 
       responses, 
-      findings 
+      findings,
+      cancelReason,
+      correctiveAssignments
     } = req.body;
 
     const audit = await Audit.findById(req.params.id);
@@ -192,11 +216,72 @@ const updateAudit = async (req, res) => {
       });
     }
 
+    // Manager handles planning/cancellation and must not submit conduct responses.
+    if (req.user.role === 'manager') {
+      const hasConductPayload = Array.isArray(responses) || correctiveAssignments !== undefined;
+      if (hasConductPayload) {
+        return res.status(403).json({
+          success: false,
+          message: 'Managers cannot conduct audits. Officers must submit audit responses.'
+        });
+      }
+
+      if (status && ['in-progress', 'completed'].includes(status)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Managers can schedule or cancel audits, but cannot run conduct status transitions.'
+        });
+      }
+    }
+
+    // Officer can conduct audits, but cannot reschedule/reassign/cancel audits.
+    if (req.user.role === 'officer') {
+      const hasSchedulingChanges =
+        site !== undefined ||
+        auditDate !== undefined ||
+        checklistTemplate !== undefined ||
+        assignedAuditor !== undefined ||
+        cancelReason !== undefined;
+
+      if (hasSchedulingChanges) {
+        return res.status(403).json({
+          success: false,
+          message: 'Officers can conduct audits but cannot reschedule, reassign, or cancel audits.'
+        });
+      }
+
+      if (status && !['in-progress', 'completed'].includes(status)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Officers can only move audit status through conduct flow.'
+        });
+      }
+    }
+
     // Update basic fields
     if (site) audit.site = site;
     if (auditDate) audit.auditDate = auditDate;
-    if (assignedAuditor) audit.assignedAuditor = assignedAuditor;
-    if (findings) audit.findings = findings;
+    if (assignedAuditor) {
+      const auditorUser = await User.findById(assignedAuditor).select('role isActive');
+      if (!auditorUser) {
+        return res.status(404).json({
+          success: false,
+          message: 'Assigned auditor not found'
+        });
+      }
+
+      if (auditorUser.role !== 'officer' || !auditorUser.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: 'Assigned auditor must be an active officer'
+        });
+      }
+
+      audit.assignedAuditor = assignedAuditor;
+    }
+    if (typeof findings === 'string' && findings.trim()) {
+      audit.findings = findings.trim();
+    }
     
     // Update checklist template (only if audit hasn't started)
     if (checklistTemplate && audit.status === 'scheduled') {
@@ -231,6 +316,23 @@ const updateAudit = async (req, res) => {
         });
       }
 
+      if (status === 'cancelled') {
+        if (req.user.role !== 'manager') {
+          return res.status(403).json({
+            success: false,
+            message: 'Only managers can cancel audits.'
+          });
+        }
+
+        if (!cancelReason || !String(cancelReason).trim()) {
+          return res.status(400).json({
+            success: false,
+            message: 'Cancellation reason is required when cancelling an audit.'
+          });
+        }
+        audit.cancelReason = String(cancelReason).trim();
+      }
+
       audit.status = status;
 
       if (status === 'completed') {
@@ -238,8 +340,20 @@ const updateAudit = async (req, res) => {
       }
     }
 
+    let autoCorrectiveActionsCreated = 0;
+
     // Handle responses submission (when completing audit)
     if (responses && Array.isArray(responses)) {
+      const findingsSummary = typeof findings === 'string' ? findings.trim() : '';
+      if (!findingsSummary) {
+        return res.status(400).json({
+          success: false,
+          message: 'Findings summary is required when submitting audit responses.'
+        });
+      }
+
+      audit.findings = findingsSummary;
+
       // Get checklist template for validation
       const template = await ChecklistTemplate.findById(audit.checklistTemplate);
       
@@ -294,6 +408,28 @@ const updateAudit = async (req, res) => {
         percentage: total > 0 ? Math.round((passedCount / total) * 100) : 0
       };
 
+      const failedResponses = processedResponses.filter((response) => !response.passed);
+      const correctiveAssignmentMap = buildCorrectiveAssignmentMap(correctiveAssignments);
+
+      if (failedResponses.length > 0) {
+        // Validate all corrective action assignments using service
+        const validation = await validateCorrectiveAssignments(failedResponses, correctiveAssignmentMap);
+        if (!validation.isValid) {
+          return res.status(validation.error.status).json({
+            success: false,
+            message: validation.error.message
+          });
+        }
+      }
+
+      autoCorrectiveActionsCreated = await createCorrectiveActionsForFailedResponses({
+        audit,
+        failedResponses,
+        createdBy: req.user._id,
+        templateCategory: template.category,
+        correctiveAssignmentMap
+      });
+
       // Auto-complete if all responses submitted
       if (processedResponses.length === template.items.length && audit.status === 'in-progress') {
         audit.status = 'completed';
@@ -312,7 +448,10 @@ const updateAudit = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Audit updated successfully',
-      data: audit
+      data: {
+        ...audit.toObject(),
+        autoCorrectiveActionsCreated
+      }
     });
   } catch (error) {
     console.error('Update audit error:', error);
