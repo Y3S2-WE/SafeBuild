@@ -9,6 +9,80 @@ import { LessonManagementPage } from './pages/LessonManagementPage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
 import { LessonViewerPage } from './pages/LessonViewerPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
+import { ComplianceDashboardPage } from './pages/compliance/ComplianceDashboardPage';
+import { ChecklistTemplatesPage } from './pages/compliance/ChecklistTemplatesPage';
+import { AuditSchedulesPage } from './pages/compliance/AuditSchedulesPage';
+import { ConductAuditPage } from './pages/compliance/ConductAuditPage';
+import { CorrectiveActionsPage } from './pages/compliance/CorrectiveActionsPage';
+
+const ComplianceAccessRoute = ({ children }) => {
+  const { user } = useAuth();
+  const allowedRoles = ['manager', 'officer'];
+
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/portal" replace />;
+  }
+
+  return children;
+};
+
+const ManagerAccessRoute = ({ children }) => {
+  const { user } = useAuth();
+  const allowedRoles = ['manager'];
+
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/portal" replace />;
+  }
+
+  return children;
+};
+
+const CorrectiveActionAccessRoute = ({ children }) => {
+  const { user } = useAuth();
+  const allowedRoles = ['manager', 'officer', 'safety-compliance-manager'];
+
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/portal" replace />;
+  }
+
+  return children;
+};
+
+const ConductAccessRoute = ({ children }) => {
+  const { user } = useAuth();
+  const allowedRoles = ['officer'];
+
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/portal" replace />;
+  }
+
+  return children;
+};
+
+const ComplianceRoute = ({ children }) => (
+  <ProtectedRoute>
+    <ComplianceAccessRoute>{children}</ComplianceAccessRoute>
+  </ProtectedRoute>
+);
+
+const ManagerRoute = ({ children }) => (
+  <ProtectedRoute>
+    <ManagerAccessRoute>{children}</ManagerAccessRoute>
+  </ProtectedRoute>
+);
+
+const CorrectiveActionRoute = ({ children }) => (
+  <ProtectedRoute>
+    <CorrectiveActionAccessRoute>{children}</CorrectiveActionAccessRoute>
+  </ProtectedRoute>
+);
+
+const ConductRoute = ({ children }) => (
+  <ProtectedRoute>
+    <ConductAccessRoute>{children}</ConductAccessRoute>
+  </ProtectedRoute>
+);
 import IncidentListPage from './pages/IncidentListPage';
 import ReportIncidentPage from './pages/ReportIncidentPage';
 import IncidentDetailPage from './pages/IncidentDetailPage';
@@ -32,6 +106,46 @@ const App = () => {
             <ProtectedRoute>
               <PortalPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/portal/compliance"
+          element={
+            <ComplianceRoute>
+              <ComplianceDashboardPage />
+            </ComplianceRoute>
+          }
+        />
+        <Route
+          path="/portal/compliance/checklists"
+          element={
+            <ManagerRoute>
+              <ChecklistTemplatesPage />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="/portal/compliance/audits"
+          element={
+            <ManagerRoute>
+              <AuditSchedulesPage />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="/portal/compliance/conduct"
+          element={
+            <ConductRoute>
+              <ConductAuditPage />
+            </ConductRoute>
+          }
+        />
+        <Route
+          path="/portal/compliance/actions"
+          element={
+            <CorrectiveActionRoute>
+              <CorrectiveActionsPage />
+            </CorrectiveActionRoute>
           }
         />
         <Route path="/incidents" element={<IncidentListPage />} />

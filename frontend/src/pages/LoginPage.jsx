@@ -9,17 +9,26 @@ const permanentAccounts = [
   {
     role: 'Manager',
     email: 'manager@safebuild.com',
-    password: 'manager123'
+    password: 'manager123',
+    quickFill: true
   },
   {
     role: 'Safety Officer',
     email: 'officer@safebuild.com',
-    password: 'officer123'
+    password: 'officer123',
+    quickFill: true
   },
   {
     role: 'Trainer',
     email: 'trainer@safebuild.com',
-    password: 'trainer123'
+    password: 'trainer123',
+    quickFill: true
+  },
+  {
+    role: 'Safety Compliance Manager',
+    email: 'safety.compliance.manager@safebuild.com',
+    password: 'scm12345',
+    quickFill: true
   }
 ];
 
@@ -66,24 +75,30 @@ export const LoginPage = () => {
         </p>
         <h1 className="mt-4 text-3xl font-extrabold text-ink-900">One Login Portal for All Users</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-800">
-          Use one secure portal for manager, safety officer, trainer, and worker accounts.
-          New workers can be added through the employee registration page.
+          Use one secure portal for manager, safety officer, safety compliance manager, trainer, and worker accounts.
+          New workers can be added through the employee registration page, and permanent roles are refreshed via backend seed.
         </p>
 
         <div className="mt-7 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">Permanent Accounts</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">Quick Login Accounts</p>
           {permanentAccounts.map((account) => (
             <button
               key={account.role}
               type="button"
-              onClick={() => fillAccount(account.email, account.password)}
+              onClick={() => {
+                if (account.quickFill) {
+                  fillAccount(account.email, account.password);
+                }
+              }}
               className="flex w-full items-center justify-between rounded-xl border border-brand-100 bg-white/90 px-4 py-3 text-left transition hover:border-brand-300 hover:bg-brand-50"
             >
               <div>
                 <p className="text-sm font-bold text-ink-900">{account.role}</p>
                 <p className="text-xs text-ink-700">{account.email}</p>
               </div>
-              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">Use</span>
+              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">
+                Use
+              </span>
             </button>
           ))}
         </div>
