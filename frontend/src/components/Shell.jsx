@@ -50,7 +50,6 @@ export const Shell = ({ children }) => {
             </NavLink>
           )}
           {isAuthenticated && (
-          {!isAuthenticated && (
             <>
               <NavLink to="/register" className={baseLinkClass}>
                 Employee Register

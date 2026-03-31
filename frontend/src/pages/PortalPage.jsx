@@ -1,7 +1,6 @@
 import { Award, BarChart3, BookOpenCheck, Layers3, UserRound } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { Award, BookOpenCheck, AlertTriangle, UserRound, ChevronRight } from 'lucide-react';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { TrainerCourseManager } from '../components/TrainerCourseManager';
 
