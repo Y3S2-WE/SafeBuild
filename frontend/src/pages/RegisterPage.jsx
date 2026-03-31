@@ -81,7 +81,7 @@ export const RegisterPage = () => {
         <h1 className="mt-4 text-3xl font-extrabold text-ink-900">Register New Employee</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-800">
           This registration portal is for worker accounts. Permanent accounts for manager, safety officer,
-          and trainer are already provisioned and should login directly.
+          safety compliance manager, and trainer are already provisioned and should login directly.
         </p>
         <div className="mt-8 rounded-2xl bg-brand-50 p-4">
           <p className="text-sm font-semibold text-brand-800">Already have an account?</p>
