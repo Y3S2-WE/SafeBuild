@@ -4,6 +4,10 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { PortalPage } from './pages/PortalPage';
+import { LearningHubPage } from './pages/LearningHubPage';
+import { LessonManagementPage } from './pages/LessonManagementPage';
+import { CourseDetailPage } from './pages/CourseDetailPage';
+import { LessonViewerPage } from './pages/LessonViewerPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import IncidentListPage from './pages/IncidentListPage';
 import ReportIncidentPage from './pages/ReportIncidentPage';
@@ -38,6 +42,38 @@ const App = () => {
           element={
             <ProtectedRoute>
               <IncidentDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learning-hub"
+          element={
+            <ProtectedRoute>
+              <LearningHubPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lesson-management"
+          element={
+            <ProtectedRoute>
+              <LessonManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/course-detail"
+          element={
+            <ProtectedRoute>
+              <CourseDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lesson-viewer"
+          element={
+            <ProtectedRoute>
+              <LessonViewerPage />
             </ProtectedRoute>
           }
         />
