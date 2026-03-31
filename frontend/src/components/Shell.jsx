@@ -25,18 +25,33 @@ export const Shell = ({ children }) => {
 
         {/* Block 1 — Navigation links */}
         <nav className="glass-panel flex items-center gap-1 rounded-full px-2 py-2 text-ink-800 shadow-card">
-          <NavLink to="/" className={baseLinkClass}>Home</NavLink>
-          <NavLink to="/register" className={baseLinkClass}>Employee Register</NavLink>
-          <NavLink to="/login" className={baseLinkClass}>Login Portal</NavLink>
-          <NavLink to="/certificate-verify" className={baseLinkClass}>Verify Certificate</NavLink>
+          <NavLink to="/" className={baseLinkClass}>
+            Home
+          </NavLink>
+          {!isAuthenticated && (
+            <>
+              <NavLink to="/register" className={baseLinkClass}>
+                Employee Register
+              </NavLink>
+              <NavLink to="/login" className={baseLinkClass}>
+                Login Portal
+              </NavLink>
+            </>
+          )}
           {isAuthenticated && user?.role === 'worker' && (
             <>
-              <NavLink to="/certifications" className={baseLinkClass}>Certifications</NavLink>
-              <NavLink to="/quiz-workspace" className={baseLinkClass}>Quiz Workspace</NavLink>
+              <NavLink to="/certifications" className={baseLinkClass}>
+                Certifications
+              </NavLink>
+              <NavLink to="/learning-hub" className={baseLinkClass}>
+                Courses
+              </NavLink>
             </>
           )}
           {isAuthenticated && user?.role === 'trainer' && (
-            <NavLink to="/quiz-admin" className={baseLinkClass}>Quiz Admin</NavLink>
+            <NavLink to="/quiz-admin" className={baseLinkClass}>
+              Quiz Admin
+            </NavLink>
           )}
         </nav>
 
