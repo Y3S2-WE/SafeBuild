@@ -1,0 +1,38 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+const handleUnauthorized = (response) => {
+  if (response.status === 401) {
+    localStorage.removeItem('safebuild_token');
+    localStorage.removeItem('safebuild_user');
+    window.dispatchEvent(new Event('auth:unauthorized'));
+  }
+};
+
+const request = async (path, options = {}) => {
+  const token = localStorage.getItem('safebuild_token');
+
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {})
+    },
+    ...options
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    handleUnauthorized(response);
+    const error = new Error(data.message || data.error || 'Request failed');
+    error.details = data.errors || [];
+    throw error;
+  }
+
+  return data;
+};
+
+export const analyticsApi = {
+  getDashboard: () => request('/analytics/dashboard'),
+  getCharts: () => request('/analytics/charts')
+};
