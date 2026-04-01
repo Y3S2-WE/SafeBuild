@@ -208,5 +208,16 @@ export const api = {
 
   getMyCertificates: () => request('/certificates/my-certificates'),
 
-  verifyCertificateByCode: (code) => request(`/certificates/verify/${code}`)
+  verifyCertificateByCode: (code) => request(`/certificates/verify/${code}`),
+
+  // ── AI Safety Chatbot ────────────────────────────────────────────────────
+
+  sendChatMessage: (payload) =>
+    request('/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  clearChatSession: (sessionId) =>
+    request(`/chat/${sessionId}`, { method: 'DELETE' })
 };
