@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import StaticMap from '../components/StaticMap';
 
 // ── Meta maps ────────────────────────────────────────────────────────────────
 
@@ -448,6 +449,22 @@ export default function IncidentDetailPage() {
                     value={editForm.address}
                     onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))}
                   />
+                </div>
+              )}
+
+              {/* Static map showing incident location */}
+              {!editing && incident.location?.latitude && incident.location?.longitude && (
+                <div>
+                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Location on Map</p>
+                  <StaticMap
+                    latitude={incident.location.latitude}
+                    longitude={incident.location.longitude}
+                    address={incident.location.address}
+                    height={240}
+                  />
+                  <p className="text-xs text-slate-400 mt-1.5 font-mono">
+                    {incident.location.latitude.toFixed(6)}, {incident.location.longitude.toFixed(6)}
+                  </p>
                 </div>
               )}
 

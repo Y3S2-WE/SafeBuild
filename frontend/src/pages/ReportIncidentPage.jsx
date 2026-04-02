@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, MapPin, FileText, ChevronLeft, ChevronRight,
@@ -6,6 +6,7 @@ import {
   ShieldAlert, Flame, Activity
 } from 'lucide-react';
 import { api } from '../services/api';
+import MapPicker from '../components/MapPicker';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ const FIELD_OPTS = {
   ],
 };
 
-const INITIAL = { title: '', type: '', severity: '', address: '', dateOccurred: '', description: '' };
+const INITIAL = { title: '', type: '', severity: '', address: '', latitude: null, longitude: null, dateOccurred: '', description: '' };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,12 @@ export default function ReportIncidentPage() {
     setErrors((e) => ({ ...e, [key]: '' }));
   };
 
+  // Handle map location selection
+  const handleLocationChange = useCallback(({ address, latitude, longitude }) => {
+    setForm((f) => ({ ...f, address, latitude, longitude }));
+    setErrors((e) => ({ ...e, address: '' }));
+  }, []);
+
   // Validate only the fields that belong to a given step
   const validateStep = (s) => {
     const e = {};
@@ -74,8 +81,8 @@ export default function ReportIncidentPage() {
       if (!form.severity)       e.severity = 'Select a severity level.';
     }
     if (s === 2) {
-      if (!form.address.trim()) e.address     = 'Location is required.';
-      if (!form.dateOccurred)   e.dateOccurred = 'Date of occurrence is required.';
+      if (!form.address || !form.address.trim()) e.address = 'Please select a location on the map.';
+      if (!form.dateOccurred) e.dateOccurred = 'Date of occurrence is required.';
     }
     if (s === 3) {
       if (!form.description.trim()) e.description = 'Description is required.';
@@ -324,16 +331,16 @@ export default function ReportIncidentPage() {
             </div>
 
             <div>
-              <Label required>Site / Address</Label>
-              <input
-                type="text"
-                value={form.address}
-                onChange={(e) => set('address', e.target.value)}
-                onBlur={() => handleBlur('address')}
-                placeholder="e.g. Block A, Level 3, Column 12"
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-colors ${
-                  errors.address ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white'
-                }`}
+              <Label required>Incident Location</Label>
+              <p className="text-xs text-slate-500 mb-3">Search, click the map, or use your current location to pin the incident site.</p>
+              <MapPicker
+                value={{
+                  address: form.address,
+                  latitude: form.latitude,
+                  longitude: form.longitude,
+                }}
+                onChange={handleLocationChange}
+                error={errors.address}
               />
               <FieldError msg={errors.address} />
             </div>
