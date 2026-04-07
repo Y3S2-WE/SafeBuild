@@ -260,7 +260,7 @@ export const LessonViewerPage = () => {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div className="glass-panel rounded-3xl p-7 shadow-card">
+      <div className="glass-panel rounded-3xl p-7 shadow-card relative z-50">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex-1">
             <button
