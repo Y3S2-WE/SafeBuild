@@ -91,6 +91,7 @@ import { CertificationPage } from './pages/CertificationPage';
 import { QuizWorkspace } from './pages/QuizWorkspace';
 import { Certificate } from './pages/Certificate';
 import { CertificateVerificationPage } from './pages/CertificateVerificationPage';
+import { SafeBotChat } from './components/SafeBotChat';
 
 const App = () => {
   return (
@@ -234,6 +235,7 @@ const App = () => {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <SafeBotChat />
     </Shell>
   );
 };

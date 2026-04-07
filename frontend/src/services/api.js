@@ -222,5 +222,16 @@ export const api = {
     request('/translate', {
       method: 'POST',
       body: JSON.stringify({ text, targetLanguage })
-    })
+    }),
+
+  // ── AI Safety Chatbot ────────────────────────────────────────────────────
+
+  sendChatMessage: (payload) =>
+    request('/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  clearChatSession: (sessionId) =>
+    request(`/chat/${sessionId}`, { method: 'DELETE' })
 };
