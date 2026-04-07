@@ -54,6 +54,9 @@ app.use('/api/audits', require('./routes/auditRoutes'));
 app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
+// AI Safety Assistant Chatbot
+app.use('/api/chat', require('./routes/chatRoutes'));
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({
