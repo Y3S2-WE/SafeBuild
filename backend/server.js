@@ -54,6 +54,12 @@ app.use('/api/audits', require('./routes/auditRoutes'));
 app.use('/api/corrective-actions', require('./routes/correctiveActionRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
+// Translation API (Hugging Face NLLB-200)
+app.use('/api/translate', require('./routes/translateRoutes'));
+
+// AI Safety Assistant Chatbot
+app.use('/api/chat', require('./routes/chatRoutes'));
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({

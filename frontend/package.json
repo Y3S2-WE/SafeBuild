@@ -12,6 +12,7 @@
     "dompurify": "^3.3.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.525.0",
+    "mapbox-gl": "^3.20.0",
     "quill": "^2.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

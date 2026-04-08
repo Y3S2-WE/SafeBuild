@@ -51,10 +51,16 @@ export const api = {
 
   // ── Incidents & Hazards ───────────────────────────────────────────────────
 
-  createIncident: ({ address, ...rest }) =>
+  createIncident: ({ address, latitude, longitude, ...rest }) =>
     request('/incidents', {
       method: 'POST',
-      body: JSON.stringify({ ...rest, location: { address } })
+      body: JSON.stringify({
+        ...rest,
+        location: {
+          address,
+          ...(latitude != null && longitude != null ? { latitude, longitude } : {}),
+        },
+      }),
     }),
 
   getIncidents: (params = {}) => {
@@ -208,5 +214,24 @@ export const api = {
 
   getMyCertificates: () => request('/certificates/my-certificates'),
 
-  verifyCertificateByCode: (code) => request(`/certificates/verify/${code}`)
+  verifyCertificateByCode: (code) => request(`/certificates/verify/${code}`),
+
+  // ── Translation API ────────────────────────────────────────────────────────
+
+  translateText: (text, targetLanguage) =>
+    request('/translate', {
+      method: 'POST',
+      body: JSON.stringify({ text, targetLanguage })
+    }),
+
+  // ── AI Safety Chatbot ────────────────────────────────────────────────────
+
+  sendChatMessage: (payload) =>
+    request('/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  clearChatSession: (sessionId) =>
+    request(`/chat/${sessionId}`, { method: 'DELETE' })
 };
