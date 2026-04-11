@@ -3724,3 +3724,246 @@ h6 {
   transition: color 0.2s;
 }
 .auth-footer-link:hover { color: #a5b4fc; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MY DASHBOARD PAGE (Worker Personal Overview)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Root ── */
+.wd-root { max-width: 100%; }
+
+/* ── Loading ── */
+.wd-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 5rem 0; gap: 1rem;
+}
+.wd-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.wd-loading-text { font-size: 0.85rem; color: rgba(255,255,255,0.45); }
+
+/* ── Hero ── */
+.wd-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(135deg, rgba(15,118,110,0.35) 0%, rgba(6,95,70,0.25) 50%, rgba(4,47,46,0.30) 100%);
+  backdrop-filter: blur(16px);
+  padding: 1.75rem 2rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 32px rgba(0,0,0,0.30);
+}
+.wd-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid rgba(110,231,183,0.30);
+  background: rgba(16,185,129,0.12);
+  border-radius: 999px; padding: 4px 12px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.18em;
+  color: #6ee7b7; text-transform: uppercase; margin-bottom: 0.6rem;
+}
+.wd-hero-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900; color: #f1f5f9;
+  letter-spacing: -0.02em; margin-bottom: 0.4rem;
+}
+.wd-hero-sub {
+  font-size: 0.825rem; color: rgba(226,232,240,0.60);
+  line-height: 1.6; max-width: 520px;
+}
+
+/* ── Stat chip ── */
+.wd-stat {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 8px 14px;
+  backdrop-filter: blur(8px);
+}
+.wd-stat-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.wd-stat-value { font-size: 1.1rem; font-weight: 900; color: #f1f5f9; }
+.wd-stat-label { font-size: 10px; font-weight: 600; color: rgba(148,163,184,0.65); letter-spacing: 0.05em; }
+
+/* ── Cards ── */
+.wd-card {
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(200,220,255,0.04) 100%);
+  backdrop-filter: blur(16px);
+  padding: 1.5rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.20);
+}
+
+/* ── Section header ── */
+.wd-section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; }
+.wd-section-icon {
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.wd-section-title { font-size: 0.95rem; font-weight: 800; color: #f1f5f9; }
+.wd-section-count { font-size: 11px; color: rgba(148,163,184,0.60); margin-top: 1px; }
+
+/* ── Buttons ── */
+.wd-btn-sm {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid rgba(129,140,248,0.35);
+  background: rgba(99,102,241,0.10); backdrop-filter: blur(8px);
+  color: #a5b4fc; font-size: 12px; font-weight: 700;
+  padding: 7px 14px; border-radius: 10px; text-decoration: none;
+  transition: all 0.2s ease;
+}
+.wd-btn-sm:hover { background: rgba(99,102,241,0.20); transform: translateY(-1px); }
+.wd-btn-orange {
+  border-color: rgba(249,115,22,0.35) !important;
+  background: rgba(249,115,22,0.10) !important;
+  color: #fb923c !important;
+}
+.wd-btn-orange:hover { background: rgba(249,115,22,0.20) !important; }
+
+/* ── Tables ── */
+.wd-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); }
+.wd-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.wd-table thead tr {
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.wd-table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 10.5px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(148,163,184,0.65); white-space: nowrap;
+}
+.wd-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(226,232,240,0.80);
+  vertical-align: middle;
+}
+.wd-table tbody tr:last-child td { border-bottom: none; }
+.wd-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+.wd-td-main { font-weight: 600; color: #f1f5f9 !important; }
+.wd-td-muted { color: rgba(148,163,184,0.60) !important; font-size: 0.78rem !important; }
+
+/* ── Empty state ── */
+.wd-empty { text-align: center; padding: 2rem !important; }
+.wd-empty-text { font-size: 0.82rem; color: rgba(148,163,184,0.45); }
+.wd-empty-card {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 2.5rem; border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+}
+
+/* ── Badges ── */
+.wd-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: capitalize;
+  white-space: nowrap;
+}
+.wd-badge-emerald { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.20); }
+.wd-badge-indigo  { background: rgba(99,102,241,0.15);  color: #a5b4fc; border: 1px solid rgba(165,180,252,0.20); }
+.wd-badge-blue    { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(147,197,253,0.20); }
+.wd-badge-amber   { background: rgba(245,158,11,0.15);  color: #fcd34d; border: 1px solid rgba(252,211,77,0.20); }
+.wd-badge-orange  { background: rgba(249,115,22,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.20); }
+.wd-badge-red     { background: rgba(239,68,68,0.15);   color: #fca5a5; border: 1px solid rgba(252,165,165,0.20); }
+.wd-badge-gray    { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.20); }
+
+/* ── Tag (course category) ── */
+.wd-tag {
+  display: inline-block;
+  background: rgba(99,102,241,0.10);
+  border: 1px solid rgba(129,140,248,0.20);
+  border-radius: 6px; padding: 2px 8px;
+  font-size: 10.5px; font-weight: 600; color: #a5b4fc;
+}
+
+/* ── Progress bar ── */
+.wd-progress-wrap {
+  display: flex; align-items: center; gap: 8px; min-width: 100px;
+}
+.wd-progress-track {
+  flex: 1; height: 5px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); overflow: hidden;
+}
+.wd-progress-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #10b981, #6366f1);
+  transition: width 0.6s ease;
+}
+.wd-progress-pct { font-size: 11px; font-weight: 700; color: rgba(148,163,184,0.65); white-space: nowrap; }
+
+/* ── View button ── */
+.wd-view-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 700; color: #818cf8;
+  text-decoration: none; transition: color 0.2s;
+}
+.wd-view-btn:hover { color: #a5b4fc; }
+
+/* ── Profile section ── */
+.wd-profile-grid {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+@media (max-width: 768px) { .wd-profile-grid { grid-template-columns: 1fr; } }
+
+.wd-profile-avatar {
+  width: 70px; height: 70px; border-radius: 20px;
+  background: linear-gradient(135deg, #818cf8, #4f46e5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem; font-weight: 900; color: white;
+  box-shadow: 0 0 28px rgba(129,140,248,0.40);
+}
+.wd-profile-name { font-size: 1.1rem; font-weight: 800; color: #f1f5f9; margin-bottom: 0.4rem; }
+.wd-profile-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 0.75rem; }
+.wd-profile-meta p {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.8rem; color: rgba(148,163,184,0.75);
+}
+
+/* ── Profile summary ── */
+.wd-profile-summary {
+  display: flex; flex-direction: column; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.03);
+}
+.wd-summary-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.wd-summary-row:last-child { border-bottom: none; }
+.wd-summary-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.wd-summary-label { flex: 1; font-size: 12px; color: rgba(148,163,184,0.70); }
+.wd-summary-value { font-size: 14px; font-weight: 800; color: #f1f5f9; }
+
+/* ── Certificate cards ── */
+.wd-cert-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+.wd-cert-card {
+  display: flex; align-items: center; gap: 1rem;
+  border: 1px solid rgba(245,158,11,0.20);
+  border-radius: 1rem; padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(217,119,6,0.04));
+  transition: all 0.2s;
+}
+.wd-cert-card:hover { border-color: rgba(245,158,11,0.35); transform: translateX(3px); }
+.wd-cert-seal {
+  width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  display: flex; align-items: center; justify-content: center;
+  color: white; box-shadow: 0 0 20px rgba(245,158,11,0.35);
+}
+.wd-cert-title { font-size: 0.88rem; font-weight: 700; color: #f1f5f9; margin-bottom: 3px; }
+.wd-cert-meta { font-size: 11px; color: rgba(148,163,184,0.65); margin-top: 2px; }

@@ -69,7 +69,7 @@ const splitByQuiz = (items, idKey) =>
 
 const sectionTabs = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { key: 'create', label: 'Create & CRUD', icon: Settings },
+  { key: 'create', label: 'Create Quiz', icon: Settings },
   { key: 'info', label: 'Quiz Info', icon: BarChart3 }
 ];
 
@@ -409,11 +409,10 @@ export const QuizAdminDashboard = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveSection(tab.key)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] transition-all duration-300 border ${
-                  activeSection === tab.key
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] transition-all duration-300 border ${activeSection === tab.key
                     ? 'bg-white text-brand-800 border-white shadow-lg'
                     : 'border-white/20 bg-white/10 text-white/90 hover:bg-white/20'
-                }`}
+                  }`}
               >
                 <tab.icon size={14} /> {tab.label}
               </button>
@@ -496,11 +495,10 @@ export const QuizAdminDashboard = () => {
                     key={quiz._id}
                     type="button"
                     onClick={() => setSelectedQuizId(quiz._id)}
-                    className={`w-full rounded-2xl border px-4 py-3.5 text-left transition-all duration-300 ${
-                      selectedQuizId === quiz._id
+                    className={`w-full rounded-2xl border px-4 py-3.5 text-left transition-all duration-300 ${selectedQuizId === quiz._id
                         ? 'border-brand-400 bg-gradient-to-r from-brand-50 to-brand-100/50 shadow-md shadow-brand-100/50'
                         : 'border-white/60 bg-white/70 hover:border-brand-200 hover:shadow-sm'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${selectedQuizId === quiz._id ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white' : 'bg-brand-50 text-brand-600'}`}>
@@ -781,11 +779,10 @@ export const QuizAdminDashboard = () => {
                             <button
                               type="button"
                               onClick={() => setCorrectAnswer(index)}
-                              className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 ${
-                                answer.isCorrect
+                              className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 ${answer.isCorrect
                                   ? 'bg-emerald-100 text-emerald-700 shadow-sm'
                                   : 'bg-gray-100 text-gray-500 hover:bg-brand-100 hover:text-brand-700'
-                              }`}
+                                }`}
                             >
                               {answer.isCorrect ? '✓ Correct' : 'Set Correct'}
                             </button>
@@ -976,11 +973,10 @@ export const QuizAdminDashboard = () => {
                         <td className="font-semibold">{toPercent(row.latestMark)}</td>
                         <td className="font-semibold text-brand-700">{toPercent(row.bestMark)}</td>
                         <td>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
-                            row.progress === 'Completed'
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${row.progress === 'Completed'
                               ? 'bg-emerald-100 text-emerald-700'
                               : 'bg-amber-100 text-amber-700'
-                          }`}>
+                            }`}>
                             {row.progress === 'Completed' ? <CheckCircle2 size={11} /> : <Timer size={11} />}
                             {row.progress}
                           </span>

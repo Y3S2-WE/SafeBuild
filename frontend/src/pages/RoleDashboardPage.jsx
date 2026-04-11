@@ -4,7 +4,7 @@ import {
   Wrench, AlertTriangle, GraduationCap, Users,
   ArrowRight, CheckCircle2, Activity, Layers, LogOut,
   CalendarCheck, ListChecks, FileSearch, PlayCircle,
-  Award, BookMarked, Star
+  Award, BookMarked, Star, LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -214,6 +214,16 @@ const DASHBOARDS = {
         href: '/incidents/report',
         accent: 'linear-gradient(90deg,#f59e0b,#d97706)',
         tag: 'Safety'
+      },
+      {
+        icon: LayoutDashboard,
+        iconBg: 'rgba(6,182,212,0.1)',
+        iconColor: '#0891b2',
+        title: 'My Dashboard',
+        subtitle: 'View your enrolled courses, quiz scores, certifications, and reported incidents.',
+        href: '/my-dashboard',
+        accent: 'linear-gradient(90deg,#06b6d4,#0891b2)',
+        tag: 'Profile'
       },
     ],
     stats: [

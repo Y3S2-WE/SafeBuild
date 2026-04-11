@@ -94,6 +94,7 @@ import { CertificateVerificationPage } from './pages/CertificateVerificationPage
 import { SafeBotChat } from './components/SafeBotChat';
 import { RoleDashboardPage } from './pages/RoleDashboardPage';
 import { CourseManagerPage } from './pages/CourseManagerPage';
+import { MyDashboardPage } from './pages/MyDashboardPage';
 
 const App = () => {
   return (
@@ -181,6 +182,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <CourseManagerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-dashboard"
+          element={
+            <ProtectedRoute>
+              <MyDashboardPage />
             </ProtectedRoute>
           }
         />

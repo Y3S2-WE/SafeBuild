@@ -10,6 +10,7 @@ import {
   Sparkles,
   ChevronDown
 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 
 const WELCOME_MESSAGE = {
@@ -57,6 +58,7 @@ function parseMarkdown(text) {
 }
 
 export const SafeBotChat = () => {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
@@ -185,6 +187,11 @@ export const SafeBotChat = () => {
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
+
+  // Hide the chatbot on the Quiz Workspace page to prevent cheating/distractions
+  if (location.pathname.includes('/quiz-workspace')) {
+    return null;
+  }
 
   return (
     <>

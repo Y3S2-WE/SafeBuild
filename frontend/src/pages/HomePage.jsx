@@ -40,8 +40,8 @@ const FEATURES = [
     icon: BookOpen,
     color: '#6366f1',
     bg: 'rgba(99,102,241,0.1)',
-    title: 'Smart Course Tracking',
-    text: 'Role-based training modules with real-time progress tracking and lesson completion analytics.'
+    title: 'Interactive Safety Training',
+    text: 'Provide engaging training modules with lessons, videos, and quizzes to help workers understand workplace safety rules and best practices.'
   },
   {
     icon: Award,
@@ -75,14 +75,14 @@ const FEATURES = [
     icon: Shield,
     color: '#06b6d4',
     bg: 'rgba(6,182,212,0.1)',
-    title: 'Enterprise Security',
-    text: 'JWT-secured authentication with full role-guard middleware and session management.'
+    title: 'Hazard Identification',
+    text: 'Help staff identify unsafe conditions early and submit reports before they become serious accidents or violations.'
   }
 ];
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: '5+', label: 'User Roles', icon: Users },
+  { value: '50+', label: 'Courses', icon: Users },
   { value: '100%', label: 'Digital Compliance', icon: ClipboardCheck },
   { value: 'Real-time', label: 'Incident Tracking', icon: Siren },
   { value: 'ISO-ready', label: 'Audit Framework', icon: ShieldCheck }
@@ -124,7 +124,7 @@ function HeroSlider() {
   const back = () => goTo((active - 1 + SLIDES.length) % SLIDES.length);
 
   useEffect(() => {
-    timerRef.current = setInterval(next, 4000);
+    timerRef.current = setInterval(next, 2500);
     return () => clearInterval(timerRef.current);
   }, [active]);
 
