@@ -1,166 +1,191 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CircleUserRound, KeyRound, UserCog } from 'lucide-react';
-import { FormInput } from '../components/FormInput';
+import {
+  AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff,
+  KeyRound, Lock, Mail, ShieldCheck, Sparkles, Zap
+} from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const permanentAccounts = [
-  {
-    role: 'Manager',
-    email: 'manager@safebuild.com',
-    password: 'manager123',
-    quickFill: true
-  },
-  {
-    role: 'Safety Officer',
-    email: 'officer@safebuild.com',
-    password: 'officer123',
-    quickFill: true
-  },
-  {
-    role: 'Trainer',
-    email: 'trainer@safebuild.com',
-    password: 'trainer123',
-    quickFill: true
-  },
-  {
-    role: 'Safety Compliance Manager',
-    email: 'safety.compliance.manager@safebuild.com',
-    password: 'scm12345',
-    quickFill: true
-  }
+const FEATURES = [
+  { icon: ShieldCheck, text: 'Role-based secure access control' },
+  { icon: Zap,         text: 'Instant dashboard after login'    },
+  { icon: Sparkles,    text: 'Unified portal for all roles'     },
 ];
 
 export const LoginPage = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [formData, setFormData]       = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError]             = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { login }    = useAuth();
+  const location     = useLocation();
+  const navigate     = useNavigate();
+  const notice       = location.state?.notice || '';
 
-  const notice = location.state?.notice || '';
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError('');
   };
 
-  const fillAccount = (email, password) => {
-    setFormData({ email, password });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError('');
-
     try {
       setIsSubmitting(true);
       const response = await api.login(formData);
       login(response.data);
-      navigate('/portal');
-    } catch (requestError) {
-      setError(requestError.message || 'Login failed. Please verify your details.');
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Login failed. Please verify your credentials.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr,1.05fr]">
-      <aside className="glass-panel rounded-3xl p-7 shadow-card">
-        <p className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand-800">
-          <KeyRound size={14} /> Unified Access
-        </p>
-        <h1 className="mt-4 text-3xl font-extrabold text-ink-900">One Login Portal for All Users</h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink-800">
-          Use one secure portal for manager, safety officer, safety compliance manager, trainer, and worker accounts.
-          New workers can be added through the employee registration page, and permanent roles are refreshed via backend seed.
+    <div className="auth-page">
+      {/* ── Left panel — branding ── */}
+      <div className="auth-brand-panel">
+        {/* Logo */}
+        <div className="auth-logo">
+          <ShieldCheck size={22} />
+        </div>
+        <h1 className="auth-brand-title">
+          Welcome back to<br />
+          <span className="auth-brand-gradient">SafeBuild</span>
+        </h1>
+        <p className="auth-brand-sub">
+          The unified safety training, compliance, and incident
+          management platform for modern construction teams.
         </p>
 
-        <div className="mt-7 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">Quick Login Accounts</p>
-          {permanentAccounts.map((account) => (
-            <button
-              key={account.role}
-              type="button"
-              onClick={() => {
-                if (account.quickFill) {
-                  fillAccount(account.email, account.password);
-                }
-              }}
-              className="flex w-full items-center justify-between rounded-xl border border-brand-100 bg-white/90 px-4 py-3 text-left transition hover:border-brand-300 hover:bg-brand-50"
-            >
-              <div>
-                <p className="text-sm font-bold text-ink-900">{account.role}</p>
-                <p className="text-xs text-ink-700">{account.email}</p>
-              </div>
-              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">
-                Use
-              </span>
-            </button>
+        {/* Feature list */}
+        <ul className="auth-feature-list">
+          {FEATURES.map(({ icon: Icon, text }) => (
+            <li key={text} className="auth-feature-item">
+              <div className="auth-feature-icon"><Icon size={15} /></div>
+              <span>{text}</span>
+            </li>
           ))}
-        </div>
-      </aside>
+        </ul>
 
-      <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-7 shadow-card">
-        <div className="mb-6 flex items-center gap-2">
-          <span className="rounded-xl bg-brand-100 p-2 text-brand-700">
-            <CircleUserRound size={18} />
-          </span>
-          <h2 className="text-xl font-bold text-ink-900">Sign In to SafeBuild</h2>
-        </div>
-
-        {notice && (
-          <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-            {notice}
+        {/* Bottom accent */}
+        <div className="auth-brand-footer">
+          <div className="auth-brand-blob auth-brand-blob-1" />
+          <div className="auth-brand-blob auth-brand-blob-2" />
+          <p className="auth-brand-tagline">
+            Trusted by construction safety teams
           </p>
-        )}
-
-        <div className="space-y-4">
-          <FormInput
-            id="email"
-            name="email"
-            type="email"
-            label="Email"
-            placeholder="you@safebuild.com"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <FormInput
-            id="password"
-            name="password"
-            type="password"
-            label="Password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-          />
         </div>
+      </div>
 
-        {error && (
-          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {error}
+      {/* ── Right panel — form ── */}
+      <div className="auth-form-panel">
+        <div className="auth-form-card">
+          {/* Header */}
+          <div className="auth-form-header">
+            <div className="auth-form-icon-wrap">
+              <KeyRound size={20} />
+            </div>
+            <div>
+              <h2 className="auth-form-title">Sign in</h2>
+              <p className="auth-form-subtitle">Enter your credentials to access your workspace</p>
+            </div>
+          </div>
+
+          {/* Success notice */}
+          {notice && (
+            <div className="auth-notice auth-notice-success">
+              <CheckCircle2 size={15} />
+              {notice}
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="auth-notice auth-notice-error">
+              <AlertCircle size={15} />
+              {error}
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="auth-form" noValidate>
+            {/* Email */}
+            <div className="auth-field">
+              <label htmlFor="email" className="auth-label">Email address</label>
+              <div className="auth-input-wrap">
+                <Mail size={16} className="auth-input-icon" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@safebuild.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="auth-input auth-input-icon-l"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="auth-field">
+              <label htmlFor="password" className="auth-label">Password</label>
+              <div className="auth-input-wrap">
+                <Lock size={16} className="auth-input-icon" />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="auth-input auth-input-icon-l auth-input-icon-r"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="auth-eye-btn"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="auth-submit-btn"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="auth-spinner" />
+                  Signing in…
+                </>
+              ) : (
+                <>
+                  Sign In <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer link */}
+          <p className="auth-footer-text">
+            Need a worker account?{' '}
+            <Link to="/register" className="auth-footer-link">
+              Register here <ArrowRight size={12} />
+            </Link>
           </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          <UserCog size={16} />
-          {isSubmitting ? 'Signing in...' : 'Sign In'}
-        </button>
-
-        <p className="mt-5 text-center text-sm text-ink-700">
-          Need worker access?{' '}
-          <Link to="/register" className="font-bold text-brand-700 hover:text-brand-900">
-            Register employee account
-          </Link>
-        </p>
-      </form>
-    </section>
+        </div>
+      </div>
+    </div>
   );
 };

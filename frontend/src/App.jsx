@@ -92,6 +92,8 @@ import { QuizWorkspace } from './pages/QuizWorkspace';
 import { Certificate } from './pages/Certificate';
 import { CertificateVerificationPage } from './pages/CertificateVerificationPage';
 import { SafeBotChat } from './components/SafeBotChat';
+import { RoleDashboardPage } from './pages/RoleDashboardPage';
+import { CourseManagerPage } from './pages/CourseManagerPage';
 
 const App = () => {
   return (
@@ -105,7 +107,15 @@ const App = () => {
           path="/portal"
           element={
             <ProtectedRoute>
-              <PortalPage />
+              <Navigate to="/dashboard" replace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleDashboardPage />
             </ProtectedRoute>
           }
         />
@@ -163,6 +173,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <IncidentDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/course-manager"
+          element={
+            <ProtectedRoute>
+              <CourseManagerPage />
             </ProtectedRoute>
           }
         />

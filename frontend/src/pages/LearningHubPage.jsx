@@ -6,7 +6,7 @@ export const LearningHubPage = () => {
   const { user } = useAuth();
 
   if (user?.role !== 'worker') {
-    return <Navigate to="/portal" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <WorkerLearningHub />;
