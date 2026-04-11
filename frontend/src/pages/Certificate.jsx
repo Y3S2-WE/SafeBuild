@@ -1,6 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, QrCode, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  Award,
+  Calendar,
+  CheckCircle2,
+  Download,
+  FileCheck,
+  Fingerprint,
+  Hash,
+  QrCode,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy
+} from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -112,105 +125,171 @@ export const Certificate = () => {
   };
 
   return (
-    <section className="space-y-6">
-      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#111f40] via-[#17457f] to-[#2281d9] p-7 text-white shadow-card">
-        <div className="pointer-events-none absolute -top-16 right-8 h-44 w-44 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 left-10 h-48 w-48 rounded-full bg-yellow-300/15 blur-3xl" />
+    <section className="space-y-8">
+      {/* ── Hero Section ── */}
+      <header className="cert-hero-bg rounded-3xl p-8 md:p-10 text-white shadow-card">
+        <div className="floating-orb floating-orb-lg bg-yellow-400/15 -top-20 right-10" style={{ animationDelay: '0s' }} />
+        <div className="floating-orb floating-orb-md bg-cyan-400/15 -bottom-16 left-8" style={{ animationDelay: '2s' }} />
+        <div className="floating-orb floating-orb-sm bg-amber-300/20 top-1/3 right-1/4" style={{ animationDelay: '3s' }} />
 
-        <div className="relative z-10">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100">
-            <Sparkles size={14} /> Certification Center
+        <div className="relative z-10 animate-fade-in-up" style={{ opacity: 0 }}>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-yellow-100 border border-white/10">
+            <Sparkles size={14} className="animate-pulse" /> Certification Center
           </p>
-          <h1 className="mt-4 text-3xl font-extrabold">Certificate Preview</h1>
-          <p className="mt-2 max-w-2xl text-sm text-white/85">Preview your certificate and download it as a PDF after a successful quiz result.</p>
+          <h1 className="mt-5 text-4xl font-extrabold leading-tight">
+            Certificate <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-200">Preview</span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm text-white/80 leading-relaxed">
+            Preview your certificate and download it as a PDF after a successful quiz result.
+          </p>
         </div>
       </header>
 
-      {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
+      {/* ── Error ── */}
+      {error && (
+        <div className="rounded-2xl border border-red-200/80 bg-red-50/90 backdrop-blur-sm px-5 py-4 text-sm font-medium text-red-700 flex items-center gap-3 animate-fade-in-up shadow-sm">
+          <div className="icon-container bg-red-100 text-red-600 !w-9 !h-9 !min-w-[36px]">
+            <ShieldCheck size={18} />
+          </div>
+          {error}
+        </div>
+      )}
 
+      {/* ── Loading ── */}
       {isLoading ? (
-        <div className="glass-panel rounded-3xl p-8 text-center shadow-card">
-          <p className="text-sm font-semibold text-brand-800">Loading certificate...</p>
+        <div className="glass-card-premium rounded-3xl p-12 text-center shadow-card">
+          <div className="inline-flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-semibold text-brand-800">Loading certificate...</p>
+          </div>
         </div>
       ) : !activeCertificate ? (
-        <div className="glass-panel rounded-3xl p-8 shadow-card">
+        <div className="glass-card-premium rounded-3xl p-12 shadow-card text-center animate-fade-in-up" style={{ opacity: 0 }}>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-100 text-brand-600 mb-4">
+            <FileCheck size={28} />
+          </div>
           <h2 className="text-xl font-extrabold text-ink-900">No certificate available</h2>
-          <p className="mt-2 text-sm text-ink-800">Complete a certification quiz and pass it to generate your certificate.</p>
+          <p className="mt-2 text-sm text-ink-800 max-w-md mx-auto">Complete a certification quiz and pass it to generate your certificate.</p>
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-[280px_1fr]">
-          <aside className="glass-panel rounded-3xl p-5 shadow-card">
-            <h2 className="text-lg font-bold text-ink-900">My Certificates</h2>
-            <div className="mt-4 space-y-2">
+        <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
+          {/* ── Sidebar: Certificate List ── */}
+          <aside className="glass-card-premium rounded-3xl p-5 shadow-card animate-fade-in-up" style={{ opacity: 0 }}>
+            <h2 className="text-lg font-bold text-ink-900 flex items-center gap-2 mb-5">
+              <Award size={18} className="text-brand-600" /> My Certificates
+            </h2>
+            <div className="space-y-2">
               {myCertificates.length === 0 && <p className="text-sm text-ink-800">No certificates found.</p>}
-              {myCertificates.map((certificate) => (
-                <button
-                  key={certificate._id}
-                  type="button"
-                  onClick={() => {
-                    setVerifiedCertificate(null);
-                    setSelectedCode(certificate.certificateCode);
-                  }}
-                  className={`w-full rounded-2xl border px-3 py-3 text-left transition ${
-                    selectedCode === certificate.certificateCode
-                      ? 'border-brand-500 bg-brand-50 shadow'
-                      : 'border-white/70 bg-white/80 hover:border-brand-300'
-                  }`}
-                >
-                  <p className="text-sm font-bold text-ink-900">{certificate.quizTitle}</p>
-                  <p className="mt-1 text-xs text-ink-800">{certificate.certificateCode}</p>
-                </button>
-              ))}
+              {myCertificates.map((certificate) => {
+                const isActive = selectedCode === certificate.certificateCode;
+                return (
+                  <button
+                    key={certificate._id}
+                    type="button"
+                    onClick={() => {
+                      setVerifiedCertificate(null);
+                      setSelectedCode(certificate.certificateCode);
+                    }}
+                    className={`w-full rounded-2xl border px-4 py-3.5 text-left transition-all duration-300 ${
+                      isActive
+                        ? 'border-brand-400 bg-gradient-to-r from-brand-50 to-brand-100/50 shadow-md shadow-brand-100/50'
+                        : 'border-white/60 bg-white/70 hover:border-brand-200 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${isActive ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white' : 'bg-brand-50 text-brand-600'}`}>
+                        <Trophy size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-ink-900 truncate">{certificate.quizTitle}</p>
+                        <p className="mt-0.5 text-[10px] text-ink-800 font-mono tracking-wider">{certificate.certificateCode}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </aside>
 
-          <article className="rounded-3xl border border-brand-200 bg-white p-6 shadow-card">
-            <div className="rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-[#f6fbff] to-[#eef6ff] p-6">
-              <p className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-brand-700">
-                <ShieldCheck size={13} /> Official Certificate
-              </p>
+          {/* ── Certificate Preview ── */}
+          <article className="glass-card-premium rounded-3xl p-6 shadow-card animate-fade-in-up anim-delay-100" style={{ opacity: 0 }}>
+            <div className="certificate-frame p-7 relative overflow-hidden">
+              {/* Decorative Corners */}
+              <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-brand-400/40 rounded-tl-lg" />
+              <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-brand-400/40 rounded-tr-lg" />
+              <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-brand-400/40 rounded-bl-lg" />
+              <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-brand-400/40 rounded-br-lg" />
 
-              <h2 className="mt-4 text-3xl font-extrabold text-brand-900">SafeBuild Certification</h2>
-              <p className="mt-2 text-sm text-ink-800">This certifies that</p>
-              <p className="mt-2 text-4xl font-black text-ink-900">{activeCertificate.userName || `${user.firstName} ${user.lastName}`}</p>
-              <p className="mt-3 text-sm text-ink-800">has successfully completed</p>
-              <p className="mt-2 text-2xl font-extrabold text-brand-800">{activeCertificate.quizTitle}</p>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl bg-brand-50 p-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-brand-700">Marks</p>
-                  <p className="text-lg font-extrabold text-ink-900">{activeCertificate.percentage}%</p>
+              {/* Certificate Badge */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow-brand">
+                  <ShieldCheck size={24} />
                 </div>
-                <div className="rounded-xl bg-brand-50 p-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-brand-700">Issued</p>
-                  <p className="text-lg font-extrabold text-ink-900">{certificateDate(activeCertificate.issuedAt)}</p>
-                </div>
-                <div className="rounded-xl bg-brand-50 p-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-brand-700">Code</p>
-                  <p className="text-sm font-extrabold text-ink-900">{activeCertificate.certificateCode}</p>
-                </div>
+                <p className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-700">
+                  <Star size={12} className="text-brand-500" /> Official Certificate
+                </p>
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs text-ink-800">
-                  <p className="font-bold">Certificate Verification</p>
-                  <p>{activeCertificate.certificateCode}</p>
+              {/* Certificate Content */}
+              <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-800 to-brand-600">
+                SafeBuild Certification
+              </h2>
+
+              <p className="mt-4 text-sm text-ink-800 font-medium">This certifies that</p>
+              <p className="mt-2 text-4xl font-black text-ink-900 leading-tight">
+                {activeCertificate.userName || `${user.firstName} ${user.lastName}`}
+              </p>
+              <div className="w-32 h-1 bg-gradient-to-r from-brand-400 to-brand-200 rounded-full mt-3" />
+
+              <p className="mt-4 text-sm text-ink-800 font-medium">has successfully completed</p>
+              <p className="mt-2 text-2xl font-extrabold text-brand-800">{activeCertificate.quizTitle}</p>
+
+              {/* Stats Cards */}
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: 'Marks', value: `${activeCertificate.percentage}%`, icon: Star, color: 'brand' },
+                  { label: 'Issued', value: certificateDate(activeCertificate.issuedAt), icon: Calendar, color: 'emerald' },
+                  { label: 'Code', value: activeCertificate.certificateCode, icon: Hash, color: 'purple' }
+                ].map((stat) => (
+                  <div key={stat.label} className="stat-card-glow text-center">
+                    <div className={`icon-container icon-container-${stat.color} mx-auto mb-2 !w-9 !h-9 !min-w-[36px]`}>
+                      <stat.icon size={16} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-700">{stat.label}</p>
+                    <p className={`mt-1 font-extrabold text-ink-900 ${stat.label === 'Code' ? 'text-xs font-mono tracking-wider' : 'text-lg'}`}>
+                      {stat.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6 pt-5 border-t border-brand-100 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="icon-container icon-container-brand !w-9 !h-9 !min-w-[36px]">
+                    <Fingerprint size={16} />
+                  </div>
+                  <div className="text-xs text-ink-800">
+                    <p className="font-bold">Certificate Verification</p>
+                    <p className="font-mono tracking-wider text-brand-700">{activeCertificate.certificateCode}</p>
+                  </div>
                 </div>
+
                 <div className="flex gap-2">
                   {activeCertificate.qrCodeUrl && (
                     <a
                       href={activeCertificate.qrCodeUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-brand-300 px-3 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+                      className="btn-premium btn-premium-outline text-sm"
                     >
-                      <QrCode size={14} /> QR
+                      <QrCode size={14} /> QR Code
                     </a>
                   )}
                   <button
                     type="button"
                     onClick={handleDownloadPdf}
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
+                    className="btn-premium btn-premium-brand text-sm"
                   >
                     <Download size={14} /> Download PDF
                   </button>

@@ -1,68 +1,64 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, BriefcaseBusiness, UserPlus } from 'lucide-react';
-import { FormInput } from '../components/FormInput';
+import {
+  AlertCircle, ArrowRight, Award, Briefcase, CheckCircle2,
+  Eye, EyeOff, HardHat, Lock, Mail, Phone, ShieldCheck,
+  User, UserPlus
+} from 'lucide-react';
 import { api } from '../services/api';
 
 const initialState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-  employeeId: '',
-  phone: '',
-  department: ''
+  firstName: '', lastName: '', email: '', password: '',
+  employeeId: '', phone: '', department: ''
 };
 
+const PERKS = [
+  { icon: ShieldCheck, label: 'Instant Access',    text: 'Access safety modules right after registration'    },
+  { icon: Award,       label: 'Auto Certification', text: 'Complete courses and earn verifiable certificates'  },
+  { icon: HardHat,     label: 'Site Ready',         text: 'Report incidents and hazards from any device'      },
+];
+
 export const RegisterPage = () => {
-  const [formData, setFormData] = useState(initialState);
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData]       = useState(initialState);
+  const [errors, setErrors]           = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError]       = useState('');
   const navigate = useNavigate();
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const validate = () => {
-    const nextErrors = {};
-    if (!formData.firstName.trim()) nextErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) nextErrors.lastName = 'Last name is required';
-    if (!formData.email.trim()) nextErrors.email = 'Email is required';
-    if (!formData.password || formData.password.length < 6) {
-      nextErrors.password = 'Password must be at least 6 characters';
-    }
-    return nextErrors;
+    const e = {};
+    if (!formData.firstName.trim()) e.firstName = 'Required';
+    if (!formData.lastName.trim())  e.lastName  = 'Required';
+    if (!formData.email.trim())     e.email     = 'Required';
+    if (formData.password.length < 6) e.password = 'Min. 6 characters';
+    return e;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setApiError('');
-
     const nextErrors = validate();
     setErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(nextErrors).length > 0) return;
 
     try {
       setIsSubmitting(true);
       await api.registerEmployee(formData);
       navigate('/login', {
-        state: {
-          notice: 'Employee account created successfully. Please login using your credentials.'
-        }
+        state: { notice: 'Account created successfully. Please sign in to continue.' }
       });
     } catch (error) {
-      setApiError(error.message || 'Registration failed');
+      setApiError(error.message || 'Registration failed. Please try again.');
       if (Array.isArray(error.details)) {
         const detailErrors = error.details.reduce((acc, item) => {
-          if (item.path && !acc[item.path]) {
-            acc[item.path] = item.msg;
-          }
+          if (item.path && !acc[item.path]) acc[item.path] = item.msg;
           return acc;
         }, {});
         setErrors((prev) => ({ ...prev, ...detailErrors }));
@@ -72,127 +68,150 @@ export const RegisterPage = () => {
     }
   };
 
+  const field = (id, label, icon, placeholder, opts = {}) => (
+    <div className={`auth-field ${opts.error ? 'auth-field-error' : ''}`}>
+      <label htmlFor={id} className="auth-label">{label}</label>
+      <div className="auth-input-wrap">
+        {icon && <span className="auth-input-icon">{icon}</span>}
+        <input
+          id={id}
+          name={id}
+          type={opts.type ?? 'text'}
+          autoComplete={opts.autoComplete}
+          placeholder={placeholder}
+          value={formData[id]}
+          onChange={handleChange}
+          className={`auth-input ${icon ? 'auth-input-icon-l' : ''} ${opts.extra ?? ''}`}
+        />
+        {opts.toggle}
+      </div>
+      {opts.error && <p className="auth-field-msg">{opts.error}</p>}
+    </div>
+  );
+
   return (
-    <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr,1.1fr]">
-      <aside className="glass-panel rounded-3xl p-7 shadow-card">
-        <p className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand-800">
-          <BriefcaseBusiness size={14} /> Employee Onboarding
+    <div className="auth-page">
+      {/* ── Left — brand panel ── */}
+      <div className="auth-brand-panel">
+        <div className="auth-logo">
+          <ShieldCheck size={22} />
+        </div>
+        <h1 className="auth-brand-title">
+          Join the SafeBuild<br />
+          <span className="auth-brand-gradient">Safety Network</span>
+        </h1>
+        <p className="auth-brand-sub">
+          Create your worker account to access training courses, earn safety
+          certifications, and contribute to a safer construction environment.
         </p>
-        <h1 className="mt-4 text-3xl font-extrabold text-ink-900">Register New Employee</h1>
-        <p className="mt-3 text-sm leading-relaxed text-ink-800">
-          This registration portal is for worker accounts. Permanent accounts for manager, safety officer,
-          safety compliance manager, and trainer are already provisioned and should login directly.
-        </p>
-        <div className="mt-8 rounded-2xl bg-brand-50 p-4">
-          <p className="text-sm font-semibold text-brand-800">Already have an account?</p>
-          <Link
-            to="/login"
-            className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-brand-700 transition hover:text-brand-900"
-          >
-            Go to Login Portal <ArrowRight size={15} />
-          </Link>
-        </div>
-      </aside>
 
-      <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-7 shadow-card">
-        <div className="mb-6 flex items-center gap-2">
-          <span className="rounded-xl bg-brand-100 p-2 text-brand-700">
-            <UserPlus size={18} />
-          </span>
-          <h2 className="text-xl font-bold text-ink-900">Employee Registration Form</h2>
+        <div className="auth-perks">
+          {PERKS.map(({ icon: Icon, label, text }) => (
+            <div key={label} className="auth-perk-card">
+              <div className="auth-perk-icon"><Icon size={16} /></div>
+              <div>
+                <p className="auth-perk-label">{label}</p>
+                <p className="auth-perk-text">{text}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormInput
-            id="firstName"
-            name="firstName"
-            label="First Name"
-            placeholder="John"
-            value={formData.firstName}
-            onChange={handleChange}
-            error={errors.firstName}
-          />
-          <FormInput
-            id="lastName"
-            name="lastName"
-            label="Last Name"
-            placeholder="Perera"
-            value={formData.lastName}
-            onChange={handleChange}
-            error={errors.lastName}
-          />
+        <div className="auth-brand-footer">
+          <div className="auth-brand-blob auth-brand-blob-1" />
+          <div className="auth-brand-blob auth-brand-blob-2" />
+          <p className="auth-brand-tagline">Worker registration portal</p>
         </div>
+      </div>
 
-        <div className="mt-4 space-y-4">
-          <FormInput
-            id="email"
-            name="email"
-            type="email"
-            label="Email"
-            placeholder="worker@safebuild.com"
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-          />
-          <FormInput
-            id="password"
-            name="password"
-            type="password"
-            label="Password"
-            placeholder="Minimum 6 characters"
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-          />
-        </div>
+      {/* ── Right — form ── */}
+      <div className="auth-form-panel">
+        <div className="auth-form-card">
+          {/* Header */}
+          <div className="auth-form-header">
+            <div className="auth-form-icon-wrap">
+              <UserPlus size={20} />
+            </div>
+            <div>
+              <h2 className="auth-form-title">Create account</h2>
+              <p className="auth-form-subtitle">Fill in your details to get started</p>
+            </div>
+          </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <FormInput
-            id="employeeId"
-            name="employeeId"
-            label="Employee ID"
-            placeholder="EMP024"
-            value={formData.employeeId}
-            onChange={handleChange}
-            error={errors.employeeId}
-          />
-          <FormInput
-            id="department"
-            name="department"
-            label="Department"
-            placeholder="Construction"
-            value={formData.department}
-            onChange={handleChange}
-            error={errors.department}
-          />
-        </div>
+          {apiError && (
+            <div className="auth-notice auth-notice-error">
+              <AlertCircle size={15} /> {apiError}
+            </div>
+          )}
 
-        <div className="mt-4">
-          <FormInput
-            id="phone"
-            name="phone"
-            label="Phone"
-            placeholder="+94 77 123 4567"
-            value={formData.phone}
-            onChange={handleChange}
-            error={errors.phone}
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="auth-form" noValidate>
+            {/* Name row */}
+            <div className="auth-row-2">
+              {field('firstName', 'First Name', <User size={16} />, 'John',  { error: errors.firstName })}
+              {field('lastName',  'Last Name',  <User size={16} />, 'Perera', { error: errors.lastName  })}
+            </div>
 
-        {apiError && (
-          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {apiError}
+            {/* Email */}
+            {field('email', 'Email Address', <Mail size={16} />, 'you@safebuild.com', {
+              type: 'email', autoComplete: 'email', error: errors.email
+            })}
+
+            {/* Password */}
+            <div className={`auth-field ${errors.password ? 'auth-field-error' : ''}`}>
+              <label htmlFor="password" className="auth-label">Password</label>
+              <div className="auth-input-wrap">
+                <Lock size={16} className="auth-input-icon" />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="Minimum 6 characters"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="auth-input auth-input-icon-l auth-input-icon-r"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="auth-eye-btn"
+                  aria-label={showPassword ? 'Hide' : 'Show'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && <p className="auth-field-msg">{errors.password}</p>}
+            </div>
+
+            {/* Employee ID + Department */}
+            <div className="auth-row-2">
+              {field('employeeId', 'Employee ID', <Briefcase size={16} />, 'EMP024')}
+              {field('department', 'Department', <HardHat size={16} />, 'Construction')}
+            </div>
+
+            {/* Phone */}
+            {field('phone', 'Phone Number', <Phone size={16} />, '+94 77 123 4567', {
+              type: 'tel', autoComplete: 'tel'
+            })}
+
+            {/* Submit */}
+            <button type="submit" disabled={isSubmitting} className="auth-submit-btn">
+              {isSubmitting ? (
+                <><span className="auth-spinner" /> Creating account…</>
+              ) : (
+                <><CheckCircle2 size={16} /> Create Account</>
+              )}
+            </button>
+          </form>
+
+          <p className="auth-footer-text">
+            Already have an account?{' '}
+            <Link to="/login" className="auth-footer-link">
+              Sign in <ArrowRight size={12} />
+            </Link>
           </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSubmitting ? 'Creating account...' : 'Create Employee Account'}
-        </button>
-      </form>
-    </section>
+        </div>
+      </div>
+    </div>
   );
 };

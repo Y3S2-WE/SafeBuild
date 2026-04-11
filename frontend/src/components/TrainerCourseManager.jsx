@@ -1,6 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Pencil, Plus, RefreshCcw, Trash2, X } from 'lucide-react';
+import {
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  GraduationCap,
+  HardHat,
+  Layers,
+  LayoutDashboard,
+  Pencil,
+  Plus,
+  RefreshCcw,
+  Sparkles,
+  Trash2,
+  X
+} from 'lucide-react';
 import { api } from '../services/api';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -28,11 +42,18 @@ const initialForm = {
   status: 'Draft'
 };
 
-const initialLessonForm = {
-  title: '',
-  description: '',
-  orderIndex: 1,
-  duration: 10
+const getCategoryClass = (category = '') => {
+  const map = {
+    'PPE': 'ppe',
+    'Electrical Safety': 'electrical',
+    'Working at Heights': 'heights',
+    'Fire Safety': 'fire',
+    'First Aid': 'firstaid',
+    'Hazardous Materials': 'hazardous',
+    'Machine Safety': 'machine',
+    'Confined Spaces': 'confined'
+  };
+  return map[category] || 'other';
 };
 
 export const TrainerCourseManager = () => {
@@ -52,19 +73,19 @@ export const TrainerCourseManager = () => {
   }, [editingCourseId]);
 
   const totalCourses = courses.length;
-  const publishedCourses = useMemo(() => courses.filter((course) => course.status === 'Published').length, [courses]);
+  const publishedCourses = useMemo(() => courses.filter((c) => c.status === 'Published').length, [courses]);
   const draftCourses = totalCourses - publishedCourses;
 
   const statusStats = useMemo(() => {
     return statusOptions.map((status) => ({
       label: status,
-      count: courses.filter((course) => course.status === status).length
+      count: courses.filter((c) => c.status === status).length
     }));
   }, [courses]);
 
   const categoryStats = useMemo(() => {
-    const counts = courses.reduce((acc, course) => {
-      const key = course.category || 'Other';
+    const counts = courses.reduce((acc, c) => {
+      const key = c.category || 'Other';
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
@@ -128,9 +149,7 @@ export const TrainerCourseManager = () => {
   };
 
   const handleDelete = async () => {
-    if (!coursePendingDelete) {
-      return;
-    }
+    if (!coursePendingDelete) return;
 
     setError('');
     setSuccess('');
@@ -139,9 +158,7 @@ export const TrainerCourseManager = () => {
       setIsDeleteSubmitting(true);
       await api.deleteCourse(coursePendingDelete._id);
       setSuccess('Course deleted successfully');
-      if (editingCourseId === coursePendingDelete._id) {
-        resetForm();
-      }
+      if (editingCourseId === coursePendingDelete._id) resetForm();
       await loadCourses();
       setCoursePendingDelete(null);
     } catch (requestError) {
@@ -196,50 +213,88 @@ export const TrainerCourseManager = () => {
   };
 
   return (
-    <section className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-ink-900">Trainer Course Manager</h2>
-          <p className="mt-1 text-sm text-ink-800">Create, update, publish, and remove your training courses.</p>
-        </div>
-        <button
-          type="button"
-          onClick={loadCourses}
-          className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-800 transition hover:bg-brand-50"
-        >
-          <RefreshCcw size={15} /> Refresh
-        </button>
-      </div>
+    <section className="space-y-6">
+      {/* ── Hero Header ── */}
+      <header className="lms-hero-bg rounded-3xl p-8 text-white shadow-card">
+        <div className="floating-orb floating-orb-lg bg-cyan-400/15 -top-24 right-8" style={{ animationDelay: '0s' }} />
+        <div className="floating-orb floating-orb-sm bg-indigo-300/10 -bottom-10 left-10" style={{ animationDelay: '2.5s' }} />
 
-      <div className="glass-panel rounded-2xl p-5 shadow-card">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative z-10 animate-fade-in-up" style={{ opacity: 0 }}>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-sm px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100 border border-white/10 mb-4">
+            <GraduationCap size={14} className="animate-pulse" /> Trainer Dashboard
+          </p>
+
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold leading-tight">
+                Course <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200">Manager</span>
+              </h1>
+              <p className="mt-2 text-sm text-white/80">
+                Create, update, publish, and manage your safety training courses.
+              </p>
+            </div>
+
+            {/* Quick stat chips */}
+            <div className="flex flex-wrap gap-3">
+              <div className="lms-stat-chip">
+                <LayoutDashboard size={14} className="text-cyan-300" />
+                <p className="text-[10px] font-semibold text-cyan-200 uppercase tracking-widest mt-1">Total</p>
+                <p className="text-2xl font-extrabold">{totalCourses}</p>
+              </div>
+              <div className="lms-stat-chip">
+                <CheckCircle2 size={14} className="text-emerald-300" />
+                <p className="text-[10px] font-semibold text-cyan-200 uppercase tracking-widest mt-1">Published</p>
+                <p className="text-2xl font-extrabold">{publishedCourses}</p>
+              </div>
+              <div className="lms-stat-chip">
+                <Sparkles size={14} className="text-amber-300" />
+                <p className="text-[10px] font-semibold text-cyan-200 uppercase tracking-widest mt-1">Drafts</p>
+                <p className="text-2xl font-extrabold">{draftCourses}</p>
+              </div>
+              <button
+                type="button"
+                onClick={loadCourses}
+                className="lms-stat-chip hover:bg-white/15 transition-colors cursor-pointer"
+              >
+                <RefreshCcw size={18} className="text-cyan-300" />
+                <p className="text-[10px] font-bold text-cyan-200 uppercase tracking-widest">Refresh</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Course Statistics Panel ── */}
+      <article className="glass-card-premium rounded-3xl p-6 shadow-card animate-fade-in-up" style={{ opacity: 0 }}>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="icon-container icon-container-brand">
+            <LayoutDashboard size={18} />
+          </div>
           <div>
-            <h3 className="text-base font-bold text-ink-900">Course Statistics</h3>
-            <p className="mt-1 text-sm text-ink-800">Live distribution of your courses by status and category.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-800">Total: {totalCourses}</span>
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Published: {publishedCourses}</span>
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Draft: {draftCourses}</span>
+            <h2 className="text-lg font-bold text-ink-900">Course Statistics</h2>
+            <p className="text-xs text-ink-800 mt-0.5">Live distribution of your courses by status and category.</p>
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-brand-100 bg-white/90 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand-700">Status Mix</p>
-            <div className="mt-3 space-y-2.5">
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Status Mix */}
+          <div className="rounded-2xl border border-brand-100/80 bg-white/70 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-4">Status Mix</p>
+            <div className="space-y-3">
               {statusStats.map((item) => {
                 const width = totalCourses > 0 ? (item.count / totalCourses) * 100 : 0;
-
                 return (
                   <div key={item.label}>
-                    <div className="mb-1 flex items-center justify-between text-xs font-semibold text-ink-800">
-                      <span>{item.label}</span>
-                      <span>{item.count}</span>
+                    <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-ink-800">
+                      <span className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${item.label === 'Published' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        {item.label}
+                      </span>
+                      <span className="font-extrabold">{item.count}</span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-brand-100">
+                    <div className="progress-bar-track">
                       <div
-                        className={`h-full rounded-full ${item.label === 'Published' ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                        className={`progress-bar-fill ${item.label === 'Published' ? '!bg-gradient-to-r !from-emerald-400 !to-emerald-600' : '!bg-gradient-to-r !from-amber-400 !to-amber-600'}`}
                         style={{ width: `${width}%` }}
                       />
                     </div>
@@ -249,23 +304,25 @@ export const TrainerCourseManager = () => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-brand-100 bg-white/90 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand-700">Top Categories</p>
+          {/* Top Categories */}
+          <div className="rounded-2xl border border-brand-100/80 bg-white/70 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-4">Top Categories</p>
             {categoryStats.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-700">Create courses to populate category insights.</p>
+              <p className="text-sm text-ink-700">Create courses to populate category insights.</p>
             ) : (
-              <div className="mt-3 space-y-2.5">
+              <div className="space-y-3">
                 {categoryStats.map((item) => {
                   const width = maxCategoryCount > 0 ? (item.count / maxCategoryCount) * 100 : 0;
-
                   return (
                     <div key={item.label}>
-                      <div className="mb-1 flex items-center justify-between text-xs font-semibold text-ink-800">
-                        <span className="truncate pr-2">{item.label}</span>
-                        <span>{item.count}</span>
+                      <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-ink-800">
+                        <span className="truncate pr-2 flex items-center gap-1.5">
+                          <HardHat size={11} className="text-brand-500" /> {item.label}
+                        </span>
+                        <span className="font-extrabold">{item.count}</span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-brand-100">
-                        <div className="h-full rounded-full bg-bark-600" style={{ width: `${width}%` }} />
+                      <div className="progress-bar-track">
+                        <div className="progress-bar-fill" style={{ width: `${width}%` }} />
                       </div>
                     </div>
                   );
@@ -274,84 +331,78 @@ export const TrainerCourseManager = () => {
             )}
           </div>
         </div>
-      </div>
+      </article>
 
+      {/* ── Form + Course List ── */}
       <div className="grid gap-5 xl:grid-cols-[1.1fr,1.5fr]">
-        <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-5 shadow-card">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <h3 className="text-base font-bold text-ink-900">{formTitle}</h3>
+        {/* Create/Edit Form */}
+        <form onSubmit={handleSubmit} className="glass-card-premium rounded-3xl p-6 shadow-card">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="icon-container icon-container-brand">
+                {editingCourseId ? <Pencil size={18} /> : <Plus size={18} />}
+              </div>
+              <h3 className="text-lg font-bold text-ink-900">{formTitle}</h3>
+            </div>
             {editingCourseId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex items-center gap-1 rounded-lg bg-brand-100 px-2.5 py-1.5 text-xs font-bold text-brand-800 transition hover:bg-brand-200"
+                className="btn-premium btn-premium-outline !px-3 !py-1.5 text-xs"
               >
                 <X size={13} /> Cancel Edit
               </button>
             )}
           </div>
 
-          <div className="space-y-3">
-            <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-              Course Title
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Course Title</label>
               <input
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="Working Safely with Elevated Platforms"
-                className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm font-medium text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+                className="lms-input"
               />
-            </label>
+            </div>
 
-            <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-              Description
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Description</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
                 placeholder="Summarize the objective, key hazards, and expected learning outcomes."
-                className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+                className="lms-input resize-none"
               />
-            </label>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-                Category
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm font-medium text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                >
-                  {categoryOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-                Level
-                <select
-                  name="level"
-                  value={formData.level}
-                  onChange={handleChange}
-                  className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm font-medium text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                >
-                  {levelOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-                Duration (hours)
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Category</label>
+                <div className="relative">
+                  <select name="category" value={formData.category} onChange={handleChange} className="lms-select pr-8">
+                    {categoryOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                  <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-brand-400 pointer-events-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Level</label>
+                <div className="relative">
+                  <select name="level" value={formData.level} onChange={handleChange} className="lms-select pr-8">
+                    {levelOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                  <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-brand-400 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Duration (hours)</label>
                 <input
                   name="duration"
                   type="number"
@@ -359,103 +410,139 @@ export const TrainerCourseManager = () => {
                   step="0.5"
                   value={formData.duration}
                   onChange={handleChange}
-                  className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm font-medium text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+                  className="lms-input"
                 />
-              </label>
-
-              <label className="flex flex-col gap-1.5 text-sm font-semibold text-ink-800">
-                Status
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="rounded-xl border border-brand-100 bg-white/90 px-3 py-2.5 text-sm font-medium text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                >
-                  {statusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-brand-700 mb-1.5">Status</label>
+                <div className="flex gap-2">
+                  {statusOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, status: opt }))}
+                      className={`content-type-btn flex-1 justify-center ${formData.status === opt ? 'content-type-btn-active' : ''}`}
+                    >
+                      {opt === 'Published' ? <CheckCircle2 size={13} /> : <Sparkles size={13} />}
+                      {opt}
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+              </div>
             </div>
           </div>
 
           {error && (
-            <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700">
               {error}
-            </p>
+            </div>
           )}
 
           {success && (
-            <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
-              {success}
-            </p>
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm font-semibold text-emerald-700 flex items-center gap-2">
+              <CheckCircle2 size={16} /> {success}
+            </div>
           )}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-5 btn-premium btn-premium-brand w-full text-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {editingCourseId ? <Pencil size={15} /> : <Plus size={15} />}
             {isSubmitting ? 'Saving...' : editingCourseId ? 'Update Course' : 'Create Course'}
           </button>
         </form>
 
-        <div className="glass-panel rounded-2xl p-5 shadow-card">
-          <h3 className="text-base font-bold text-ink-900">Your Courses</h3>
-          <p className="mt-1 text-sm text-ink-800">Only courses created by your trainer account are listed here.</p>
+        {/* Course List */}
+        <div className="glass-card-premium rounded-3xl p-6 shadow-card">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="icon-container icon-container-brand">
+              <GraduationCap size={18} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-ink-900">Your Courses</h3>
+              <p className="text-xs text-ink-800 mt-0.5">Only courses created by your account are shown here.</p>
+            </div>
+          </div>
 
           {loading ? (
-            <p className="mt-4 text-sm font-semibold text-brand-700">Loading courses...</p>
+            <div className="flex items-center gap-3 py-6 justify-center">
+              <div className="w-5 h-5 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-semibold text-brand-700">Loading courses...</p>
+            </div>
           ) : courses.length === 0 ? (
-            <p className="mt-4 rounded-xl border border-dashed border-brand-200 bg-white/75 px-4 py-6 text-sm text-ink-800">
-              No courses yet. Create your first training module from the form.
-            </p>
+            <div className="rounded-2xl border border-dashed border-brand-200 bg-white/60 px-6 py-8 text-center">
+              <div className="icon-container icon-container-brand mx-auto mb-3"><GraduationCap size={22} /></div>
+              <p className="text-sm font-semibold text-ink-800">No courses yet</p>
+              <p className="text-xs text-ink-700 mt-1">Create your first training module from the form.</p>
+            </div>
           ) : (
-            <div className="mt-4 space-y-3">
-              {courses.map((course) => (
-                <article key={course._id} className="rounded-xl border border-brand-100 bg-white/90 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h4 className="text-sm font-extrabold text-ink-900">{course.title}</h4>
-                      <p className="mt-1 text-xs text-ink-700">
-                        {course.category} • {course.level} • {course.duration}h • {course.totalLessons || 0} lessons
-                      </p>
+            <div className="space-y-3">
+              {courses.map((course, index) => {
+                const catClass = getCategoryClass(course.category);
+                return (
+                  <article
+                    key={course._id}
+                    className="course-card-lms animate-fade-in-up"
+                    style={{ opacity: 0, animationDelay: `${index * 0.06}s` }}
+                  >
+                    <div className={`card-top-stripe cat-${catClass}`} />
+                    <div className="p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h4 className="text-sm font-extrabold text-ink-900">{course.title}</h4>
+                            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                              course.status === 'Published'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {course.status === 'Published' ? <CheckCircle2 size={11} /> : <Sparkles size={11} />}
+                              {course.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-ink-700 flex items-center gap-2">
+                            <span className={`cat-pill-${catClass} rounded-full px-2.5 py-0.5 text-[11px] font-bold`}>{course.category}</span>
+                            <span>·</span>
+                            <span>{course.level}</span>
+                            <span>·</span>
+                            <span>{course.duration}h</span>
+                            <span>·</span>
+                            <span>{course.totalLessons || 0} lessons</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-ink-800 leading-relaxed line-clamp-2 mb-4">{course.description}</p>
+
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/lesson-management?courseId=${course._id}`)}
+                          className="btn-premium btn-premium-outline !px-3 !py-1.5 text-xs"
+                        >
+                          <BookOpen size={12} /> Manage Lessons
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(course)}
+                          className="btn-premium btn-premium-brand !px-3 !py-1.5 text-xs"
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => requestDelete(course)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition"
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </div>
                     </div>
-                    <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-800">
-                      {course.status}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-sm leading-relaxed text-ink-800">{course.description}</p>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/lesson-management?courseId=${course._id}`)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-bark-700 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-bark-800"
-                    >
-                      <BookOpen size={13} /> Manage Lessons
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(course)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-brand-700 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-brand-800"
-                    >
-                      <Pencil size={13} /> Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => requestDelete(course)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700"
-                    >
-                      <Trash2 size={13} /> Delete
-                    </button>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>
