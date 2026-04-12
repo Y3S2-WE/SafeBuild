@@ -178,6 +178,48 @@ You can test the API using:
 - **cURL** (command line)
 - **Any HTTP client**
 
+### Step 3.1: Performance Testing (Artillery)
+
+The backend includes an Artillery profile to evaluate API behavior under multiple simultaneous loads.
+
+#### Performance Test Profiles Included
+- Warm-up: low traffic to stabilize startup effects
+- Moderate Load: normal usage simulation
+- High Concurrency: sustained concurrent request pressure
+- Stress Spike: short burst load to observe latency behavior
+
+#### Run Performance Test
+From the backend directory:
+
+```bash
+npm run test:performance
+```
+
+This uses `http://localhost:5000` by default. To target another environment:
+
+```bash
+PERF_TARGET=http://localhost:5000 npm run test:performance
+```
+
+#### Generate HTML Report
+
+```bash
+npm run test:performance:report
+```
+
+Report output is written to:
+- `backend/tests/performance/last-report.json`
+
+#### Pass/Fail Criteria Configured
+The Artillery profile enforces these thresholds:
+- p95 latency <= 800 ms
+- p99 latency <= 1200 ms
+- HTTP 500 count = 0
+- max error rate <= 1%
+
+Profile location:
+- `backend/tests/performance/api-load.yml`
+
 ### Step 4: Initial User Registration
 
 Create your first user account:
