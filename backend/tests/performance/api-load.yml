@@ -1,0 +1,84 @@
+config:
+  target: "{{ $processEnvironment.PERF_TARGET }}"
+  processor: "./processor.js"
+  phases:
+    - name: "Warm-up"
+      duration: 30
+      arrivalRate: 2
+    - name: "Moderate Load"
+      duration: 45
+      arrivalRate: 10
+    - name: "High Concurrency"
+      duration: 30
+      arrivalRate: 25
+    - name: "Stress Spike"
+      duration: 20
+      arrivalRate: 40
+  ensure:
+    maxErrorRate: 1
+    thresholds:
+      - "http.response_time.p95": 800
+      - "http.response_time.p99": 1200
+      - "http.codes.500": 0
+plugins:
+  metrics-by-endpoint: {}
+
+scenarios:
+  - name: "Health Endpoint"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/health"
+
+  - name: "Worker Register + Profile"
+    weight: 35
+    flow:
+      - function: "setWorkerRegistrationData"
+      - post:
+          url: "/api/users/register"
+          json:
+            firstName: "{{ workerFirstName }}"
+            lastName: "{{ workerLastName }}"
+            email: "{{ workerEmail }}"
+            password: "{{ workerPassword }}"
+            role: "{{ workerRole }}"
+            employeeId: "{{ workerEmployeeId }}"
+          capture:
+            - json: "$.data.token"
+              as: "workerToken"
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ workerToken }}"
+
+  - name: "Trainer Register + Course Creation"
+    weight: 25
+    flow:
+      - function: "setTrainerRegistrationData"
+      - post:
+          url: "/api/users/register"
+          json:
+            firstName: "{{ trainerFirstName }}"
+            lastName: "{{ trainerLastName }}"
+            email: "{{ trainerEmail }}"
+            password: "{{ trainerPassword }}"
+            role: "{{ trainerRole }}"
+            employeeId: "{{ trainerEmployeeId }}"
+          capture:
+            - json: "$.data.token"
+              as: "trainerToken"
+      - post:
+          url: "/api/courses"
+          headers:
+            Authorization: "Bearer {{ trainerToken }}"
+          json:
+            title: "{{ courseTitle }}"
+            category: "PPE"
+            description: "Performance test course generation"
+            level: "Beginner"
+            duration: 1
+            status: "Published"
+      - get:
+          url: "/api/courses"
+          headers:
+            Authorization: "Bearer {{ trainerToken }}"
