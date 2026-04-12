@@ -2,15 +2,34 @@
 
 **Occupational Safety Training, Certification & Reporting Web App**
 
-A comprehensive web application designed to improve workplace safety in the construction industry by providing digital training, certification, hazard reporting, and compliance monitoring tools.
+A comprehensive full-stack web application designed to improve workplace safety in the construction industry by providing digital training, certification, hazard reporting, and compliance monitoring tools.
 
-## 🎯 SDG Goal
-**Decent Work and Economic Growth** - Promoting safe and secure working environments for all workers.
+---
 
-### Assigned Topic 
-A web app to ensure occupational safety with certification through digital training & reporting.
+## 🏷️ Classification
 
-## 🏷️ Project Overview
+**Course**: SE3040 – Application Frameworks  
+**Assignment**: Full Stack Application Development  
+**Academic Year**: 2026  
+**SDG Goal**: Decent Work and Economic Growth — Promoting safe and secure working environments for all workers.
+
+---
+
+## 📋 Table of Contents
+
+1. [Project Overview](#-project-overview)
+2. [Technology Stack](#️-technology-stack)
+3. [Project Structure](#-project-structure)
+4. [Setup Instructions](#-setup-instructions)
+5. [API Endpoint Documentation](#-api-endpoint-documentation)
+6. [Deployment Report](#-deployment-report)
+7. [Testing Instructions](#-testing-instructions)
+8. [Security Features](#-security-features)
+9. [Troubleshooting](#-troubleshooting)
+
+---
+
+## 🎯 Project Overview
 
 ### Domain
 Construction Company
@@ -18,146 +37,243 @@ Construction Company
 ### System
 Occupational Safety Training, Certification & Reporting Web App
 
-### Purpose
-The system aims to improve workplace safety by providing digital training, certification, hazard reporting, and compliance monitoring tools.
-
 ### Target Users
-- 👷 **Construction Workers**: Access training, report incidents, complete assignments
-- 👨‍💼 **Site Managers**: Oversee operations, manage incidents, track compliance
-- 🛡️ **Safety Officers**: Conduct audits, issue corrective actions, monitor safety metrics
-- 👨‍🏫 **Trainers**: Create courses, manage assessments, issue certifications
+| Role | Responsibilities |
+|---|---|
+| 👷 **Worker** | Access training, report incidents, complete quizzes |
+| 👨‍💼 **Manager** | Oversee operations, manage incidents, track compliance, view analytics |
+| 🛡️ **Officer** | Conduct audits, issue corrective actions, monitor safety metrics |
+| 👨‍🏫 **Trainer** | Create courses and lessons, manage quizzes, issue certifications |
 
-## 📦 System Components
+### System Components
 
-### ✅ Component 1: Training Course Manager + User Management
-- User registration and authentication with role-based access control
-- Course creation and management (trainers)
-- Lesson organization and content delivery
-- User enrollment tracking and progress monitoring
+| # | Component | Features |
+|---|---|---|
+| 1 | **Training Course Manager + User Management** | Role-based auth, course creation, lesson delivery, enrollment tracking |
+| 2 | **Assessment & Certification System** | Interactive quizzes, auto-grading, digital certificates, expiry tracking |
+| 3 | **Incident & Hazard Reporting** | Real-time reporting, severity classification, photo upload, status tracking |
+| 4 | **Compliance Auditing & Corrective Actions** | Audit scheduling, checklist templates, corrective actions, analytics |
 
-### ✅ Component 2: Assessment & Certification System
-- Interactive quizzes and assessments
-- Automated grading with instant feedback
-- Digital certificate generation and verification
-- Certification tracking with expiry management
-
-### ✅ Component 3: Incident & Hazard Reporting
-- Real-time incident reporting with severity classification
-- Hazard identification and documentation
-- Photo/evidence upload support
-- Status tracking and assignment workflow
-
-### ✅ Component 4: Compliance Auditing & Corrective Actions
-- Safety audit scheduling with checklist templates
-- Compliance score calculation and tracking
-- Corrective action creation and assignment
-- Follow-up management and completion verification
+---
 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Framework**: Express.js (Node.js)
-- **Database**: MongoDB Atlas
-- **ODM**: Mongoose
-- **Authentication**: JWT (JSON Web Tokens)
-- **Validation**: express-validator
-- **Security**: bcryptjs, CORS
-- **Dev Tools**: nodemon
+| Technology | Purpose |
+|---|---|
+| Node.js + Express.js | API server and routing |
+| MongoDB Atlas | Cloud database |
+| Mongoose | ODM for MongoDB |
+| JSON Web Tokens (JWT) | Authentication |
+| bcryptjs | Password hashing |
+| express-validator | Request validation |
+| multer | File uploads |
+| @huggingface/inference | NLLB-200 translation |
+| OpenRouter (Llama 3.3 70B) | AI Safety Chatbot |
+| nodemon | Dev server auto-reload |
+| Jest + Supertest | Unit & integration testing |
+| Artillery | Performance/load testing |
 
 ### Frontend
-- To be determined
+| Technology | Purpose |
+|---|---|
+| React 18 | UI framework |
+| Vite | Build tool & dev server |
+| React Router DOM v6 | Client-side routing |
+| Tailwind CSS | Utility-first styling |
+| Lucide React | Icon library |
+| Mapbox GL JS | Interactive map picker |
+| Quill / react-quill | Rich text editor |
+| jsPDF | PDF certificate generation |
+| DOMPurify | XSS sanitization |
+| Vitest | Frontend unit testing |
+
+---
+
+## 📁 Project Structure
+
+```
+SafeBuild/
+├── backend/
+│   ├── config/
+│   │   └── db.js                    # MongoDB connection
+│   ├── controllers/
+│   │   ├── userController.js
+│   │   ├── courseController.js
+│   │   ├── lessonController.js
+│   │   ├── enrollmentController.js
+│   │   ├── quizController.js
+│   │   ├── quizAttemptController.js
+│   │   ├── certificateController.js
+│   │   ├── incidentController.js
+│   │   ├── checklistController.js
+│   │   ├── auditController.js
+│   │   ├── correctiveActionController.js
+│   │   ├── analyticsController.js
+│   │   ├── chatController.js
+│   │   └── translateController.js
+│   ├── middleware/
+│   │   ├── auth.js                  # JWT protect + authorize
+│   │   ├── upload.js                # Multer config
+│   │   └── validator.js             # express-validator rules
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Course.js
+│   │   ├── Lesson.js
+│   │   ├── Enrollment.js
+│   │   ├── Quiz.js
+│   │   ├── QuizAttempt.js
+│   │   ├── Certificate.js
+│   │   ├── Incident.js
+│   │   ├── Checklist.js
+│   │   ├── Audit.js
+│   │   └── CorrectiveAction.js
+│   ├── routes/
+│   │   ├── userRoutes.js
+│   │   ├── courseRoutes.js
+│   │   ├── lessonRoutes.js
+│   │   ├── enrollmentRoutes.js
+│   │   ├── quizRoutes.js
+│   │   ├── quizAttemptRoutes.js
+│   │   ├── certificateRoutes.js
+│   │   ├── incidentRoutes.js
+│   │   ├── checklistRoutes.js
+│   │   ├── auditRoutes.js
+│   │   ├── correctiveActionRoutes.js
+│   │   ├── analyticsRoutes.js
+│   │   ├── chatRoutes.js
+│   │   └── translateRoutes.js
+│   ├── services/                    # Business logic services
+│   ├── tests/
+│   │   ├── unit/                    # Jest unit tests
+│   │   ├── integration/             # Supertest integration tests
+│   │   └── performance/             # Artillery load tests
+│   ├── uploads/                     # Uploaded files (local dev)
+│   ├── utils/                       # Utility helpers
+│   ├── .env                         # Environment variables (not committed)
+│   ├── .env.example                 # Environment variable template
+│   ├── railway.json                 # Railway deployment config
+│   ├── seed.js                      # Database seeding script
+│   ├── server.js                    # Application entry point
+│   └── package.json
+├── frontend/
+│   ├── public/                      # Static assets
+│   ├── src/
+│   │   ├── components/              # Reusable UI components
+│   │   ├── pages/                   # Route-level pages
+│   │   ├── context/                 # React context (auth, etc.)
+│   │   ├── services/                # API service layer
+│   │   └── test/                    # Frontend test setup
+│   ├── .env                         # Frontend environment variables
+│   ├── .env.example                 # Frontend env variable template
+│   ├── vercel.json                  # Vercel deployment config
+│   ├── vite.config.js               # Vite configuration
+│   └── package.json
+├── DEPLOY_GUIDE.md                  # Detailed deployment guide
+└── README.md                        # This file
+```
 
 ---
 
 ## 🚀 Setup Instructions
 
 ### Prerequisites
-Before you begin, ensure you have the following installed:
-- **Node.js** (v14 or higher) - [Download here](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn**
-- **MongoDB Atlas account** - [Sign up here](https://www.mongodb.com/cloud/atlas)
-- **Git** (for cloning the repository)
 
-### Step 1: Clone the Repository
+Ensure the following are installed on your machine:
+
+| Requirement | Version | Link |
+|---|---|---|
+| Node.js | v18 or higher | [nodejs.org](https://nodejs.org/) |
+| npm | v9+ (bundled with Node) | — |
+| Git | Latest | [git-scm.com](https://git-scm.com/) |
+| MongoDB Atlas account | — | [mongodb.com/atlas](https://www.mongodb.com/cloud/atlas) |
+
+---
+
+### Step 1 — Clone the Repository
+
 ```bash
-git clone https://github.com/yourusername/SafeBuild.git
+git clone https://github.com/Y3S2-WE/SafeBuild.git
 cd SafeBuild
 ```
 
-### Step 2: Backend Setup
+---
 
-#### 2.1 Navigate to Backend Directory
+### Step 2 — Backend Setup
+
+#### 2.1 Navigate to backend directory
+
 ```bash
 cd backend
 ```
 
-#### 2.2 Install Dependencies
+#### 2.2 Install dependencies
+
 ```bash
 npm install
 ```
 
-This will install all required packages:
-- express
-- mongoose
-- dotenv
-- cors
-- bcryptjs
-- jsonwebtoken
-- express-validator
-- nodemon (dev dependency)
+#### 2.3 Configure environment variables
 
-#### 2.3 Configure Environment Variables
+Create the `.env` file from the provided template:
 
-Create a `.env` file in the backend directory:
 ```bash
-touch .env
+cp .env.example .env
 ```
 
-Add the following environment variables to `.env`:
+Then open `.env` and fill in your values:
+
 ```env
 # Server Configuration
+PORT=5001
 NODE_ENV=development
-PORT=5000
 
 # Database Configuration
 MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/safebuild?retryWrites=true&w=majority
 
 # JWT Configuration
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_EXPIRE=30d
+JWT_SECRET=your_super_secret_jwt_key_minimum_32_characters
+JWT_EXPIRE=7d
 
-# Optional: Frontend URL (for CORS)
-CLIENT_URL=http://localhost:3000
+# OpenRouter AI (Llama 3.3 70B) — https://openrouter.ai
+OPENROUTER_API_KEY=sk-or-v1-...
+
+# Hugging Face API (NLLB-200 Translation) — https://huggingface.co
+HUGGINGFACE_API_KEY=hf_...
+
+# Frontend URL (for CORS — in development this can stay as-is)
+FRONTEND_URL=http://localhost:5173
 ```
 
+#### 2.4 Set up MongoDB Atlas
 
-#### 2.4 Set Up MongoDB Atlas
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and sign in
+2. Create a new cluster (the free M0 tier is sufficient)
+3. Under **Database Access**, create a user with read/write permissions
+4. Under **Network Access**, add your IP (or `0.0.0.0/0` for development)
+5. Go to **Connect → Connect your application** and copy the connection string
+6. Paste it as `MONGODB_URI` in your `.env` file, replacing `<password>` and `<dbname>` with `safebuild`
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster (free tier available)
-3. Create a database user with read/write permissions
-4. Whitelist your IP address (or use 0.0.0.0/0 for development)
-5. Get your connection string and update `MONGODB_URI` in `.env`
+#### 2.5 (Optional) Seed the database
 
-#### 2.5 Start the Development Server
+To populate the database with sample data:
 
-Run the server with auto-reload on file changes:
+```bash
+npm run seed
+```
+
+#### 2.6 Start the development server
+
 ```bash
 npm run dev
 ```
 
-Or run in production mode:
+The backend will start at: `http://localhost:5001`
+
+#### 2.7 Verify the server is running
+
 ```bash
-npm start
-```
-
-The server will start on `http://localhost:5000`
-
-#### 2.6 Verify Installation
-
-Check if the server is running:
-```bash
-curl http://localhost:5000/api/health
+curl http://localhost:5001/api/health
 ```
 
 Expected response:
@@ -165,107 +281,242 @@ Expected response:
 {
   "success": true,
   "message": "SafeBuild API is running",
-  "timestamp": "2026-02-27T10:30:00.000Z",
+  "timestamp": "2026-04-12T05:00:00.000Z",
   "environment": "development"
 }
 ```
 
-### Step 3: Testing the API
+---
 
-You can test the API using:
-- **Postman** - [Download here](https://www.postman.com/)
-- **Thunder Client** (VS Code extension)
-- **cURL** (command line)
-- **Any HTTP client**
+### Step 3 — Frontend Setup
 
-### Step 3.1: Performance Testing (Artillery)
-
-The backend includes an Artillery profile to evaluate API behavior under multiple simultaneous loads.
-
-#### Performance Test Profiles Included
-- Warm-up: low traffic to stabilize startup effects
-- Moderate Load: normal usage simulation
-- High Concurrency: sustained concurrent request pressure
-- Stress Spike: short burst load to observe latency behavior
-
-#### Run Performance Test
-From the backend directory:
+#### 3.1 Open a new terminal and navigate to the frontend directory
 
 ```bash
-npm run test:performance
+cd frontend
 ```
 
-This uses `http://localhost:5000` by default. To target another environment:
+#### 3.2 Install dependencies
 
 ```bash
-PERF_TARGET=http://localhost:5000 npm run test:performance
+npm install
 ```
 
-#### Generate HTML Report
+#### 3.3 Configure environment variables
 
 ```bash
-npm run test:performance:report
+cp .env.example .env
 ```
 
-Report output is written to:
-- `backend/tests/performance/last-report.json`
+Open `.env` and set:
 
-#### Pass/Fail Criteria Configured
-The Artillery profile enforces these thresholds:
-- p95 latency <= 800 ms
-- p99 latency <= 1200 ms
-- HTTP 500 count = 0
-- max error rate <= 1%
+```env
+VITE_API_BASE_URL=http://localhost:5001/api
+VITE_MAPBOX_TOKEN=pk.eyJ1...your_mapbox_public_token...
+```
 
-Profile location:
-- `backend/tests/performance/api-load.yml`
+> Get a free Mapbox token at [account.mapbox.com](https://account.mapbox.com/)
 
-### Step 4: Initial User Registration
+#### 3.4 Start the frontend dev server
 
-Create your first user account:
 ```bash
-curl -X POST http://localhost:5000/api/users/register \
+npm run dev
+```
+
+The frontend will start at: `http://localhost:5173`
+
+---
+
+### Step 4 — First Login
+
+Open `http://localhost:5173` in your browser.
+
+Register your first user via the UI, or use cURL:
+
+```bash
+curl -X POST http://localhost:5001/api/users/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com",
+    "lastName": "Manager",
+    "email": "manager@safebuild.com",
     "password": "password123",
     "role": "manager",
-    "phone": "+94771234567",
     "employeeId": "EMP001"
   }'
 ```
 
 ---
+## 🚢 Deployment Report
+
+> For full step-by-step deployment instructions, see [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)
+
+### Deployment Screenshots
+
+![Screenshot 1](./frontend/public/images/Screenshot%201.png)
+![Screenshot 2](./frontend/public/images/Screenshot%202.png)
+![Screenshot 3](./frontend/public/images/Screenshot%203.png)
+
+### Backend — Railway
+
+**Platform**: [Railway](https://railway.app)  
+**Runtime**: Node.js (detected automatically via nixpacks)  
+**Entry Point**: `node server.js`
+
+#### Setup Steps
+
+1. Push the repository to GitHub
+2. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub**
+3. Select the `SafeBuild` repository
+4. In **Settings → Source**, set **Root Directory** to `backend`
+5. Railway detects Node.js automatically and runs `npm start`
+6. Configure all environment variables in the **Variables** tab (see table below)
+7. Railway assigns a public URL (e.g., `https://safebuild-production.up.railway.app`)
+
+**Deploy configuration file**: `backend/railway.json`
+
+```json
+{
+  "build": { "builder": "NIXPACKS" },
+  "deploy": {
+    "startCommand": "node server.js",
+    "healthcheckPath": "/api/health",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
+```
+
+---
+
+### Frontend — Vercel
+
+**Platform**: [Vercel](https://vercel.com)  
+**Framework**: Vite (React)  
+**Build Command**: `npm run build`  
+**Output Directory**: `dist`
+
+#### Setup Steps
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import `SafeBuild` repo
+2. Set **Root Directory** to `frontend`
+3. Set **Framework Preset** to `Vite`
+4. Configure environment variables in the **Environment Variables** section
+5. Click **Deploy**
+6. Vercel assigns a public URL (e.g., `https://safebuild.vercel.app`)
+
+**Deploy configuration file**: `frontend/vercel.json`
+
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+> The rewrite rule is essential for React Router to work correctly on page refresh.
+
+---
+
+### Environment Variables
+
+#### Backend (Railway Variables)
+
+| Variable | Description | Secret? |
+|---|---|---|
+| `PORT` | Server port (Railway may override this) | No |
+| `NODE_ENV` | Set to `production` | No |
+| `MONGODB_URI` | MongoDB Atlas connection string | **Yes** |
+| `JWT_SECRET` | Secret key for signing JWTs (min 32 chars) | **Yes** |
+| `JWT_EXPIRE` | JWT expiry duration (e.g. `7d`) | No |
+| `OPENROUTER_API_KEY` | OpenRouter API key for SafeBot | **Yes** |
+| `HUGGINGFACE_API_KEY` | Hugging Face API key for translation | **Yes** |
+| `FRONTEND_URL` | Your Vercel frontend URL (for CORS) | No |
+
+#### Frontend (Vercel Environment Variables)
+
+| Variable | Description | Secret? |
+|---|---|---|
+| `VITE_API_BASE_URL` | Full URL of Railway backend with `/api` suffix | No |
+| `VITE_MAPBOX_TOKEN` | Mapbox public access token | No |
+
+> ⚠️ **Never commit actual secrets to Git.** Only `.env.example` files with placeholder values are committed.
+
+---
+
+### Live URLs
+
+| Service | URL |
+|---|---|
+| 🔵 **Backend API (Railway)** | `https://safebuild-production.up.railway.app/api` |
+| 🟢 **Frontend Application (Vercel)** | `https://safebuild.vercel.app` |
+| ❤️ **Health Check** | `https://safebuild-production.up.railway.app/api/health` |
+
+> **Note**: Update the above URLs once deployment is completed. Replace with your actual Railway and Vercel URLs.
+
+---
+
+### Post-Deployment Checklist
+
+- [ ] `GET /api/health` returns `200 OK`
+- [ ] Frontend loads without CORS errors
+- [ ] Login/Register works
+- [ ] MongoDB Atlas Network Access allows Railway's IPs (`0.0.0.0/0` or Railway static IP)
+- [ ] `FRONTEND_URL` in Railway matches the exact Vercel deployment URL
+
+---
 
 ## 📚 API Endpoint Documentation
 
-### Base URL
-```
-http://localhost:5000/api
-```
+### Base URLs
+
+| Environment | URL |
+|---|---|
+| Local development | `http://localhost:5001/api` |
+| Production (Railway) | `https://safebuild-production.up.railway.app/api` |
 
 ### Authentication
-Most endpoints require JWT authentication. Include the token in the Authorization header:
+
+Most endpoints require a JWT token. Obtain a token by calling the login endpoint, then include it in the `Authorization` header of all subsequent requests:
+
 ```
 Authorization: Bearer <your_jwt_token>
 ```
 
-### User Roles & Permissions
-- **worker**: Basic access, can view published courses, report incidents
-- **trainer**: Can create/manage courses, quizzes, and certifications
-- **officer**: Can conduct audits, manage corrective actions, view all incidents
-- **manager**: Full access to all resources including user management
+### Role Permissions Summary
+
+| Role | Permissions |
+|---|---|
+| `worker` | View published courses, report incidents, take quizzes, view own certificates |
+| `trainer` | All of worker + create/manage courses, lessons, quizzes |
+| `officer` | All of worker + conduct audits, manage corrective actions, update incident status |
+| `manager` | Full access to all resources + analytics dashboard, user management |
 
 ---
 
-## 🔐 Component 1: User Management & Authentication
+### 🔴 System
 
-### 1.1 Register User
-**Endpoint**: `POST /api/users/register`  
+#### `GET /api/health`
 **Access**: Public  
-**Description**: Register a new user account
+Check server status.
+
+**Response** `200 OK`
+```json
+{
+  "success": true,
+  "message": "SafeBuild API is running",
+  "timestamp": "2026-04-12T05:00:00.000Z",
+  "environment": "production"
+}
+```
+
+---
+
+### 🔐 Component 1: User Management & Authentication
+
+#### `POST /api/users/register`
+**Access**: Public  
+Register a new user account.
 
 **Request Body**:
 ```json
@@ -281,7 +532,9 @@ Authorization: Bearer <your_jwt_token>
 }
 ```
 
-**Response** (201 Created):
+**Role options**: `worker` | `trainer` | `officer` | `manager`
+
+**Response** `201 Created`:
 ```json
 {
   "success": true,
@@ -293,19 +546,18 @@ Authorization: Bearer <your_jwt_token>
       "lastName": "Doe",
       "email": "john.doe@example.com",
       "role": "worker",
-      "phone": "+94771234567",
-      "employeeId": "EMP001",
-      "department": "Construction"
+      "employeeId": "EMP001"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
 
-### 1.2 Login User
-**Endpoint**: `POST /api/users/login`  
+---
+
+#### `POST /api/users/login`
 **Access**: Public  
-**Description**: Authenticate user and receive JWT token
+Authenticate and receive a JWT token.
 
 **Request Body**:
 ```json
@@ -315,7 +567,7 @@ Authorization: Bearer <your_jwt_token>
 }
 ```
 
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -326,28 +578,20 @@ Authorization: Bearer <your_jwt_token>
       "firstName": "John",
       "lastName": "Doe",
       "email": "john.doe@example.com",
-      "role": "worker",
-      "phone": "+94771234567",
-      "employeeId": "EMP001",
-      "department": "Construction"
+      "role": "worker"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
 
-### 1.3 Get User Profile
-**Endpoint**: `GET /api/users/profile`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get current user's profile information
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `GET /api/users/profile`
+**Access**: Private — All authenticated users  
+Get the current user's profile.
 
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -366,18 +610,37 @@ Authorization: Bearer <token>
 }
 ```
 
-### 1.4 Get All Users
-**Endpoint**: `GET /api/users`  
-**Access**: Private (Manager, Officer, Trainer)  
-**Authentication**: Required  
-**Description**: Retrieve list of all users (admin only)
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
+#### `PUT /api/users/profile`
+**Access**: Private — All authenticated users  
+Update the current user's profile.
+
+**Request Body** (all fields optional):
+```json
+{
+  "firstName": "Johnny",
+  "phone": "+94779999999",
+  "department": "Electrical"
+}
 ```
 
-**Response** (200 OK):
+**Response** `200 OK`:
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": { ... }
+}
+```
+
+---
+
+#### `GET /api/users`
+**Access**: Private — Manager, Officer, Trainer  
+Get all users in the system.
+
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -398,32 +661,36 @@ Authorization: Bearer <token>
 
 ---
 
-## 📖 Component 1: Course Management
+#### `GET /api/users/:id`
+**Access**: Private — Manager, Officer, Trainer  
+Get a specific user by ID.
 
-### 2.1 Create Course
-**Endpoint**: `POST /api/courses`  
-**Access**: Private (Trainer only)  
-**Authentication**: Required  
-**Description**: Create a new training course
+**Response** `200 OK`: Single user object.
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+---
+
+### 📖 Component 1: Course Management
+
+#### `POST /api/courses`
+**Access**: Private — Trainer only  
+Create a new training course.
 
 **Request Body**:
 ```json
 {
   "title": "Construction Site Safety Fundamentals",
   "category": "Safety Training",
-  "description": "Comprehensive course covering basic safety protocols and procedures for construction sites",
+  "description": "Comprehensive course covering basic safety protocols",
   "level": "Beginner",
   "duration": 120,
   "status": "Draft"
 }
 ```
 
-**Response** (201 Created):
+**Level options**: `Beginner` | `Intermediate` | `Advanced`  
+**Status options**: `Draft` | `Published` | `Archived`
+
+**Response** `201 Created`:
 ```json
 {
   "success": true,
@@ -431,40 +698,32 @@ Authorization: Bearer <token>
     "_id": "65f2a3b4c5d6e7f8g9h0i1j2",
     "title": "Construction Site Safety Fundamentals",
     "category": "Safety Training",
-    "description": "Comprehensive course covering basic safety protocols...",
     "level": "Beginner",
     "duration": 120,
     "status": "Draft",
     "createdBy": "65f1a2b3c4d5e6f7g8h9i0j1",
-    "createdAt": "2026-02-27T10:00:00.000Z",
-    "updatedAt": "2026-02-27T10:00:00.000Z"
+    "createdAt": "2026-04-12T10:00:00.000Z"
   }
 }
 ```
 
-### 2.2 Get All Courses
-**Endpoint**: `GET /api/courses`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Retrieve list of courses (workers see only published courses)
+---
+
+#### `GET /api/courses`
+**Access**: Private — All authenticated users  
+Get all courses. Workers see only Published courses. Trainers see only their own courses.
 
 **Query Parameters**:
-- `category` (optional): Filter by category
-- `level` (optional): Filter by difficulty level
-- `status` (optional): Filter by status (Draft/Published/Archived)
-- `search` (optional): Search in title and description
+| Parameter | Type | Description |
+|---|---|---|
+| `category` | string | Filter by category |
+| `level` | string | Filter by level |
+| `status` | string | Filter by status (non-workers only) |
+| `search` | string | Search title and description |
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+**Example**: `GET /api/courses?status=Published&level=Beginner`
 
-**Example Request**:
-```
-GET /api/courses?status=Published&level=Beginner
-```
-
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -474,108 +733,61 @@ GET /api/courses?status=Published&level=Beginner
       "_id": "65f2a3b4c5d6e7f8g9h0i1j2",
       "title": "Construction Site Safety Fundamentals",
       "category": "Safety Training",
-      "description": "Comprehensive course covering basic safety protocols...",
       "level": "Beginner",
       "duration": 120,
       "status": "Published",
-      "createdBy": {
-        "name": "Jane Trainer",
-        "email": "jane@safebuild.com"
-      },
-      "createdAt": "2026-02-27T10:00:00.000Z"
+      "createdBy": { "name": "Jane Trainer", "email": "jane@safebuild.com" }
     }
   ]
 }
 ```
 
-### 2.3 Get Single Course
-**Endpoint**: `GET /api/courses/:id`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get detailed information about a specific course including lessons
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `GET /api/courses/:id`
+**Access**: Private — All authenticated users  
+Get a single course with its lessons.
 
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
   "data": {
-    "course": {
-      "_id": "65f2a3b4c5d6e7f8g9h0i1j2",
-      "title": "Construction Site Safety Fundamentals",
-      "category": "Safety Training",
-      "description": "Comprehensive course covering basic safety protocols...",
-      "level": "Beginner",
-      "duration": 120,
-      "status": "Published",
-      "createdBy": {
-        "name": "Jane Trainer",
-        "email": "jane@safebuild.com"
-      }
-    },
+    "course": { "_id": "...", "title": "...", "status": "Published" },
     "lessons": [
-      {
-        "_id": "65f3a4b5c6d7e8f9g0h1i2j3",
-        "title": "Introduction to Workplace Safety",
-        "orderIndex": 1,
-        "content": "Safety is paramount...",
-        "duration": 30
-      }
+      { "_id": "...", "title": "Intro to Safety", "orderIndex": 1 }
     ]
   }
 }
 ```
 
-### 2.4 Update Course
-**Endpoint**: `PUT /api/courses/:id`  
-**Access**: Private (Trainer only - must own the course)  
-**Authentication**: Required  
-**Description**: Update course details
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `GET /api/courses/:id/stats`
+**Access**: Private — Trainer only  
+Get enrollment and quiz statistics for a course.
 
-**Request Body**:
+---
+
+#### `PUT /api/courses/:id`
+**Access**: Private — Trainer (must own the course)  
+Update course details.
+
+**Request Body** (partial update supported):
 ```json
 {
   "title": "Advanced Construction Site Safety",
-  "status": "Published",
-  "duration": 150
+  "status": "Published"
 }
 ```
 
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "65f2a3b4c5d6e7f8g9h0i1j2",
-    "title": "Advanced Construction Site Safety",
-    "status": "Published",
-    "duration": 150,
-    "updatedAt": "2026-02-27T11:00:00.000Z"
-  }
-}
-```
+---
 
-### 2.5 Delete Course
-**Endpoint**: `DELETE /api/courses/:id`  
-**Access**: Private (Trainer only - must own the course)  
-**Authentication**: Required  
-**Description**: Delete a course
+#### `DELETE /api/courses/:id`
+**Access**: Private — Trainer (must own the course)  
+Delete a course and all associated lessons and enrollments.
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -585,18 +797,135 @@ Authorization: Bearer <token>
 
 ---
 
-## 🎯 Component 2: Quiz & Assessment
+### 📄 Component 1: Lesson Management
 
-### 3.1 Create Quiz
-**Endpoint**: `POST /api/quizzes`  
-**Access**: Private (Trainer only)  
-**Authentication**: Required  
-**Description**: Create a new quiz for a course
+#### `POST /api/lessons`
+**Access**: Private — Trainer only  
+Create a lesson for a course.
 
-**Request Headers**:
+**Request Body**:
+```json
+{
+  "courseId": "65f2a3b4c5d6e7f8g9h0i1j2",
+  "title": "Introduction to PPE",
+  "orderIndex": 1,
+  "pages": [
+    { "title": "What is PPE?", "content": "<p>Personal Protective Equipment...</p>" }
+  ]
+}
 ```
-Authorization: Bearer <token>
+
+---
+
+#### `GET /api/lessons/course/:courseId`
+**Access**: Private — All authenticated users  
+Get all lessons for a specific course.
+
+---
+
+#### `GET /api/lessons/:id`
+**Access**: Private — All authenticated users  
+Get a single lesson with its pages.
+
+---
+
+#### `PUT /api/lessons/:id`
+**Access**: Private — Trainer only  
+Update a lesson.
+
+---
+
+#### `DELETE /api/lessons/:id`
+**Access**: Private — Trainer only  
+Delete a lesson.
+
+---
+
+#### `POST /api/lessons/:id/pages`
+**Access**: Private — Trainer only  
+Add a page to a lesson.
+
+**Request Body**:
+```json
+{
+  "title": "PPE Types",
+  "content": "<p>There are several types of PPE...</p>"
+}
 ```
+
+---
+
+#### `PUT /api/lessons/:id/pages/:pageId`
+**Access**: Private — Trainer only  
+Update a specific page within a lesson.
+
+---
+
+#### `DELETE /api/lessons/:id/pages/:pageId`
+**Access**: Private — Trainer only  
+Delete a specific page from a lesson.
+
+---
+
+### 📋 Component 1: Enrollment & Progress Tracking
+
+#### `POST /api/enrollments`
+**Access**: Private — All authenticated users  
+Enroll in a course.
+
+**Request Body**:
+```json
+{
+  "courseId": "65f2a3b4c5d6e7f8g9h0i1j2"
+}
+```
+
+---
+
+#### `GET /api/enrollments/my-courses`
+**Access**: Private — All authenticated users  
+Get all of the current user's enrolled courses.
+
+---
+
+#### `GET /api/enrollments/course/:courseId`
+**Access**: Private — All authenticated users  
+Get enrollment status for a specific course.
+
+---
+
+#### `GET /api/enrollments/status/:status`
+**Access**: Private — All authenticated users  
+Get enrollments filtered by status (`in-progress`, `completed`).
+
+---
+
+#### `GET /api/enrollments/:enrollmentId/continue`
+**Access**: Private — All authenticated users  
+Get the next lesson/page to continue learning.
+
+---
+
+#### `POST /api/enrollments/progress`
+**Access**: Private — All authenticated users  
+Update lesson completion progress.
+
+**Request Body**:
+```json
+{
+  "courseId": "65f2a3b4c5d6e7f8g9h0i1j2",
+  "lessonId": "65f3a4b5c6d7e8f9g0h1i2j3",
+  "pageId": "65f5a6b7c8d9e0f1g2h3i4j5"
+}
+```
+
+---
+
+### 🎯 Component 2: Quiz & Assessment
+
+#### `POST /api/quizzes`
+**Access**: Private — Trainer only  
+Create a quiz for a course.
 
 **Request Body**:
 ```json
@@ -610,12 +939,7 @@ Authorization: Bearer <token>
     {
       "questionText": "What is the first step in case of a fire?",
       "questionType": "multiple-choice",
-      "options": [
-        "Call for help",
-        "Use fire extinguisher",
-        "Evacuate immediately",
-        "Take photos"
-      ],
+      "options": ["Call for help", "Use extinguisher", "Evacuate immediately", "Take photos"],
       "correctAnswer": "Evacuate immediately",
       "points": 10
     }
@@ -623,187 +947,131 @@ Authorization: Bearer <token>
 }
 ```
 
-**Response** (201 Created):
+**Response** `201 Created`:
 ```json
 {
   "success": true,
   "message": "Quiz created successfully",
   "data": {
     "_id": "65f4a5b6c7d8e9f0g1h2i3j4",
-    "courseId": "65f2a3b4c5d6e7f8g9h0i1j2",
     "title": "Safety Fundamentals Assessment",
-    "description": "Test your knowledge of basic safety protocols",
     "passingScore": 70,
     "timeLimit": 30,
-    "questions": [ /* questions array */ ],
-    "createdBy": "65f1a2b3c4d5e6f7g8h9i0j1",
-    "createdAt": "2026-02-27T12:00:00.000Z"
+    "questions": [ ... ],
+    "createdAt": "2026-04-12T12:00:00.000Z"
   }
-}
-```
-
-### 3.2 Get All Quizzes
-**Endpoint**: `GET /api/quizzes`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get list of all quizzes
-
-**Query Parameters**:
-- `courseId` (optional): Filter by course
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "count": 5,
-  "data": [
-    {
-      "_id": "65f4a5b6c7d8e9f0g1h2i3j4",
-      "courseId": "65f2a3b4c5d6e7f8g9h0i1j2",
-      "title": "Safety Fundamentals Assessment",
-      "passingScore": 70,
-      "timeLimit": 30
-    }
-  ]
-}
-```
-
-### 3.3 Get Quiz by ID
-**Endpoint**: `GET /api/quizzes/:id`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get detailed quiz information including questions
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "65f4a5b6c7d8e9f0g1h2i3j4",
-    "courseId": "65f2a3b4c5d6e7f8g9h0i1j2",
-    "title": "Safety Fundamentals Assessment",
-    "description": "Test your knowledge of basic safety protocols",
-    "passingScore": 70,
-    "timeLimit": 30,
-    "questions": [
-      {
-        "_id": "65f5a6b7c8d9e0f1g2h3i4j5",
-        "questionText": "What is the first step in case of a fire?",
-        "questionType": "multiple-choice",
-        "options": ["Call for help", "Use fire extinguisher", "Evacuate immediately", "Take photos"],
-        "correctAnswer": "Evacuate immediately",
-        "points": 10
-      }
-    ]
-  }
-}
-```
-
-### 3.4 Update Quiz
-**Endpoint**: `PUT /api/quizzes/:id`  
-**Access**: Private (Trainer only)  
-**Authentication**: Required  
-**Description**: Update quiz details
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Request Body**:
-```json
-{
-  "title": "Safety Fundamentals Final Assessment",
-  "passingScore": 75
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Quiz updated successfully",
-  "data": { /* updated quiz */ }
-}
-```
-
-### 3.5 Delete Quiz
-**Endpoint**: `DELETE /api/quizzes/:id`  
-**Access**: Private (Trainer only)  
-**Authentication**: Required  
-**Description**: Delete a quiz
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Quiz deleted successfully"
 }
 ```
 
 ---
 
-## 🎓 Component 2: Certificates
+#### `GET /api/quizzes`
+**Access**: Private — All authenticated users  
+Get all quizzes. Accepts `?courseId=` query parameter.
 
-### 4.1 Get My Certificates
-**Endpoint**: `GET /api/certificates/my-certificates`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get all certificates earned by current user
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `GET /api/quizzes/:id`
+**Access**: Private — All authenticated users  
+Get a specific quiz with all questions.
 
-**Response** (200 OK):
+---
+
+#### `PUT /api/quizzes/:id`
+**Access**: Private — Trainer only  
+Update quiz details.
+
+---
+
+#### `DELETE /api/quizzes/:id`
+**Access**: Private — Trainer only  
+Delete a quiz.
+
+---
+
+#### `POST /api/quizzes/:id/questions`
+**Access**: Private — Trainer only  
+Add a question to an existing quiz.
+
+---
+
+#### `PUT /api/quizzes/:id/questions/:questionId`
+**Access**: Private — Trainer only  
+Update a specific question.
+
+---
+
+#### `DELETE /api/quizzes/:id/questions/:questionId`
+**Access**: Private — Trainer only  
+Delete a specific question.
+
+---
+
+#### `POST /api/quiz-attempts`
+**Access**: Private — All authenticated users  
+Submit a quiz attempt and receive graded results.
+
+**Request Body**:
 ```json
 {
-  "success": true,
-  "count": 2,
-  "data": [
-    {
-      "_id": "65f6a7b8c9d0e1f2g3h4i5j6",
-      "userId": "65f1a2b3c4d5e6f7g8h9i0j1",
-      "courseId": {
-        "_id": "65f2a3b4c5d6e7f8g9h0i1j2",
-        "title": "Construction Site Safety Fundamentals"
-      },
-      "certificateCode": "CERT-2026-ABC123",
-      "issueDate": "2026-02-27T15:00:00.000Z",
-      "expiryDate": "2027-02-27T15:00:00.000Z",
-      "status": "Active"
-    }
-  ]
+  "quizId": "65f4a5b6c7d8e9f0g1h2i3j4",
+  "answers": [
+    { "questionId": "65f5a6b7...", "selectedAnswer": "Evacuate immediately" }
+  ],
+  "timeTaken": 18
 }
 ```
 
-### 4.2 Verify Certificate
-**Endpoint**: `GET /api/certificates/verify/:code`  
+**Response** `201 Created`:
+```json
+{
+  "success": true,
+  "data": {
+    "score": 90,
+    "passed": true,
+    "passingScore": 70,
+    "correctAnswers": 9,
+    "totalQuestions": 10,
+    "certificateIssued": true
+  }
+}
+```
+
+---
+
+#### `GET /api/quiz-attempts/my-attempts`
+**Access**: Private — All authenticated users  
+Get the current user's quiz attempt history.
+
+---
+
+#### `GET /api/quiz-attempts`
+**Access**: Private — Trainer, Manager, Officer  
+Get all quiz attempts across all users.
+
+---
+
+#### `GET /api/quiz-attempts/quiz/:quizId/stats`
+**Access**: Private — Trainer, Manager, Officer  
+Get statistics (pass rate, avg score) for a specific quiz.
+
+---
+
+#### `GET /api/quiz-attempts/:id`
+**Access**: Private — Owner or Admin roles  
+Get details of a specific quiz attempt.
+
+---
+
+### 🎓 Component 2: Certificates
+
+#### `GET /api/certificates/verify/:code`
 **Access**: Public  
-**Description**: Verify certificate authenticity by code
+Verify a certificate by its unique code — no authentication required (used for QR code scanning).
 
-**Example Request**:
-```
-GET /api/certificates/verify/CERT-2026-ABC123
-```
+**Example**: `GET /api/certificates/verify/CERT-2026-ABC123`
 
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
@@ -812,8 +1080,8 @@ GET /api/certificates/verify/CERT-2026-ABC123
     "certificateCode": "CERT-2026-ABC123",
     "userName": "John Doe",
     "courseName": "Construction Site Safety Fundamentals",
-    "issueDate": "2026-02-27T15:00:00.000Z",
-    "expiryDate": "2027-02-27T15:00:00.000Z",
+    "issueDate": "2026-04-12T15:00:00.000Z",
+    "expiryDate": "2027-04-12T15:00:00.000Z",
     "status": "Active"
   }
 }
@@ -821,18 +1089,59 @@ GET /api/certificates/verify/CERT-2026-ABC123
 
 ---
 
-## 🚨 Component 3: Incident & Hazard Reporting
+#### `GET /api/certificates/my-certificates`
+**Access**: Private — All authenticated users  
+Get all certificates earned by the current user.
 
-### 5.1 Create Incident Report
-**Endpoint**: `POST /api/incidents`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Report a new incident or hazard
+**Response** `200 OK`:
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "_id": "65f6a7b8c9d0e1f2g3h4i5j6",
+      "courseId": { "title": "Construction Site Safety Fundamentals" },
+      "certificateCode": "CERT-2026-ABC123",
+      "issueDate": "2026-04-12T15:00:00.000Z",
+      "expiryDate": "2027-04-12T15:00:00.000Z",
+      "status": "Active"
+    }
+  ]
+}
+```
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+---
+
+#### `GET /api/certificates`
+**Access**: Private — Manager, Officer, Trainer  
+Get all certificates in the system.
+
+---
+
+#### `GET /api/certificates/:id`
+**Access**: Private — All authenticated users  
+Get a specific certificate by ID.
+
+---
+
+#### `PUT /api/certificates/:id/revoke`
+**Access**: Private — Manager, Officer, Trainer  
+Revoke a certificate.
+
+---
+
+#### `GET /api/certificates/stats/overview`
+**Access**: Private — Manager, Officer, Trainer  
+Get certificate statistics (total issued, active, expired, etc.).
+
+---
+
+### 🚨 Component 3: Incident & Hazard Reporting
+
+#### `POST /api/incidents`
+**Access**: Private — All authenticated users  
+Report a new incident or hazard.
 
 **Request Body**:
 ```json
@@ -843,19 +1152,20 @@ Authorization: Bearer <token>
   "location": {
     "site": "Main Construction Site",
     "area": "Building A - 3rd Floor",
-    "address": "123 Construction Ave, Colombo"
+    "address": "123 Construction Ave, Colombo",
+    "latitude": 6.9271,
+    "longitude": 79.8612
   },
   "description": "Worker slipped and fell from scaffolding due to wet surface",
-  "dateOccurred": "2026-02-27T09:30:00.000Z",
-  "evidencePhotos": [
-    "https://example.com/photo1.jpg",
-    "https://example.com/photo2.jpg"
-  ],
+  "dateOccurred": "2026-04-12T09:30:00.000Z",
   "assignedTo": "65f7a8b9c0d1e2f3g4h5i6j7"
 }
 ```
 
-**Response** (201 Created):
+**Type options**: `Near Miss` | `Accident` | `Hazard` | `Equipment Failure`  
+**Severity options**: `Low` | `Medium` | `High` | `Critical`
+
+**Response** `201 Created`:
 ```json
 {
   "success": true,
@@ -866,210 +1176,161 @@ Authorization: Bearer <token>
     "type": "Accident",
     "severity": "High",
     "status": "Open",
-    "location": {
-      "site": "Main Construction Site",
-      "area": "Building A - 3rd Floor",
-      "address": "123 Construction Ave, Colombo"
-    },
-    "description": "Worker slipped and fell from scaffolding...",
-    "dateOccurred": "2026-02-27T09:30:00.000Z",
-    "reportedBy": {
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com"
-    },
-    "reportedByName": "John Doe",
-    "assignedTo": {
-      "firstName": "Sarah",
-      "lastName": "Officer",
-      "email": "sarah@safebuild.com",
-      "role": "officer"
-    },
-    "evidencePhotos": ["https://example.com/photo1.jpg"],
-    "createdAt": "2026-02-27T10:00:00.000Z"
+    "reportedBy": { "firstName": "John", "lastName": "Doe" },
+    "createdAt": "2026-04-12T10:00:00.000Z"
   }
-}
-```
-
-### 5.2 Get All Incidents
-**Endpoint**: `GET /api/incidents`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get list of incidents (workers see only their own)
-
-**Query Parameters**:
-- `status` (optional): Filter by status (Open/In Progress/Resolved/Closed)
-- `severity` (optional): Filter by severity (Low/Medium/High/Critical)
-- `type` (optional): Filter by type (Near Miss/Accident/Hazard/Equipment Failure)
-- `search` (optional): Search in title, description, location
-- `page` (optional): Page number (default: 1)
-- `limit` (optional): Items per page (default: 10)
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Example Request**:
-```
-GET /api/incidents?status=Open&severity=High&page=1&limit=10
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "count": 15,
-  "total": 45,
-  "page": 1,
-  "pages": 5,
-  "data": [
-    {
-      "_id": "65f8a9b0c1d2e3f4g5h6i7j8",
-      "title": "Fall from scaffolding",
-      "type": "Accident",
-      "severity": "High",
-      "status": "Open",
-      "location": {
-        "site": "Main Construction Site",
-        "area": "Building A - 3rd Floor"
-      },
-      "dateOccurred": "2026-02-27T09:30:00.000Z",
-      "reportedBy": {
-        "firstName": "John",
-        "lastName": "Doe"
-      },
-      "createdAt": "2026-02-27T10:00:00.000Z"
-    }
-  ]
-}
-```
-
-### 5.3 Get Incident by ID
-**Endpoint**: `GET /api/incidents/:id`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get detailed information about a specific incident
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "65f8a9b0c1d2e3f4g5h6i7j8",
-    "title": "Fall from scaffolding",
-    "type": "Accident",
-    "severity": "High",
-    "status": "In Progress",
-    "location": {
-      "site": "Main Construction Site",
-      "area": "Building A - 3rd Floor",
-      "address": "123 Construction Ave, Colombo"
-    },
-    "description": "Worker slipped and fell from scaffolding...",
-    "dateOccurred": "2026-02-27T09:30:00.000Z",
-    "reportedBy": {
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com"
-    },
-    "assignedTo": {
-      "firstName": "Sarah",
-      "lastName": "Officer",
-      "email": "sarah@safebuild.com"
-    },
-    "evidencePhotos": ["https://example.com/photo1.jpg"],
-    "comments": [
-      {
-        "text": "Investigation started",
-        "addedBy": "Sarah Officer",
-        "addedAt": "2026-02-27T11:00:00.000Z"
-      }
-    ],
-    "createdAt": "2026-02-27T10:00:00.000Z",
-    "updatedAt": "2026-02-27T11:00:00.000Z"
-  }
-}
-```
-
-### 5.4 Update Incident
-**Endpoint**: `PUT /api/incidents/:id`  
-**Access**: Private (Owner or Manager/Officer)  
-**Authentication**: Required  
-**Description**: Update incident details
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Request Body**:
-```json
-{
-  "description": "Updated description with more details",
-  "severity": "Critical"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Incident updated successfully",
-  "data": { /* updated incident */ }
-}
-```
-
-### 5.5 Delete Incident
-**Endpoint**: `DELETE /api/incidents/:id`  
-**Access**: Private (Owner or Manager/Officer)  
-**Authentication**: Required  
-**Description**: Delete an incident report
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Incident deleted successfully"
 }
 ```
 
 ---
 
-## ✅ Component 4: Compliance Auditing
+#### `GET /api/incidents`
+**Access**: Private — All authenticated users  
+Get incidents. Workers see only their own; managers/officers see all.
 
-### 6.1 Create/Schedule Audit
-**Endpoint**: `POST /api/audits`  
-**Access**: Private (Manager, Officer only)  
-**Authentication**: Required  
-**Description**: Schedule a new compliance audit
+**Query Parameters**:
+| Parameter | Type | Description |
+|---|---|---|
+| `status` | string | `Open` \| `In Progress` \| `Resolved` \| `Closed` |
+| `severity` | string | `Low` \| `Medium` \| `High` \| `Critical` |
+| `type` | string | `Near Miss` \| `Accident` \| `Hazard` \| `Equipment Failure` |
+| `search` | string | Search title, description, location |
+| `page` | number | Page number (default: 1) |
+| `limit` | number | Items per page (default: 10) |
 
-**Request Headers**:
+**Example**: `GET /api/incidents?status=Open&severity=High&page=1&limit=10`
+
+**Response** `200 OK`:
+```json
+{
+  "success": true,
+  "count": 10,
+  "total": 45,
+  "page": 1,
+  "pages": 5,
+  "data": [ ... ]
+}
 ```
-Authorization: Bearer <token>
+
+---
+
+#### `GET /api/incidents/stats/summary`
+**Access**: Private — Manager, Officer  
+Get incident statistics grouped by type, severity, and status.
+
+---
+
+#### `GET /api/incidents/:id`
+**Access**: Private — All authenticated users  
+Get full details of a specific incident including comments.
+
+---
+
+#### `PUT /api/incidents/:id`
+**Access**: Private — Owner or Manager/Officer  
+Update incident details (workers can only update their own open incidents).
+
+---
+
+#### `PATCH /api/incidents/:id/status`
+**Access**: Private — Manager, Officer  
+Update only the incident status.
+
+**Request Body**:
+```json
+{
+  "status": "In Progress"
+}
 ```
+
+---
+
+#### `POST /api/incidents/:id/comments`
+**Access**: Private — Manager, Officer  
+Add an investigation comment to an incident.
+
+**Request Body**:
+```json
+{
+  "text": "Initial investigation started. Site secured."
+}
+```
+
+---
+
+#### `DELETE /api/incidents/:id`
+**Access**: Private — Owner (open incidents only) or Manager/Officer  
+Delete an incident report.
+
+---
+
+### ✅ Component 4: Checklist Templates
+
+#### `POST /api/checklists`
+**Access**: Private — Manager only  
+Create an audit checklist template.
+
+**Request Body**:
+```json
+{
+  "title": "General Site Safety Audit",
+  "category": "Safety",
+  "items": [
+    {
+      "category": "PPE Compliance",
+      "checkItems": [
+        "Hard hats worn by all personnel",
+        "Safety vests visible",
+        "Proper footwear in use"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+#### `GET /api/checklists`
+**Access**: Private — All authenticated users  
+Get all checklist templates.
+
+---
+
+#### `GET /api/checklists/:id`
+**Access**: Private — All authenticated users  
+Get a specific checklist template.
+
+---
+
+#### `PUT /api/checklists/:id`
+**Access**: Private — Manager only  
+Update a checklist template.
+
+---
+
+#### `DELETE /api/checklists/:id`
+**Access**: Private — Manager only  
+Delete a checklist template.
+
+---
+
+### 🔍 Component 4: Compliance Auditing
+
+#### `POST /api/audits`
+**Access**: Private — Manager only  
+Schedule a new compliance audit.
 
 **Request Body**:
 ```json
 {
   "site": "Main Construction Site - Building A",
-  "auditDate": "2026-03-01T09:00:00.000Z",
+  "auditDate": "2026-05-01T09:00:00.000Z",
   "checklistTemplate": "65f9a0b1c2d3e4f5g6h7i8j9",
   "assignedAuditor": "65f7a8b9c0d1e2f3g4h5i6j7"
 }
 ```
 
-**Response** (201 Created):
+**Response** `201 Created`:
 ```json
 {
   "success": true,
@@ -1077,561 +1338,525 @@ Authorization: Bearer <token>
   "data": {
     "_id": "65f0a1b2c3d4e5f6g7h8i9j0",
     "site": "Main Construction Site - Building A",
-    "auditDate": "2026-03-01T09:00:00.000Z",
+    "auditDate": "2026-05-01T09:00:00.000Z",
     "status": "Scheduled",
-    "checklistTemplate": {
-      "_id": "65f9a0b1c2d3e4f5g6h7i8j9",
-      "title": "General Site Safety Audit",
-      "category": "Safety"
-    },
-    "assignedAuditor": {
-      "firstName": "Sarah",
-      "lastName": "Officer",
-      "email": "sarah@safebuild.com"
-    },
-    "createdBy": {
-      "firstName": "Manager",
-      "lastName": "User"
-    },
     "complianceScore": null,
-    "createdAt": "2026-02-27T14:00:00.000Z"
+    "createdAt": "2026-04-12T14:00:00.000Z"
   }
 }
 ```
 
-### 6.2 Get All Audits
-**Endpoint**: `GET /api/audits`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get list of all audits
+---
 
-**Query Parameters**:
-- `status` (optional): Filter by status (Scheduled/In Progress/Completed/Cancelled)
-- `site` (optional): Filter by site name
-- `assignedAuditor` (optional): Filter by auditor ID
-- `startDate` (optional): Filter audits from this date
-- `endDate` (optional): Filter audits until this date
+#### `GET /api/audits`
+**Access**: Private — All authenticated users  
+Get all audits.
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+**Query Parameters**: `status`, `site`, `assignedAuditor`, `startDate`, `endDate`
 
-**Example Request**:
-```
-GET /api/audits?status=Scheduled&startDate=2026-03-01
-```
+---
 
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "count": 8,
-  "data": [
-    {
-      "_id": "65f0a1b2c3d4e5f6g7h8i9j0",
-      "site": "Main Construction Site - Building A",
-      "auditDate": "2026-03-01T09:00:00.000Z",
-      "status": "Scheduled",
-      "checklistTemplate": {
-        "_id": "65f9a0b1c2d3e4f5g6h7i8j9",
-        "title": "General Site Safety Audit",
-        "category": "Safety"
-      },
-      "assignedAuditor": {
-        "firstName": "Sarah",
-        "lastName": "Officer"
-      },
-      "complianceScore": null,
-      "createdAt": "2026-02-27T14:00:00.000Z"
-    }
-  ]
-}
-```
+#### `GET /api/audits/:id`
+**Access**: Private — All authenticated users  
+Get a specific audit including checklist responses and compliance score.
 
-### 6.3 Get Audit by ID
-**Endpoint**: `GET /api/audits/:id`  
-**Access**: Private (All authenticated users)  
-**Authentication**: Required  
-**Description**: Get detailed audit information
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
+**Response** `200 OK`:
 ```json
 {
   "success": true,
   "data": {
-    "_id": "65f0a1b2c3d4e5f6g7h8i9j0",
-    "site": "Main Construction Site - Building A",
-    "auditDate": "2026-03-01T09:00:00.000Z",
+    "_id": "...",
     "status": "Completed",
-    "checklistTemplate": {
-      "_id": "65f9a0b1c2d3e4f5g6h7i8j9",
-      "title": "General Site Safety Audit",
-      "category": "Safety",
-      "items": [
-        {
-          "category": "PPE Compliance",
-          "checkItems": [
-            "Hard hats worn by all personnel",
-            "Safety vests visible",
-            "Proper footwear in use"
-          ]
-        }
-      ]
-    },
+    "complianceScore": 85,
     "responses": [
       {
         "category": "PPE Compliance",
         "itemResponses": [
-          {
-            "item": "Hard hats worn by all personnel",
-            "status": "Pass",
-            "notes": "All workers compliant"
-          },
-          {
-            "item": "Safety vests visible",
-            "status": "Fail",
-            "notes": "2 workers without vests"
-          }
+          { "item": "Hard hats worn", "status": "Pass", "notes": "All compliant" },
+          { "item": "Safety vests", "status": "Fail", "notes": "2 workers missing" }
         ]
       }
     ],
-    "complianceScore": 85,
-    "findings": "Minor non-compliance issues identified",
-    "correctiveActionsCount": 2,
-    "assignedAuditor": {
-      "firstName": "Sarah",
-      "lastName": "Officer",
-      "email": "sarah@safebuild.com",
-      "role": "officer"
-    },
-    "createdBy": {
-      "firstName": "Manager",
-      "lastName": "User"
-    },
-    "completedAt": "2026-03-01T12:00:00.000Z",
-    "createdAt": "2026-02-27T14:00:00.000Z"
+    "findings": "Minor non-compliance issues identified"
   }
 }
 ```
 
-### 6.4 Update Audit
-**Endpoint**: `PUT /api/audits/:id`  
-**Access**: Private (Manager, Officer only)  
-**Authentication**: Required  
-**Description**: Update audit details or submit responses
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `PUT /api/audits/:id`
+**Access**: Private — Manager, Officer  
+Update audit details or submit completed responses.
 
 **Request Body**:
 ```json
 {
   "status": "Completed",
-  "responses": [
-    {
-      "category": "PPE Compliance",
-      "itemResponses": [
-        {
-          "item": "Hard hats worn by all personnel",
-          "status": "Pass",
-          "notes": "All workers compliant"
-        }
-      ]
-    }
-  ],
+  "responses": [ ... ],
   "complianceScore": 85,
-  "findings": "Minor non-compliance issues identified"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Audit updated successfully",
-  "data": { /* updated audit */ }
-}
-```
-
-### 6.5 Delete Audit
-**Endpoint**: `DELETE /api/audits/:id`  
-**Access**: Private (Manager only)  
-**Authentication**: Required  
-**Description**: Delete an audit
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Audit deleted successfully"
+  "findings": "Minor issues found, corrective actions issued"
 }
 ```
 
 ---
 
-## 🔧 Component 4: Corrective Actions
+#### `DELETE /api/audits/:id`
+**Access**: Private — Manager only  
+Delete an audit.
 
-### 7.1 Create Corrective Action
-**Endpoint**: `POST /api/corrective-actions`  
-**Access**: Private (Manager, Officer only)  
-**Authentication**: Required  
-**Description**: Create a new corrective action
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+### 🔧 Component 4: Corrective Actions
 
-**Request Body**:
-```json
-{
-  "title": "Install additional safety railings",
-  "description": "Install safety railings on 3rd floor scaffolding area",
-  "priority": "High",
-  "dueDate": "2026-03-15T17:00:00.000Z",
-  "assignedTo": "65f1a2b3c4d5e6f7g8h9i0j1",
-  "audit": "65f0a1b2c3d4e5f6g7h8i9j0",
-  "relatedIncident": "65f8a9b0c1d2e3f4g5h6i7j8"
-}
-```
+#### `GET /api/corrective-actions`
+**Access**: Private — Manager, Officer  
+Get all corrective actions.
 
-**Response** (201 Created):
-```json
-{
-  "success": true,
-  "message": "Corrective action created successfully",
-  "data": {
-    "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
-    "title": "Install additional safety railings",
-    "description": "Install safety railings on 3rd floor scaffolding area",
-    "priority": "High",
-    "status": "Pending",
-    "dueDate": "2026-03-15T17:00:00.000Z",
-    "assignedTo": {
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com"
-    },
-    "audit": "65f0a1b2c3d4e5f6g7h8i9j0",
-    "relatedIncident": "65f8a9b0c1d2e3f4g5h6i7j8",
-    "createdBy": {
-      "firstName": "Sarah",
-      "lastName": "Officer"
-    },
-    "createdAt": "2026-02-27T15:00:00.000Z"
-  }
-}
-```
+**Query Parameters**: `status`, `priority`, `assignedTo`  
+**Status options**: `Pending` | `In Progress` | `Completed` | `Overdue`  
+**Priority options**: `Low` | `Medium` | `High` | `Critical`
 
-### 7.2 Get All Corrective Actions
-**Endpoint**: `GET /api/corrective-actions`  
-**Access**: Private (Manager, Officer, Worker - filtered)  
-**Authentication**: Required  
-**Description**: Get list of corrective actions (workers see only their assigned actions)
+---
 
-**Query Parameters**:
-- `status` (optional): Filter by status (Pending/In Progress/Completed/Overdue)
-- `priority` (optional): Filter by priority (Low/Medium/High/Critical)
-- `assignedTo` (optional): Filter by assigned user ID
+#### `GET /api/corrective-actions/stats`
+**Access**: Private — Manager only  
+Get statistics on corrective actions (overdue, completion rates, etc.).
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+---
 
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "count": 12,
-  "data": [
-    {
-      "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
-      "title": "Install additional safety railings",
-      "description": "Install safety railings on 3rd floor scaffolding area",
-      "priority": "High",
-      "status": "Pending",
-      "dueDate": "2026-03-15T17:00:00.000Z",
-      "assignedTo": {
-        "firstName": "John",
-        "lastName": "Doe"
-      },
-      "createdBy": {
-        "firstName": "Sarah",
-        "lastName": "Officer"
-      },
-      "createdAt": "2026-02-27T15:00:00.000Z"
-    }
-  ]
-}
-```
+#### `GET /api/corrective-actions/:id`
+**Access**: Private — Manager, Officer  
+Get a specific corrective action.
 
-### 7.3 Update Corrective Action
-**Endpoint**: `PUT /api/corrective-actions/:id`  
-**Access**: Private (Manager, Officer, Assigned Worker)  
-**Authentication**: Required  
-**Description**: Update corrective action (workers can update status and completion notes)
+---
 
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
+#### `PUT /api/corrective-actions/:id`
+**Access**: Private — Manager, Officer  
+Update a corrective action.
 
 **Request Body**:
 ```json
 {
   "status": "Completed",
-  "completionNotes": "Safety railings installed and inspected. Passed safety check.",
-  "completedDate": "2026-03-10T16:00:00.000Z"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Corrective action updated successfully",
-  "data": { /* updated corrective action */ }
-}
-```
-
-### 7.4 Delete Corrective Action
-**Endpoint**: `DELETE /api/corrective-actions/:id`  
-**Access**: Private (Manager only)  
-**Authentication**: Required  
-**Description**: Delete a corrective action
-
-**Request Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Corrective action deleted successfully"
+  "completionNotes": "Safety railings installed and passed inspection.",
+  "completedDate": "2026-04-20T16:00:00.000Z"
 }
 ```
 
 ---
 
-## 📝 Additional Endpoints
+#### `POST /api/corrective-actions/:id/completion-document`
+**Access**: Private — Safety Compliance Manager  
+Upload a completion report document (`multipart/form-data`).
 
-### Checklist Templates
-
-**Endpoint**: `POST /api/checklists`  
-**Access**: Private (Manager, Officer)  
-**Description**: Create audit checklist template
-
-**Endpoint**: `GET /api/checklists`  
-**Access**: Private (All authenticated)  
-**Description**: Get all checklist templates
-
-**Endpoint**: `GET /api/checklists/:id`  
-**Access**: Private (All authenticated)  
-**Description**: Get specific checklist template
-
-**Endpoint**: `PUT /api/checklists/:id`  
-**Access**: Private (Manager, Officer)  
-**Description**: Update checklist template
-
-**Endpoint**: `DELETE /api/checklists/:id`  
-**Access**: Private (Manager)  
-**Description**: Delete checklist template
-
-### Enrollments
-
-**Endpoint**: `POST /api/enrollments`  
-**Access**: Private (All authenticated)  
-**Description**: Enroll in a course
-
-**Endpoint**: `GET /api/enrollments`  
-**Access**: Private (All authenticated)  
-**Description**: Get user enrollments
-
-**Endpoint**: `GET /api/enrollments/:id`  
-**Access**: Private (All authenticated)  
-**Description**: Get specific enrollment
-
-**Endpoint**: `PUT /api/enrollments/:id`  
-**Access**: Private (All authenticated)  
-**Description**: Update enrollment progress
-
-### Quiz Attempts
-
-**Endpoint**: `POST /api/quiz-attempts`  
-**Access**: Private (All authenticated)  
-**Description**: Submit quiz attempt
-
-**Endpoint**: `GET /api/quiz-attempts`  
-**Access**: Private (All authenticated)  
-**Description**: Get user's quiz attempts
-
-**Endpoint**: `GET /api/quiz-attempts/:id`  
-**Access**: Private (All authenticated)  
-**Description**: Get specific quiz attempt
+**Form field**: `reportFile` — PDF or image file.
 
 ---
 
-## ⚠️ Error Responses
+#### `DELETE /api/corrective-actions/:id`
+**Access**: Private — Manager only  
+Delete a corrective action.
 
-All endpoints may return the following error responses:
+---
 
-### 400 Bad Request
+### 📊 Analytics
+
+#### `GET /api/analytics/dashboard`
+**Access**: Private — Manager only  
+Get the full dashboard analytics (incidents, courses, audits KPIs).
+
+**Response** `200 OK`:
 ```json
 {
-  "success": false,
-  "message": "Validation error message"
+  "success": true,
+  "data": {
+    "incidents": { "total": 45, "open": 12, "resolved": 30 },
+    "courses": { "total": 10, "published": 8, "enrollments": 150 },
+    "audits": { "total": 20, "avgComplianceScore": 82 },
+    "correctiveActions": { "total": 35, "overdue": 5, "completed": 28 }
+  }
 }
 ```
 
-### 401 Unauthorized
+---
+
+#### `GET /api/analytics/charts`
+**Access**: Private — Manager only  
+Get chart-ready analytics data (incident trends, compliance scores over time).
+
+---
+
+### 🤖 AI Safety Chatbot (SafeBot)
+
+#### `POST /api/chat`
+**Access**: Public (session-based)  
+Send a message to SafeBot (powered by OpenRouter / Llama 3.3 70B).
+
+**Request Body**:
 ```json
 {
-  "success": false,
-  "message": "Not authorized, token failed or missing"
+  "message": "What PPE is required on a construction site?",
+  "sessionId": "session-uuid-here"
 }
 ```
 
-### 403 Forbidden
+**Response** `200 OK`:
 ```json
 {
-  "success": false,
-  "message": "User role not authorized to access this resource"
+  "success": true,
+  "reply": "On a construction site, required PPE typically includes: hard hats, safety vests, steel-toed boots, gloves, and eye protection...",
+  "sessionId": "session-uuid-here"
 }
 ```
 
-### 404 Not Found
+---
+
+#### `DELETE /api/chat/:sessionId`
+**Access**: Public  
+Clear a chat session's conversation history.
+
+---
+
+### 🌐 Translation (Sinhala / Tamil)
+
+#### `POST /api/translate`
+**Access**: Private — All authenticated users  
+Translate text using Hugging Face NLLB-200 model.
+
+**Request Body**:
 ```json
 {
-  "success": false,
-  "message": "Resource not found"
+  "text": "Always wear your hard hat on site.",
+  "targetLanguage": "si"
 }
 ```
 
-### 500 Internal Server Error
+**Target language options**: `si` (Sinhala) | `ta` (Tamil)
+
+**Response** `200 OK`:
+```json
+{
+  "success": true,
+  "translatedText": "අඩවියේ සෑමවිටම ඔබේ දෘඪ තොප්පිය පළඳිනු ඇත.",
+  "targetLanguage": "si"
+}
+```
+
+---
+
+### ⚠️ Standard Error Responses
+
+All endpoints return consistent error responses:
+
+| Status | Meaning | Example |
+|---|---|---|
+| `400` | Validation error / bad request | Missing required field |
+| `401` | Unauthorized — no/invalid token | Token expired or missing |
+| `403` | Forbidden — insufficient role | Worker accessing manager endpoint |
+| `404` | Resource not found | Course ID doesn't exist |
+| `500` | Internal server error | Database connection failed |
+
+**Error response format**:
 ```json
 {
   "success": false,
-  "message": "Server error message",
-  "error": "Detailed error (development mode only)"
+  "message": "Descriptive error message here"
 }
+```
+
+---
+
+
+## 🧪 Testing Instructions
+
+### Testing Environment Configuration
+
+The backend requires a separate test environment. Create `backend/.env.test` (optional — MongoDB Memory Server is used in unit tests, so no real DB is needed):
+
+```env
+NODE_ENV=test
+JWT_SECRET=test_jwt_secret_for_testing_only
+```
+
+Jest is configured in `backend/package.json`:
+
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:integration": "NODE_ENV=test jest tests/integration --runInBand"
+  }
+}
+```
+
+**Key test dependencies**:
+- `jest` — Test runner
+- `supertest` — HTTP assertion layer for integration tests
+- `mongodb-memory-server` — In-memory MongoDB (no Atlas required for tests)
+
+---
+
+### Unit Tests
+
+Unit tests mock all external dependencies (database models, services) and test controller logic in isolation.
+
+**Test files** (`backend/tests/unit/`):
+| File | Component Tested |
+|---|---|
+| `trainingCourseManager.test.js` | Course controller logic, role-based filtering |
+| `assessmentCertificationSystem.test.js` | Quiz attempt grading, certificate issuance logic |
+| `incidentHazardReporting.test.js` | Incident creation, comment, status change logic |
+| `complianceAuditingCorrectiveActions.test.js` | Audit scoring, corrective action workflows |
+
+#### Run All Unit Tests
+
+```bash
+cd backend
+npm test
+```
+
+#### Run Unit Tests with Watch Mode
+
+```bash
+npx jest --watch
+```
+
+#### Run a Specific Test File
+
+```bash
+npx jest tests/unit/trainingCourseManager.test.js
+```
+
+#### Run Tests with Verbose Output
+
+```bash
+npx jest --verbose
+```
+
+#### Run Tests with Coverage Report
+
+```bash
+npx jest --coverage
+```
+
+Coverage report is output to `backend/coverage/lcov-report/index.html`.
+
+**Example output**:
+```
+PASS tests/unit/trainingCourseManager.test.js
+  Training Course Manager unit tests
+    ✓ getAllCourses should force workers to only see Published courses (12ms)
+    ✓ getAllCourses should scope trainers to their own courses (8ms)
+    ✓ deleteCourse should reject non-owner trainer (6ms)
+    ✓ deleteCourse should remove linked lessons and enrollments for owner (9ms)
+
+Test Suites: 4 passed, 4 total
+Tests:       16 passed, 16 total
+```
+
+---
+
+### Integration Testing
+
+Integration tests use **mongodb-memory-server** to spin up a real (but temporary) MongoDB instance. They test the full HTTP request/response cycle — router → middleware → controller → database — using `supertest`.
+
+**Test file** (`backend/tests/integration/`):
+| File | What is Tested |
+|---|---|
+| `systemFlows.integration.test.js` | Complete user flows: register → login → enroll → quiz → certificate |
+
+#### Setup
+
+No external setup needed. `mongodb-memory-server` downloads and starts MongoDB automatically.
+
+> **Note**: First run may take 30–60 seconds to download the MongoDB binary.
+
+#### Run Integration Tests
+
+```bash
+cd backend
+npm run test:integration
+```
+
+This command:
+- Sets `NODE_ENV=test`
+- Runs only files in `tests/integration/`
+- Uses `--runInBand` to execute tests serially (prevents race conditions on shared DB)
+
+#### Run All Tests (Unit + Integration)
+
+```bash
+cd backend
+npm test -- --testPathPattern="tests/(unit|integration)"
+```
+
+**Example output**:
+```
+PASS tests/integration/systemFlows.integration.test.js
+  System Integration Flows
+    ✓ Worker registration → login → course enrollment → quiz submission → certificate (245ms)
+    ✓ Manager can view all incidents and update status (180ms)
+    ✓ Officer can schedule audit and submit responses (220ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Time:        4.2s
+```
+
+---
+
+### Frontend Unit Tests
+
+Frontend tests use **Vitest** with `@testing-library/react`.
+
+#### Run Frontend Tests
+
+```bash
+cd frontend
+npm test
+```
+
+#### Run in Watch Mode
+
+```bash
+npm run test:watch
+```
+
+---
+
+### Performance Testing
+
+Performance tests use **Artillery** to simulate load on the live backend API.
+
+**Test profile** (`backend/tests/performance/api-load.yml`):
+
+| Phase | Duration | Arrival Rate | Description |
+|---|---|---|---|
+| Warm-up | 30s | 2 req/s | Stabilize server at low load |
+| Moderate Load | 45s | 10 req/s | Normal usage simulation |
+| High Concurrency | 30s | 25 req/s | Sustained concurrent traffic |
+| Stress Spike | 20s | 40 req/s | Short burst to test limits |
+
+**Pass/Fail Thresholds**:
+| Metric | Threshold |
+|---|---|
+| p95 latency | ≤ 800ms |
+| p99 latency | ≤ 1200ms |
+| HTTP 500 errors | = 0 |
+| Error rate | ≤ 1% |
+
+#### Prerequisites
+
+```bash
+cd backend
+npm install   # artillery is already in devDependencies
+```
+
+#### Run Performance Tests (against local server)
+
+Ensure the backend server is running (`npm run dev`), then in a separate terminal:
+
+```bash
+cd backend
+npm run test:performance
+```
+
+This targets `http://localhost:5001` by default.
+
+#### Run Against a Remote Environment
+
+```bash
+PERF_TARGET=https://safebuild-production.up.railway.app npm run test:performance
+```
+
+#### Generate HTML Report
+
+```bash
+npm run test:performance:report
+```
+
+This outputs:
+- Raw JSON: `backend/tests/performance/last-report.json`
+- HTML report: open with `artillery report backend/tests/performance/last-report.json`
+
+**Test scenarios defined**:
+| Scenario | Weight | Flow |
+|---|---|---|
+| Health Endpoint | 40% | `GET /api/health` |
+| Worker Register + Profile | 35% | Register → `GET /api/users/profile` |
+| Trainer Register + Course | 25% | Register → Create course → `GET /api/courses` |
+
+**Example output**:
+```
+Summary report @ 11:00:00
+  Scenarios launched:  1250
+  Scenarios completed: 1247
+  Requests completed:  3741
+  Mean response/sec:   18.92
+  Response time (msec):
+    min: 34
+    max: 612
+    median: 89
+    p95: 342
+    p99: 498
+  HTTP 200: 3741
+  HTTP 500: 0
 ```
 
 ---
 
 ## 🔒 Security Features
 
-- **Password Hashing**: All passwords are hashed using bcryptjs before storage
-- **JWT Authentication**: Secure token-based authentication system
-- **Role-Based Access Control**: Four user roles with different permission levels
-- **Input Validation**: Request validation using express-validator
-- **CORS Protection**: Cross-Origin Resource Sharing configured
-- **Environment Variables**: Sensitive data stored in .env file
-
----
-
-## 📊 Database Models
-
-### User Model
-- firstName, lastName, email, password
-- role (worker/manager/officer/trainer)
-- phone, employeeId, department
-- isActive status
-
-### Course Model
-- title, category, description
-- level (Beginner/Intermediate/Advanced)
-- duration, status (Draft/Published/Archived)
-- createdBy (trainer reference)
-
-### Quiz Model
-- courseId reference
-- title, description, questions array
-- passingScore, timeLimit
-- createdBy (trainer reference)
-
-### Incident Model
-- title, type, severity, status
-- location (site, area, address)
-- description, evidencePhotos
-- reportedBy, assignedTo references
-- dateOccurred, comments array
-
-### Audit Model
-- site, auditDate, status
-- checklistTemplate reference
-- assignedAuditor, createdBy references
-- responses array, complianceScore
-- findings, completedAt
-
-### Corrective Action Model
-- title, description, priority, status
-- dueDate, assignedTo reference
-- audit, relatedIncident references
-- completionNotes, completedDate
-
----
-
-## 🧪 Testing
-
-### Using cURL
-```bash
-# Register a new user
-curl -X POST http://localhost:5000/api/users/register \
-  -H "Content-Type: application/json" \
-  -d '{"firstName":"Test","lastName":"User","email":"test@example.com","password":"test123","role":"worker"}'
-
-# Login
-curl -X POST http://localhost:5000/api/users/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"test123"}'
-
-# Get profile (requires token)
-curl -X GET http://localhost:5000/api/users/profile \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-### Using Postman
-1. Import the collection (if provided)
-2. Set environment variable `baseURL` to `http://localhost:5000/api`
-3. After login, set `token` variable with the received JWT
-4. Use `{{baseURL}}` and `{{token}}` in requests
+| Feature | Implementation |
+|---|---|
+| Password hashing | `bcryptjs` with salt rounds |
+| Token authentication | `jsonwebtoken` (JWT) |
+| Role-based access control | `authorize()` middleware per route |
+| Request validation | `express-validator` on all mutation endpoints |
+| CORS protection | Origin whitelist via `FRONTEND_URL` env variable |
+| XSS sanitization | `DOMPurify` on frontend rich-text content |
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+| Issue | Solution |
+|---|---|
+| Cannot connect to MongoDB | Check `MONGODB_URI` in `.env`, verify IP whitelist in Atlas |
+| `Token expired` error | Log in again to receive a new JWT |
+| Port already in use | Change `PORT` in `.env` or kill the process: `lsof -ti:5001 \| xargs kill` |
+| Module not found | Run `npm install` in the affected directory |
+| CORS error in browser | Ensure `FRONTEND_URL` in backend `.env` matches the frontend origin exactly |
+| `401 Unauthorized` | Ensure `Authorization: Bearer <token>` header is present |
+| MapPicker not loading | Ensure `VITE_MAPBOX_TOKEN` is set correctly in frontend `.env` |
+| Translation fails | Check `HUGGINGFACE_API_KEY` is valid and not rate-limited |
+| SafeBot not responding | Check `OPENROUTER_API_KEY` is valid and has credits |
 
-**Issue**: Cannot connect to MongoDB  
-**Solution**: Check your MongoDB URI in `.env`, ensure IP whitelist is configured
+---
 
-**Issue**: "Token expired" error  
-**Solution**: Login again to get a new token
+## 📊 Database Models Summary
 
-**Issue**: Port 5000 already in use  
-**Solution**: Change PORT in `.env` or kill the process using port 5000
+| Model | Key Fields |
+|---|---|
+| `User` | firstName, lastName, email, password (hashed), role, employeeId, department, isActive |
+| `Course` | title, category, description, level, duration, status, createdBy |
+| `Lesson` | courseId, title, orderIndex, pages[] |
+| `Enrollment` | userId, courseId, completedLessons[], completedPages[], status |
+| `Quiz` | courseId, title, questions[], passingScore, timeLimit |
+| `QuizAttempt` | quizId, userId, answers[], score, passed, timeTaken |
+| `Certificate` | userId, courseId, certificateCode, issueDate, expiryDate, status |
+| `Incident` | title, type, severity, status, location, description, reportedBy, assignedTo, comments[] |
+| `Checklist` | title, category, items[] |
+| `Audit` | site, auditDate, status, checklistTemplate, assignedAuditor, responses[], complianceScore |
+| `CorrectiveAction` | title, priority, status, dueDate, assignedTo, audit, relatedIncident |
 
-**Issue**: Module not found errors  
-**Solution**: Run `npm install` again to ensure all dependencies are installed
+---
 
-**Issue**: Validation errors on registration  
-**Solution**: Ensure all required fields are provided with correct formats
+## 👥 Development Team
+
+Year 03 — BSc (Hons) in Information Technology  
+Specialized in Software Engineering  
+Sri Lanka Institute of Information Technology (SLIIT)
 
 ---
 
@@ -1641,93 +1866,4 @@ This project is licensed under the ISC License.
 
 ---
 
-## 👥 Contributors
-
-SafeBuild Development Team
-
----
-
-## 📞 Support
-
-For issues and questions:
-- Create an issue in the GitHub repository
-- Contact the development team
-
----
-
-**Last Updated**: February 27, 2026
-   npm run dev
-   ```
-
-5. **Verify the API is running:**
-   
-   Open your browser and navigate to: `http://localhost:5000/api/health`
-   
-   You should see a JSON response confirming the API is running.
-
-### MongoDB Setup Status
-✅ MongoDB Atlas connection configured  
-✅ Database configuration file created  
-✅ Environment variables set up  
-✅ Connection handling and error management implemented  
-
-## 📁 Project Structure
-
-```
-SafeBuild/
-├── backend/
-│   ├── config/          # Configuration files
-│   │   └── db.js        # MongoDB connection
-│   ├── controllers/     # Route controllers
-│   ├── models/          # Mongoose models
-│   ├── routes/          # API routes
-│   ├── middleware/      # Custom middleware
-│   ├── utils/           # Utility functions
-│   ├── .env             # Environment variables (not in git)
-│   ├── .env.example     # Environment template
-│   ├── server.js        # Application entry point
-│   ├── package.json     # Dependencies
-│   └── README.md        # Backend documentation
-├── frontend/            # Frontend application (TBD)
-└── README.md            # This file
-```
-
-## 🔐 Environment Variables
-
-Create a `.env` file in the `backend` directory with the following variables:
-
-```env
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE=7d
-```
-
-## 📚 API Documentation
-
-API documentation will be available via Postman collection (to be created).
-
-### Base URL
-```
-http://localhost:5000/api
-```
-
-### Available Endpoints
-
-#### Health Check
-- `GET /api/health` - Check API status
-
-*(Additional endpoints will be documented as they are implemented)*
-
-## 👥 Development Team
-
-Year 03 - BSc (Hons) in Information Technology  
-Specialized in Software Engineering
-
-## 📝 Assignment Details
-
-**Course**: SE3040 – Application Frameworks  
-**Assignment**: Full Stack Application Development  
-**Academic Year**: 2026
-
+**Last Updated**: April 2026
